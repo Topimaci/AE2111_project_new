@@ -31,8 +31,6 @@ def c_d_function(C_D_0, C_L, AR, e):
     return C_D
 
 
-
-
 C_D_0_initial = c_d0_function(S_wet_over_S_w, C_f)
 e_initial = e_function(psi, phi, AR)
 
