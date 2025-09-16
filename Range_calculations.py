@@ -3,14 +3,14 @@ import math
 from Drag_calculations import L_over_D_max
 
 
-R_des = 
-f_cont = 
-e_f = 
-B = 
-v_cr = 
-h_cr = 
-t_E = 
-R_div = 
+R_des = 6745000
+f_cont = 0.05
+e_f = 43000000
+B = 4
+v_cr = 200.62877
+h_cr = 12500
+t_E = 45*60
+R_div = 277800
 
 ##_____________first range functions___________________________--##
 def R_lost_function(L_over_D_max, h_cr, v_cr):
@@ -84,3 +84,5 @@ R_harmonic = R_harmonic_function(eta_j, L_over_D_max, e_f, m_f_harmonic)
 R_ferry = R_ferry_function(eta_j, L_over_D_max, e_f, m_f_ferry)
 
 #_______________________________________
+
+print(R_harmonic)
