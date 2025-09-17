@@ -21,6 +21,7 @@ phi = 0.97
 
 
 sweep, taper, b , c_r, c_t, c_MAC, dihedral = calculate_geometric_parameters_wing(S_w, AR, M_cr)
+
 c_d0 = calculate_aerodynamic_performance(thickness_to_chord)
 
 c_d_0_initial = c_d0_function(S_wet_over_S_w, C_f)
@@ -29,6 +30,7 @@ e_initial = e_function(psi, phi, AR)
 
 L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D = L_over_D_max_function(AR,e_initial,c_d_0_initial)
 
+y_spanwise, xlemac, lengthMAC = calculate_MAC_position(b, c_r, c_t, sweep)
 
 #_________Wing Loading Calculations______________________________________________________________________________________________________
 loads_minimum_speed = ms.Minimum_speed_function(fv.wing_loading)
@@ -42,11 +44,12 @@ loads_climb_grad_121c = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_119, 
 loads_climb_grad_121d = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_119, fv.cd_119, fv.e_119, fv.AR, 1.225, nemtom, fv.B)
 loads_to_field = td.take_off_distance()
 
-print("Hello", sweep, taper, b , c_r, c_t, c_MAC, dihedral)
+print(sweep, taper, b , c_r, c_t, c_MAC, dihedral)
 print(c_d0)
 print(c_d_0_initial)
 print(e_initial)
 print(L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D )
+print("THIS ONE", y_spanwise, xlemac, lengthMAC)
 
 
 

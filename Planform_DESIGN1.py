@@ -27,18 +27,33 @@ def calculate_aerodynamic_performance(thickness_to_chord):
     return c_d0
 
 
-def calculate_MAC_position(c_root, c_tip, sweep):
+def calculate_MAC_position(b, c_root, c_tip, sweep):
+
+    b = b/2 #we used half the wingspan because in the geometric 
+
+    a_1 = (b/(5/4 * c_tip + 7/4 * c_root - m.tan(sweep)*b))**(-1)
+
+    a_2 = (b/(3/4 *(c_root + c_tip) - m.tan(sweep) * b - c_tip - 0.5 * c_root ) )**(-1)
+
+    a_3 = (5/4 * c_tip + 3/4 * c_root - m.tan(sweep)* b - c_tip - c_root)/b
+
+    a_4 = (1/4 * c_tip + 3/4 * c_root - m.tan(sweep)* b - c_tip)/b
+
+    b_2 = c_tip + 0.5 * c_root
+
+    b_3 = c_tip + c_root
+
+    b_4 = c_tip
+
+    y_spanwise = b_2 / (a_1 - a_2)
+
+    xlemac = -a_3 * y_spanwise
+
+    lengthMAC = -xlemac + b_3 - a_4 * y_spanwise - b_4
 
 
-    position= [0,0] 
 
-    position_root_half = [0,0]
-
-    position[0] = c_tip + 3/4 * c_root #quarter chord
-
-    position_root_half[0] = c_tip + 1/2 * c_root 
-
-    return position
+    return y_spanwise, xlemac, lengthMAC
 
 
 
