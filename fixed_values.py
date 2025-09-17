@@ -1,4 +1,4 @@
-
+import numpy as np
 #_______important for range calculations______
 R_des = 6745000
 f_cont = 0.05
@@ -28,4 +28,6 @@ m_pl_maxaximum = 1010
 thrust_lapse = 0.24
 beta = 0.94
 
+#________Wing Loading______
 
+wing_loading = np.arange(0,9100,100)

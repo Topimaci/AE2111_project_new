@@ -3,7 +3,7 @@ import math as m
 
 #__wing loadings, mass fraction, climb gradient, cd_0, oswald number for current config, AR for current config, density, cl_max and bypass ratio is the input
 
-def climb_grad_119(wing_loadings, mass_fraction, climb_gradient, cd_0, oswald_number, aspect_ratio, density, cl_max, B):
+def climb_grad(wing_loadings, mass_fraction, climb_gradient, cd_0, oswald_number, aspect_ratio, density, cl_max, B):
     
     t_over_w = np.array()
 

@@ -1,5 +1,11 @@
 from Planform_DESIGN1 import *
 from Drag_calculations import *
+import Matching_Diagram.Minimum_speed as ms
+import Matching_Diagram.Climb_rate as cr
+import Matching_Diagram.Cruise_speed as cs
+import Matching_Diagram.Landing_field_length as lfl
+import Matching_Diagram.climb_grad as cg
+import fixed_values as fv
 
 thickness_to_chord = 0.15 # assumption 
 AR = 10
@@ -23,8 +29,16 @@ e_initial = e_function(psi, phi, AR)
 L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D = L_over_D_max_function(AR,e_initial,c_d_0_initial)
 
 
-
-
+loads_minimum_speed = ms.Minimum_speed_function(fv.wing_loading)
+loads_landing_field_length = lfl.landing_field_length(fv.mass_fraction, 950, 1.225, tudjaafaszom)
+loads_cruise_speed = cs.cruise_speed(fv.beta,fv.thrust_lapse,fv.wing_loading,nemtom, 1.225, fv.v_cr, fv.AR, fv.e_f)
+loads_climb_rate = 
+loads_climb_grad_119 = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_119, fv.cd_119, fv.e_119, fv.AR, 1.225, nemtom, fv.B)
+loads_climb_grad_121a = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_119, fv.cd_119, fv.e_119, fv.AR, 1.225, nemtom, fv.B)
+loads_climb_grad_121b = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_119, fv.cd_119, fv.e_119, fv.AR, 1.225, nemtom, fv.B)
+loads_climb_grad_121c = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_119, fv.cd_119, fv.e_119, fv.AR, 1.225, nemtom, fv.B)
+loads_climb_grad_121d = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_119, fv.cd_119, fv.e_119, fv.AR, 1.225, nemtom, fv.B)
+loads_to_field = 
 
 print("Hello", sweep, taper, b , c_r, c_t, c_MAC, dihedral)
 print(c_d0)
