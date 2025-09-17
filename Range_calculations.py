@@ -3,6 +3,9 @@ import math
 from Drag_calculations import L_over_D_max
 
 
+
+print('change')
+
 R_des = 6745000
 f_cont = 0.05
 e_f = 43000000
