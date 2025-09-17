@@ -1,4 +1,4 @@
-from Planform_Design import *
+from Planform_DESIGN1 import *
 from Drag_calculations import *
 
 thickness_to_chord = 0.15 # assumption 
@@ -16,9 +16,19 @@ phi = 0.97
 sweep, taper, b , c_r, c_t, c_MAC, dihedral = calculate_geometric_parameters_wing(S_w, AR, M_cr)
 c_d0 = calculate_aerodynamic_performance(thickness_to_chord)
 
+c_d_0_initial = c_d0_function(S_wet_over_S_w, C_f)
+e_initial = e_function(psi, phi, AR)
+
+L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D = L_over_D_max_function(AR,e_initial,c_d_0_initial)
+
+
+
+
 
 print("Hello", sweep, taper, b , c_r, c_t, c_MAC, dihedral)
 print(c_d0)
+print(e_initial)
+print(L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D )
 
 
 
