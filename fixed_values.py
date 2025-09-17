@@ -28,4 +28,16 @@ m_pl_maxaximum = 1010
 thrust_lapse = 0.24
 beta = 0.94
 
+#________Matching diagram: Landing and take-off distance_____
+mass_fraction_landing = 0.7
+landing_field = 950
+density_landing = 1.165
+C_L_max_landing = 2.3
+density_takeoff = 1.225225
+CL_takeoff = 1.6370864382454
+temp_takeoff = 288.18
+takeoff_field = 1250
+oswald_efficiency = 0.887
+
+
 
