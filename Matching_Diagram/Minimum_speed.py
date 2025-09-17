@@ -1,3 +1,4 @@
+import numpy as np
 rho_at_airport = 1.225225
 bypass_ratio = 4
 V_approach = 66
@@ -8,8 +9,8 @@ def Minimum_speed_calculation_function(rho_at_airport, bypass_ratio, V_approach,
     return Wing_loading
 
 def Minimum_speed_function(Loading_array_input):
-    Loading_array_output = []
+    Loading_array_output = np.array()
     for value in Loading_array_input:
-        Loading_array_output.append(Minimum_speed_calculation_function(rho_at_airport, bypass_ratio, V_approach, C_l_max_landing))
+        np.append(Loading_array_output, Minimum_speed_calculation_function(rho_at_airport, bypass_ratio, V_approach, C_l_max_landing))
     
     return Loading_array_output
