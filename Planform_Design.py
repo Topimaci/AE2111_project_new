@@ -1,8 +1,6 @@
 import math as m
 
 
-
-
 def calculate_geometric_parameters_wing(S_w, AR, M_cr):
 
     sweep = m.acos(1.16/ (M_cr + 0.5) ) * 180 / m.pi
@@ -15,19 +13,33 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
 
     c_tip = c_root * taper
 
-    c_MAC = (2/3)* c_root * ((1 + taper + taper^2)/(1+taper))
+    c_MAC = (2/3)* c_root * ((1 + taper + taper**2)/(1+taper))
+    
+    dihedral = 3 - 0.1 * sweep + 2 #3 default for unswept, subtract 0.1 for every degree of sweep, +2 from low wing config
 
-    return sweep, taper, b, c_root, c_tip, c_MAC
+    return sweep, taper, b, c_root, c_tip, c_MAC, dihedral
 
 
-def calculate_aerodynamic_performance_based_on_given_geometric_parameters(thickness_to_chord, C_Lmax,):
+def calculate_aerodynamic_performance(thickness_to_chord):
 
     c_d0 = 0.0035 + 0.018 * thickness_to_chord
 
-    c_lmax = 
+    return c_d0
 
 
-    return c_d0, c_lmax
+def calculate_MAC_position(c_root, c_tip, sweep):
+
+
+    position= [0,0] 
+
+    position_root_half = [0,0]
+
+    position[0] = c_tip + 3/4 * c_root #quarter chord
+
+    position_root_half[0] = c_tip + 1/2 * c_root 
+
+    return position
+
 
 
 #----------------------------------------------------------------------------------------------------#
@@ -46,9 +58,11 @@ def calculate_aerodynamic_performance_based_on_given_geometric_parameters(thickn
 # - taper = taper ratio
 # - c_root = root chord
 # - c_tip = tip chord
+# - dihedral = dihedral angle (in degrees)
 
 # Assumptions:
 # - MGC roughly MAC
+# - low wing config, for dihedral
 
 
 #----------------------------------------------------------------------------------------------------#
