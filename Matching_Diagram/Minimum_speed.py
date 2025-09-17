@@ -13,5 +13,3 @@ def Minimum_speed_function(Loading_array_input):
         Loading_array_output.append(Minimum_speed_calculation_function(rho_at_airport, bypass_ratio, V_approach, C_l_max_landing))
     
     return Loading_array_output
-
-print(Minimum_speed_function([1, 2, 3, 4, 5]))
