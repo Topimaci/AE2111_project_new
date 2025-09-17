@@ -17,6 +17,7 @@ sweep, taper, b , c_r, c_t, c_MAC, dihedral = calculate_geometric_parameters_win
 c_d0 = calculate_aerodynamic_performance(thickness_to_chord)
 
 c_d_0_initial = c_d0_function(S_wet_over_S_w, C_f)
+
 e_initial = e_function(psi, phi, AR)
 
 L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D = L_over_D_max_function(AR,e_initial,c_d_0_initial)
@@ -27,6 +28,7 @@ L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D = L_over_D_max_function
 
 print("Hello", sweep, taper, b , c_r, c_t, c_MAC, dihedral)
 print(c_d0)
+print(c_d_0_initial)
 print(e_initial)
 print(L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D )
 

@@ -1,11 +1,5 @@
 import math
 
-S_wet_over_S_w = 5.85
-C_f = 0.004
-psi = 0.0075
-phi = 0.97
-AR = 10
-
 
 
 def c_d0_function(S_wet_over_S_w, C_f):
@@ -33,10 +27,4 @@ def c_d_function(C_D_0, C_L, AR, e):
 #______________Calling Functions_________________________-
 
 
-c_d_0_initial = c_d0_function(S_wet_over_S_w, C_f)
-e_initial = e_function(psi, phi, AR)
-
-L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D = L_over_D_max_function(AR,e_initial,c_d_0_initial)
-
-print(L_over_D_max)
 #_____________________________________________________________________
