@@ -42,7 +42,11 @@ loads_climb_grad_121a = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_121a,
 loads_climb_grad_121b = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_121b, fv.C_d0_121b, fv.e_121b, fv.AR, 1.225, nemtom, fv.B)
 loads_climb_grad_121c = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_121c, fv.C_d0_121c, fv.e_121c, fv.AR, 1.225, nemtom, fv.B)
 loads_climb_grad_121d = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_121d, fv.C_d0_121d, fv.e_121d, fv.AR, 1.225, nemtom, fv.B)
-loads_to_field = td.take_off_distance()
+V2 = td.find_V_2(fv.wing_loading, fv.density_takeoff, fv.CL_takeoff)
+Mach = td.find_Mach(V2, fv.temp_takeoff)
+theta_delta = td.find_theta_delta(fv.temp_takeoff, Mach)
+alpha = td.find_alpha_t(theta_delta, Mach, fv.B)
+loads_to_field = td.take_off_distance(alpha, fv.wing_loading, fv.takeoff_field, fv.density_takeoff, fv.oswald_efficiency, fv.AR)
 
 print(sweep, taper, b , c_r, c_t, c_MAC, dihedral)
 print(c_d0)
