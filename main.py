@@ -20,7 +20,7 @@ psi = 0.0075
 phi = 0.97
 
 
-sweep, taper, b , c_r, c_t, c_MAC, dihedral = calculate_geometric_parameters_wing(S_w, AR, M_cr)
+sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE = calculate_geometric_parameters_wing(S_w, AR, M_cr)
 
 c_d0 = calculate_aerodynamic_performance(thickness_to_chord)
 
@@ -44,7 +44,7 @@ loads_climb_grad_121c = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_119, 
 loads_climb_grad_121d = cg.climb_grad(fv.wing_loading, massfraction, fv.cg_119, fv.cd_119, fv.e_119, fv.AR, 1.225, nemtom, fv.B)
 loads_to_field = td.take_off_distance()
 
-print(sweep, taper, b , c_r, c_t, c_MAC, dihedral)
+print(sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE)
 print(c_d0)
 print(c_d_0_initial)
 print(e_initial)

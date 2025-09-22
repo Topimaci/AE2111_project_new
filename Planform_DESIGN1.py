@@ -17,7 +17,9 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
     
     dihedral = 3 - 0.1 * sweep + 2 #3 default for unswept, subtract 0.1 for every degree of sweep, +2 from low wing config
 
-    return sweep, taper, b, c_root, c_tip, c_MAC, dihedral
+    sweep_LE = m.arctan((-1/4*c_tip + 1/4*c_root + m.tan(sweep)*b) / b ) *180 /m.pi
+
+    return sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE
 
 
 def calculate_aerodynamic_performance(thickness_to_chord):
@@ -59,6 +61,7 @@ def calculate_MAC_position(b, c_root, c_tip, sweep):
 
 
     return y_spanwise, xlemac, lengthMAC
+
 
 
 
