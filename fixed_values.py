@@ -44,6 +44,7 @@ oswald_efficiency = 0.887
 #________Wing Loading______
 
 wing_loading = np.arange(0,9100,100)
+wing_loading_cs = np.arange(1200, 9100, 100)
 
 
 #________Matching diagram: climb rate______
