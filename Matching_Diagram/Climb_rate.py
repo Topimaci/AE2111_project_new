@@ -70,6 +70,3 @@ def lapse_rate_func(total_pressure_output, Mach_number_output):
     for i in range(len(total_pressure_output)):
         output = np.append(output, total_pressure_output[i] * (1 - (0.43 + 0.014 * B) * m.sqrt(Mach_number_output[i])))
     return output
-
-
-print(velocity_climb_rate_func(wing_loading))
