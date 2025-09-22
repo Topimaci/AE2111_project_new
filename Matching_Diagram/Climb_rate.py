@@ -1,5 +1,17 @@
 import numpy as np
 import math as m
+
+import sys
+import os
+
+# Get the absolute path to the parent directory
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+# Add the parent directory to Python's module search path
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+# Now import your module
 import fixed_values
 
 C_d0 = fixed_values.C_d0
@@ -19,6 +31,9 @@ Mach_number = []
 total_pressure = []
 lapse_rate = []
 
+wing_loading = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000]
+
+
 def climb_rate(wing_loading_input):
     global velocity_climb_rate, Mach_number, total_pressure, lapse_rate
     output = np.array([])
@@ -35,7 +50,7 @@ def climb_rate(wing_loading_input):
 def velocity_climb_rate_func(wing_loading_input):
     output = np.array([])
     for value in wing_loading_input:
-        output = np.append(output, m.sqrt(value**2/(rho_ISO*0.728)))
+        output = np.append(output, m.sqrt(value * 2/(rho_ISO*0.728)))
     return output
         
 def Mach_number_func(velocity_climb_rate_output):
@@ -55,3 +70,6 @@ def lapse_rate_func(total_pressure_output, Mach_number_output):
     for i in range(len(total_pressure_output)):
         output = np.append(output, total_pressure_output[i] * (1 - (0.43 + 0.014 * B) * m.sqrt(Mach_number_output[i])))
     return output
+
+
+print(velocity_climb_rate_func(wing_loading))
