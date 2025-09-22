@@ -6,7 +6,7 @@ R_des = 6745000
 f_cont = 0.05
 e_f = 43000000
 B = 4
-v_cr = 200.62877
+v_cr = 200.63
 h_cr = 12500
 t_E = 45*60
 R_div = 277800
@@ -28,7 +28,7 @@ m_pl_maxaximum = 1010
 
 #______CRuise speed calculations_____
 thrust_lapse = 0.24
-beta = 0.94
+beta = 0.95
 
 #________Matching diagram: Landing and take-off distance_____
 mass_fraction_landing = 0.7
@@ -48,7 +48,7 @@ wing_loading_cs = np.arange(1200, 9100, 100)
 
 
 #________Matching diagram: climb rate______
-C_d0 = 0.059
+C_d0 = 0.0234
 p_ISO = 101325
 T_ISO = 273.15
 rho_ISO = 1.225225

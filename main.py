@@ -34,9 +34,9 @@ L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D = L_over_D_max_function
 y_spanwise, xlemac, lengthMAC = pd.calculate_MAC_position(b, c_r, c_t, sweep)
 
 #_________Wing Loading Calculations______________________________________________________________________________________________________
-loads_minimum_speed = ms.Minimum_speed_function(fv.wing_loading)
+loads_minimum_speed = ms.Minimum_speed(fv.rho_ISO, 0.7, 66, fv.C_L_max_landing)
 loads_landing_field_length = lfl.landing_field_length(fv.mass_fraction_landing, 950, 1.225, fv.C_L_max_landing)
-loads_cruise_speed = cs.cruise_speed(fv.beta,fv.thrust_lapse,fv.wing_loading_cs,fv.C_d0, 1.225, fv.v_cr, fv.AR, fv.e_f)
+loads_cruise_speed = cs.cruise_speed(0.95,fv.thrust_lapse,fv.wing_loading_cs,fv.C_d0, 0.2872, fv.v_cr, fv.AR, e_initial)
 loads_climb_rate = cr.climb_rate(fv.wing_loading)
 loads_climb_grad_119 = cg.climb_grad(fv.wing_loading, fv.mass_fraction_119, fv.cg_119, fv.C_d0_119, fv.e_119, fv.AR, 1.225, fv.C_l_at_max_climb_gradient_119, fv.B)
 loads_climb_grad_121a = 2*cg.climb_grad(fv.wing_loading, fv.mass_fraction_121a, fv.cg_121a,fv.C_d0_121a, fv.e_121a, fv.AR, 1.225, fv.C_l_at_max_climb_gradient_121a, fv.B)
@@ -80,7 +80,7 @@ dx.plot(fv.wing_loading, loads_climb_grad_121b, label="Climb gradient CS25.121b"
 dx.plot(fv.wing_loading, loads_climb_grad_121c, label="Climb gradient CS25.121c")
 dx.plot(fv.wing_loading, loads_climb_grad_121d, label="Climb gradient CS25.121d")
 dx.plot(fv.wing_loading, loads_to_field, label="Take-off field length")
-dx.axvline(loads_minimum_speed[0], color = "gold", label = "Minimum speed")
+dx.axvline(loads_minimum_speed, color = "gold", label = "Minimum speed")
 dx.axvline(loads_landing_field_length, color = "black", label = "Landing field length")
 dx.set_xlim([0, 9000])
 dx.set_ylim([0.1, 0.6])
