@@ -1,17 +1,18 @@
 import numpy as np
 import math as m
+import fixed_values
 
-C_d0 = 0.059
-AR = 10
-e = 0.8
-B = 4
-p_ISO = 101325
-T_ISO = 273.15
-rho_ISO = 1.225225
+C_d0 = fixed_values.C_d0
+AR = fixed_values.AR
+e = fixed_values.oswald_efficiency
+B = fixed_values.B
+p_ISO = fixed_values.p_ISO
+T_ISO = fixed_values.T_ISO
+rho_ISO = fixed_values.rho_ISO
 
 ## needs to be specified:
-mass_fraction_climb = 0.97
-climb_rate_requirement = 15  # m/s
+mass_fraction_climb = fixed_values.mass_fraction_climb
+climb_rate_requirement = fixed_values.climb_rate_requirement
 
 velocity_climb_rate = []
 Mach_number = []

@@ -1,4 +1,6 @@
 import numpy as np
+import math as m
+
 #_______important for range calculations______
 R_des = 6745000
 f_cont = 0.05
@@ -42,3 +44,51 @@ oswald_efficiency = 0.887
 #________Wing Loading______
 
 wing_loading = np.arange(0,9100,100)
+wing_loading_cs = np.arange(1200, 9100, 100)
+
+
+#________Matching diagram: climb rate______
+C_d0 = 0.059
+p_ISO = 101325
+T_ISO = 273.15
+rho_ISO = 1.225225
+## needs to be specified:
+mass_fraction_climb = 0.97
+climb_rate_requirement = 15  # m/s
+
+#________Matching diagram: climb gradients______
+cg_119 = 3.2
+cg_121a = 0
+cg_121b = 2.4
+cg_121c = 1.2
+cg_121d = 2.1
+
+C_d0_119 = 0.0707175
+C_d0_121a = 0.0447175
+C_d0_121b = 0.0347175
+C_d0_121c = 0.0087175
+C_d0_121d = 0.0607175
+
+e_119 = 0.901657174
+e_121a = 0.849657174
+e_121b = 0.849657174
+e_121c = 0.797657174
+e_121d = 0.901657174
+
+mass_fraction_119 = 1
+mass_fraction_121a = 1
+mass_fraction_121b = 1
+mass_fraction_121c = 1
+mass_fraction_121d = 0.69
+
+C_l_at_max_climb_gradient_119 = m.sqrt(C_d0_119 * m.pi * AR * e_119)
+C_l_at_max_climb_gradient_121a = m.sqrt(C_d0_121a * m.pi * AR * e_121a)
+C_l_at_max_climb_gradient_121b = m.sqrt(C_d0_121b * m.pi * AR * e_121b)
+C_l_at_max_climb_gradient_121c = m.sqrt(C_d0_121c * m.pi * AR * e_121c)
+C_l_at_max_climb_gradient_121d = m.sqrt(C_d0_121d * m.pi * AR * e_121d)
+
+C_d_at_max_climb_gradient_119 = 2 * C_l_at_max_climb_gradient_119 
+C_d_at_max_climb_gradient_121a = 2 * C_l_at_max_climb_gradient_121a
+C_d_at_max_climb_gradient_121b = 2 * C_l_at_max_climb_gradient_121b
+C_d_at_max_climb_gradient_121c = 2 * C_l_at_max_climb_gradient_121c
+C_d_at_max_climb_gradient_121d = 2 * C_l_at_max_climb_gradient_121d

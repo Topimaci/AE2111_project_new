@@ -1,0 +1,14 @@
+{
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.pythonProjects": [],
+    "editor.overtypeCursorStyle": "line",
+    "terminal.integrated.cursorStyle": "line",
+    "editor.snippetSuggestions": "none",
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": false,
+        "strings": false
+    },
+    "editor.wordBasedSuggestions": "off",
+    "python.analysis.indexing": false
+}
