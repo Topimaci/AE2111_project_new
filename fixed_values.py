@@ -42,3 +42,33 @@ oswald_efficiency = 0.887
 #________Wing Loading______
 
 wing_loading = np.arange(0,9100,100)
+
+
+#________Matching diagram: climb rate______
+C_d0 = 0.059
+p_ISO = 101325
+T_ISO = 273.15
+rho_ISO = 1.225225
+## needs to be specified:
+mass_fraction_climb = 0.97
+climb_rate_requirement = 15  # m/s
+
+#________Matching diagram: climb gradients______
+cg_119 = 3.2
+cg_121a = 0
+cg_121b = 2.4
+cg_121c = 1.2
+cg_121d = 2.1
+
+C_d0_119 = 0.0707175
+C_d0_121a = 0.0447175
+C_d0_121b = 0.0347175
+C_d0_121c = 0.0087175
+C_d0_121d = 0.0607175
+
+e_119 = 0.901657174
+e_121a = 0.849657174
+e_121b = 0.849657174
+e_121c = 0.797657174
+e_121d = 0.901657174
+
