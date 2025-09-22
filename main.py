@@ -65,7 +65,7 @@ print("loads_climb_grad_121a:", loads_climb_grad_121a)
 print("loads_climb_grad_121b:", loads_climb_grad_121b)
 print("loads_climb_grad_121c:", loads_climb_grad_121c)
 print("loads_climb_grad_121d:", loads_climb_grad_121d)
-print("loads_to_field:", len(loads_to_field))
+print("loads_to_field:", loads_to_field)
 
 #____Plots____
 
