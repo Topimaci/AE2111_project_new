@@ -1,10 +1,6 @@
 import math
-
 from Drag_calculations import L_over_D_max
 
-
-
-print('change23')
 
 R_des = 6745000
 f_cont = 0.05
