@@ -1,5 +1,6 @@
-import numpy
+import numpy as np
 import math
+
 
 def find_V_2(wing_loading, density_take_off, C_L_take_off):
     V_2 = []
@@ -29,10 +30,10 @@ def find_alpha_t(delta, Mach_take, bypass_ratio):
     alpha_t = [l * (1 - (0.43 + 0.014 * bypass_ratio) * math.sqrt(m)) for l, m in zip(delta, Mach_take)]
     return alpha_t
 
+
 def take_off_distance(alpha_t, wing_loading, take_off_field_length, density_take_off, oswald_efficiency, aspect_ratio):
-    T_over_W = numpy.array()
+    T_over_W = []
     for wl, at in zip(wing_loading, alpha_t):
-        q = 1 / at * (1.15 * math.sqrt(2 * wl / (take_off_distance * 0.85 * density_take_off * 9.80065 * math.pi * oswald_efficiency * aspect_ratio)) + 4 * 11 * 2 / take_off_distance)
-        numpy.append(wl, q)
+        q = 1 / at * (1.15 * math.sqrt(2 * wl / (take_off_field_length * 0.85 * density_take_off * 9.80065 * math.pi * oswald_efficiency * aspect_ratio)) + 4 * 11 * 2 / take_off_field_length)
+        T_over_W.append(q)   
     return T_over_W
-    
