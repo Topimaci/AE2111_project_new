@@ -1,4 +1,6 @@
 import numpy as np
+import math as m
+
 #_______important for range calculations______
 R_des = 6745000
 f_cont = 0.05
@@ -72,3 +74,20 @@ e_121b = 0.849657174
 e_121c = 0.797657174
 e_121d = 0.901657174
 
+mass_fraction_119 = 1
+mass_fraction_121a = 1
+mass_fraction_121b = 1
+mass_fraction_121c = 1
+mass_fraction_121d = 0.69
+
+C_l_at_max_climb_gradient_119 = m.sqrt(C_d0_119 * m.pi * AR * e_119)
+C_l_at_max_climb_gradient_121a = m.sqrt(C_d0_121a * m.pi * AR * e_121a)
+C_l_at_max_climb_gradient_121b = m.sqrt(C_d0_121b * m.pi * AR * e_121b)
+C_l_at_max_climb_gradient_121c = m.sqrt(C_d0_121c * m.pi * AR * e_121c)
+C_l_at_max_climb_gradient_121d = m.sqrt(C_d0_121d * m.pi * AR * e_121d)
+
+C_d_at_max_climb_gradient_119 = 2 * C_l_at_max_climb_gradient_119 
+C_d_at_max_climb_gradient_121a = 2 * C_l_at_max_climb_gradient_121a
+C_d_at_max_climb_gradient_121b = 2 * C_l_at_max_climb_gradient_121b
+C_d_at_max_climb_gradient_121c = 2 * C_l_at_max_climb_gradient_121c
+C_d_at_max_climb_gradient_121d = 2 * C_l_at_max_climb_gradient_121d
