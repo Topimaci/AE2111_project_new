@@ -1,5 +1,4 @@
 import math
-from Drag_calculations import L_over_D_max
 
 
 R_des = 6745000
@@ -36,15 +35,13 @@ def TSFC_function(B):
     return TSFC
 
 def eta_j_function(e_f, v_cr, TSFC):
-    eta_j = v_cr/(TSFC*e_f)
+    eta_j = v_cr/(TSFC*e_f/(10**6))
     return eta_j
 #_______________________________________________________________
 
 
 
 #________________SECOND RANGE CALCULATIONS______________________________
-from mass_calculations import m_f_ferry
-from mass_calculations import m_f_harmonic
 
 def fuel_mass_fraction_function(R_eq, eta_j, e_f, L_over_D_max): ####this functions gets imported into mass_calculations
     fuel_mass_fraction = 1 - math.exp(-R_eq/(eta_j*(e_f/9.81)*L_over_D_max))
@@ -52,36 +49,10 @@ def fuel_mass_fraction_function(R_eq, eta_j, e_f, L_over_D_max): ####this functi
 
 
 def R_harmonic_function(eta_j, L_over_D_max, e_f, m_f_harmonic, m_MTO, R_aux):
-    R_harmonic = eta_j * L_over_D_max * (e_f/9.81)*math.log(1-m_f_harmonic/m_MTO) - R_aux
+    R_harmonic = -eta_j * L_over_D_max * (e_f/9.81)*math.log(1-m_f_harmonic/m_MTO) - R_aux
     return R_harmonic
 
 def R_ferry_function(eta_j, L_over_D_max, e_f, m_f_ferry, m_MTO, R_aux):
-    R_ferry = eta_j * L_over_D_max * (e_f/9.81)*math.log(1-m_f_ferry/m_MTO) - R_aux
+    R_ferry = -eta_j * L_over_D_max * (e_f/9.81)*math.log(1-m_f_ferry/m_MTO) - R_aux
     return R_ferry
 #__________________________________________________________________________-
-
-
-
-###________________Calling First Range funcitons________________####
-R_lost = R_lost_function(L_over_D_max, h_cr, v_cr)
-R_eq_res = R_eq_res_function(R_div, t_E, v_cr)
-
-R_eq = R_eq_function(R_des, R_lost, f_cont, R_eq_res)
-R_aux = R_aux_function(R_des, R_eq)
-#____________________________________________________________#
-
-
-#____________________Calling EXTRA VARIABLE FUNCTIONS_____________
-TSFC = TSFC_function(B)
-eta_j = eta_j_function(e_f, v_cr, TSFC)
-
-#______________________________________________________________-
-
-#_____________CALLING SECOND RANGE FUNCTIONS____________________
-fuel_mass_fraction = fuel_mass_fraction_function(R_eq, eta_j, e_f, L_over_D_max) #gets imported into mass_calculations
-R_harmonic = R_harmonic_function(eta_j, L_over_D_max, e_f, m_f_harmonic)
-R_ferry = R_ferry_function(eta_j, L_over_D_max, e_f, m_f_ferry)
-
-#_______________________________________
-
-print(R_harmonic)

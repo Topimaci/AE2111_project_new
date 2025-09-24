@@ -6,7 +6,6 @@ import math as m
 def climb_grad(wing_loadings, mass_fraction, climb_gradient, cd_0, oswald_number, aspect_ratio, density, cl_max, B):
     
     t_over_w = np.array([])
-    print(cd_0)
     for wing_loading in wing_loadings:
         velocity = np.sqrt(2*wing_loading/(density*cl_max))
         mach = velocity/np.sqrt(287*1.4*288.15)

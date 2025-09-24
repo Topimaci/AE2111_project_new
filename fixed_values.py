@@ -15,6 +15,8 @@ R_div = 277800
 #______important for drag calculations_________
 S_wet_over_S_w = 5.85
 C_f = 0.004
+S_w = 30.46
+S_wet = S_w * 5.85
 psi = 0.0075
 phi = 0.97
 AR = 10
@@ -48,7 +50,7 @@ wing_loading_cs = np.arange(1200, 9100, 100)
 
 
 #________Matching diagram: climb rate______
-C_d0 = 0.0234
+C_d0 = S_wet_over_S_w * C_f
 p_ISO = 101325
 T_ISO = 273.15
 rho_ISO = 1.225225
@@ -63,17 +65,22 @@ cg_121b = 2.4
 cg_121c = 1.2
 cg_121d = 2.1
 
-C_d0_119 = 0.0824
-C_d0_121a = 0.0590
-C_d0_121b = 0.0390
-C_d0_121c = 0.0234
-C_d0_121d = 0.0624
 
-e_119 = 0.9336
-e_121a = 0.8868
-e_121b = 0.8868
-e_121c = 0.8556
-e_121d = 0.9336
+flap_to = 12
+flap_la = 30
+
+
+C_d0_119 = C_d0 + 0.02 +flap_la*0.0013
+C_d0_121a = C_d0 + 0.02 +flap_to*0.0013
+C_d0_121b = C_d0 + flap_to*0.0013
+C_d0_121c = C_d0
+C_d0_121d = C_d0 + flap_la*0.0013
+
+e_119 = oswald_efficiency + flap_la * 0.0026
+e_121a = oswald_efficiency + flap_to * 0.0026
+e_121b = oswald_efficiency + flap_to * 0.0026
+e_121c = oswald_efficiency
+e_121d = oswald_efficiency + flap_la * 0.0026
 
 mass_fraction_119 = 1
 mass_fraction_121a = 1

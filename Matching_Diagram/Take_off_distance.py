@@ -7,7 +7,6 @@ def find_V_2(wing_loading, density_take_off, C_L_take_off):
     for i in wing_loading: 
         x = numpy.sqrt(2 * i / density_take_off / C_L_take_off)
         V_2.append(x)
-    print(V_2)
     return V_2
 
 def find_Mach(V_2, temperature_take_off):
@@ -15,7 +14,6 @@ def find_Mach(V_2, temperature_take_off):
     for j in V_2: 
         y = j / numpy.sqrt(1.4 * 287 * temperature_take_off)
         Mach_take.append(y)
-    print(Mach_take)
     return Mach_take
 
 def find_theta_delta(temperature_take_off, Mach_take):
@@ -26,8 +24,6 @@ def find_theta_delta(temperature_take_off, Mach_take):
         d = (101325 * (1 + 0.2 * k ** 2) ** 3.5) / 101325
         theta.append(t)
         delta.append(d)
-    print("theta", theta)
-    print("delta", delta)
     return theta, delta
 
 def find_alpha_t(delta, Mach_take, bypass_ratio):
@@ -37,7 +33,6 @@ def find_alpha_t(delta, Mach_take, bypass_ratio):
     for l, m in zip(delta, Mach_take):
         val = l * (1 - (0.43 + 0.014 * bypass_ratio) * numpy.sqrt(m))
         alpha_t_list.append(val)
-    print("alpha t", alpha_t_list)
     return alpha_t_list
 
 def take_off_distance(alpha_t, wing_loading, take_off_field_length, density_take_off, oswald_efficiency, aspect_ratio):

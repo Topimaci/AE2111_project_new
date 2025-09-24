@@ -8,6 +8,7 @@ import Matching_Diagram.climb_grad as cg
 import Matching_Diagram.Take_off_distance as td
 import fixed_values as fv
 import matplotlib.pyplot as plt
+import dynamic_variables as dv
 
 thickness_to_chord = 0.15 # assumption 
 AR = 10
@@ -19,10 +20,9 @@ S_wet_over_S_w = 5.85
 C_f = 0.004
 psi = 0.0075
 phi = 0.97
+sweep_true = 27.7
 
-
-sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE = pd.calculate_geometric_parameters_wing(S_w, AR, M_cr)
-
+sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE = pd.calculate_geometric_parameters_wing(dv.S_w, AR, M_cr)
 c_d0 = pd.calculate_aerodynamic_performance(thickness_to_chord)
 
 c_d_0_initial = c_d0_function(S_wet_over_S_w, C_f)
@@ -31,7 +31,7 @@ e_initial = e_function(psi, phi, AR)
 
 L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D = L_over_D_max_function(AR,e_initial,c_d_0_initial)
 
-y_spanwise, xlemac, lengthMAC = pd.calculate_MAC_position(b, c_r, c_t, sweep)
+y_spanwise, xlemac, lengthMAC = pd.calculate_MAC_position(b, c_r, c_t, sweep_true)
 
 #_________Wing Loading Calculations______________________________________________________________________________________________________
 loads_minimum_speed = ms.Minimum_speed(fv.rho_ISO, 0.7, 66, fv.C_L_max_landing)
@@ -49,23 +49,14 @@ theta, delta = td.find_theta_delta(fv.temp_takeoff, Mach)
 alpha = td.find_alpha_t(delta, Mach, fv.B)
 loads_to_field = td.take_off_distance(alpha, fv.wing_loading, fv.takeoff_field, fv.density_takeoff, fv.oswald_efficiency, fv.AR)
 
-print(sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE)
-print(c_d0)
-print(c_d_0_initial)
-print(e_initial)
-print(L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D )
-print("THIS ONE", y_spanwise, xlemac, lengthMAC)
 
-print("loads_minimum_speed:", loads_minimum_speed)
-print("loads_landing_field_length:", loads_landing_field_length)
-print("loads_cruise_speed:", loads_cruise_speed)
-print("loads_climb_rate:", loads_climb_rate)
-print("loads_climb_grad_119:", loads_climb_grad_119)
-print("loads_climb_grad_121a:", loads_climb_grad_121a)
-print("loads_climb_grad_121b:", loads_climb_grad_121b)
-print("loads_climb_grad_121c:", loads_climb_grad_121c)
-print("loads_climb_grad_121d:", loads_climb_grad_121d)
-print("loads_to_field:", loads_to_field)
+
+print("Wing Planform (sweep, taper, span, cr, ct, c_MAC, dihedral, sweep):", sweep_true, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE)
+print("cd0:", c_d0)
+print("cd0 initial:", c_d_0_initial)
+print("e initial:", e_initial)
+print("L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D:", dv.L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D )
+print("THIS ONE", y_spanwise, xlemac, lengthMAC)
 
 #____Plots____
 
