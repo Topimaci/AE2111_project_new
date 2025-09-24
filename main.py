@@ -20,9 +20,9 @@ S_wet_over_S_w = 5.85
 C_f = 0.004
 psi = 0.0075
 phi = 0.97
-sweep_true = 27.7
+sweep_true = 24.5
 
-sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE = pd.calculate_geometric_parameters_wing(dv.S_w, AR, M_cr)
+sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE = pd.calculate_geometric_parameters_wing(dv.S_w, AR, M_cr, sweep_true)
 c_d0 = pd.calculate_aerodynamic_performance(thickness_to_chord)
 
 c_d_0_initial = c_d0_function(S_wet_over_S_w, C_f)

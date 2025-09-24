@@ -1,7 +1,7 @@
 import math as m
 
 
-def calculate_geometric_parameters_wing(S_w, AR, M_cr):
+def calculate_geometric_parameters_wing(S_w, AR, M_cr, sweep_true):
 
     sweep = m.acos(1.16/ (M_cr + 0.5) ) * 180 / m.pi
 
@@ -17,7 +17,7 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
     
     dihedral = 3 - 0.1 * sweep + 2 #3 default for unswept, subtract 0.1 for every degree of sweep, +2 from low wing config
 
-    sweep_LE = m.atan((-1/4*c_tip + 1/4*c_root + m.tan(sweep)*b) / b ) *180 /m.pi
+    sweep_LE = m.atan((-1/4*c_tip + 1/4*c_root + m.tan(sweep * m.pi / 180)*b) / b ) *180 /m.pi
 
     return sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE
 
