@@ -1,12 +1,20 @@
 import math as m
 import fixed_values as fv
 import Planform_DESIGN1 as Pl
+import contextlib
+import io
 
-c_l_alpha = 2 * m.pi  ## modifiable
+## Redirect print output to avoid cluttering the output
+f = io.StringIO()
+with contextlib.redirect_stdout(f):
+    import HLDs as HLDs
+
+
+c_l_alpha = 0.11965 *360 / 2 * m.pi ## per radian
 S_w = fv.S_w
 sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(S_w, fv.AR, 0.68, 24.5)
-k = 2.5 ## misc constant
-m = 1.8 ## misc constant
+k_const = 2.5 ## misc constant
+m_const = 1.8 ## misc constant
 rear_spar_pos = 0.7 ## as fraction of chord
 c_d0 = Pl.calculate_aerodynamic_performance(0.12)
 deflection_up = 20 ## degrees
@@ -15,19 +23,33 @@ deflection = 1/2 * (deflection_up + deflection_down)
 V_cruise = fv.v_cr
 roll_performance_requirement = 45/1.4 ## degrees per second for class II
 
-b_1 = 0.85 * b/2 ## start of aileron
-b_2 = 0.9 * b/2 ## end of aileron
+b_1 = HLDs.end_pos_span_TE * b/2  ## in meters
+db = 0.01
+
 
 def C_lP(c_l_alpha, c_d0, S_w, b, c_tip, c_root):
     return - (c_l_alpha + c_d0)/S_w * b/8 * (c_tip + 1/3 * c_root)
 
-def C_ldalpha(c_l_alpha, S_w, b, k, m, rear_spar_pos, c_tip, c_root, b_1, b_2):
-    return 2 * c_l_alpha / (S_w * b) * k * rear_spar_pos / (1 + m * rear_spar_pos) * \
+def C_ldalpha(c_l_alpha, S_w, b, k_const, m_const, rear_spar_pos, c_tip, c_root, b_1, b_2):
+    return 2 * c_l_alpha / (S_w * b) * k_const * (1 - rear_spar_pos) / (1 + m_const * (1 - rear_spar_pos)) * \
         ((2/b * (c_tip - c_root) * b_2**3 / 3 + c_root * b_2**2 / 2) - \
          (2/b * (c_tip - c_root) * b_1**3 / 3 + c_root * b_1**2 / 2))
 
-def roll_performance(deflection, V_cruise, b): ## degrees per second
-    return - C_ldalpha(c_l_alpha, S_w, b, k, m, rear_spar_pos, c_tip, c_root, b_1, b_2) /\
+def roll_performance(deflection, V_cruise, b, b_2): ## degrees per second
+    return - C_ldalpha(c_l_alpha, S_w, b, k_const, m_const, rear_spar_pos, c_tip, c_root, b_1, b_2) /\
         C_lP(c_l_alpha, c_d0, S_w, b, c_tip, c_root) * deflection * 2 * V_cruise / b
 
-print(roll_performance(deflection, V_cruise, b))
+def b_2_repetition(b_1, db):
+    smaller = True
+    b_2 = b_1
+    while smaller:
+        b_2 = b_2 + db
+        roll_performance_calculated = roll_performance(deflection, V_cruise, b, b_2)
+        if roll_performance_calculated > roll_performance_requirement:
+            smaller = False
+            return b_2
+        if b_2 > b/2:
+            smaller = False
+            return 0
+
+#print(b_2_repetition(b_1, db)/(b/2))  ## as fraction of semi-span
