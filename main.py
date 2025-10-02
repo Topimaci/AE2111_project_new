@@ -35,7 +35,7 @@ y_spanwise, xlemac, lengthMAC = pd.calculate_MAC_position(b, c_r, c_t, sweep_tru
 
 #_________Wing Loading Calculations______________________________________________________________________________________________________
 loads_minimum_speed = ms.Minimum_speed(fv.rho_ISO, 0.7, 66, fv.C_L_max_landing)
-loads_landing_field_length = lfl.landing_field_length(fv.mass_fraction_landing, 950, 1.225, fv.C_L_max_landing)
+loads_landing_field_length = lfl.landing_field_length(fv.mass_fraction_landing, fv.landing_field, 1.225, fv.C_L_max_landing)
 loads_cruise_speed = cs.cruise_speed(0.95,fv.thrust_lapse,fv.wing_loading_cs,fv.C_d0, 0.2872, fv.v_cr, fv.AR, e_initial)
 loads_climb_rate = cr.climb_rate(fv.wing_loading)
 loads_climb_grad_119 = cg.climb_grad(fv.wing_loading, fv.mass_fraction_119, fv.cg_119, fv.C_d0_119, fv.e_119, fv.AR, 1.225, fv.C_l_at_max_climb_gradient_119, fv.B)
