@@ -2,10 +2,11 @@ import Planform_DESIGN1 as Pl
 import fixed_values as fv
 import math
 
-pos_span_TE = 0.4
+start_pos_span_TE = 0.15
+end_pos_span_TE = 0.8
 
 start_pos_span_LE = 0.2
-end_pos_span_LE = 0.55
+end_pos_span_LE = 0.8
 c_f_c_TE = 0.3
 c_f_c_LE = 0.1
 
@@ -16,7 +17,7 @@ sweep_LE = math.radians(sweep_LE)
 # trailing edge reference area
 sweep_TE = math.atan(math.tan(sweep_LE) + (c_tip - c_root) / (b / 2) )
 
-x_1 = pos_span_TE * b / 2
+x_1 = (end_pos_span_TE - start_pos_span_TE) * b / 2
 area_1 = (x_1) ** 2 * math.tan(sweep_LE) / 2 
 area_2 = (x_1) * (c_root - x_1 * math.tan(sweep_LE))
 area_3 = x_1 ** 2 * math.tan(sweep_TE) / 2 
@@ -36,7 +37,7 @@ reference_area_LE = (Area1 + Area2 + Area3 + Area4) * 2
 
 # C_L_max calculation trailing edge fowler flap
 
-c_avg_TE = c_root - pos_span_TE / 2 * b * math.tan(sweep_LE)
+c_avg_TE = c_root - (end_pos_span_TE - start_pos_span_TE) / 2 * b * math.tan(sweep_LE)
 delc_cf_TE = 0.6
 c_prime_TE = c_avg_TE + delc_cf_TE * c_f_c_TE * c_avg_TE
 delta_c_lmax_TE = 1.3 * c_prime_TE / c_avg_TE
