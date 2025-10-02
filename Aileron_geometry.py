@@ -8,6 +8,7 @@ import io
 f = io.StringIO()
 with contextlib.redirect_stdout(f):
     import HLDs as HLDs
+    import master_range_mass as mrm
 
 
 c_l_alpha = 0.11965 *360 / 2 * m.pi ## per radian
@@ -20,8 +21,8 @@ c_d0 = Pl.calculate_aerodynamic_performance(0.12)
 deflection_up = 20 ## degrees
 deflection_down = 0.75 * deflection_up ## degrees
 deflection = 1/2 * (deflection_up + deflection_down)
-V_cruise = fv.v_cr
-roll_performance_requirement = 45/1.4 ## degrees per second for class II
+V = m.sqrt(2 * mrm.m_MTO * 9.80665 / (fv.rho_ISO * S_w * fv.C_L_max_landing))
+roll_performance_requirement = 60/11 #45/1.4 ## degrees per second for class II
 
 b_1 = HLDs.end_pos_span_TE * b/2  ## in meters
 db = 0.01
@@ -44,7 +45,7 @@ def b_2_repetition(b_1, db):
     b_2 = b_1
     while smaller:
         b_2 = b_2 + db
-        roll_performance_calculated = roll_performance(deflection, V_cruise, b, b_2)
+        roll_performance_calculated = roll_performance(deflection, V, b, b_2)
         if roll_performance_calculated > roll_performance_requirement:
             smaller = False
             return b_2
@@ -52,4 +53,4 @@ def b_2_repetition(b_1, db):
             smaller = False
             return 0
 
-#print(b_2_repetition(b_1, db)/(b/2))  ## as fraction of semi-span
+print(b_2_repetition(b_1, db)/(b/2))  ## as fraction of semi-span
