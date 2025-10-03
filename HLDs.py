@@ -9,33 +9,39 @@ start_pos_span_LE = 0.2
 end_pos_span_LE = 0.8
 c_f_c_TE = 0.3
 c_f_c_LE = 0.1
+radius_fuselage = 2.5
 
 sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(30.46, fv.AR, 0.68, 24.5)
 
+
+# General parameters
 sweep_LE = math.radians(sweep_LE)
 half_b = b / 2 
+Datum = c_tip + half_b * math.tan(sweep_LE)
 
 # trailing edge reference area
 sweep_TE = math.atan(math.tan(sweep_LE) + (c_tip - c_root) / (b / 2) )
+z_1 = radius_fuselage * math.tan(sweep_LE)
+z_2 = (half_b - radius_fuselage) * math.tan(sweep_TE)
+q_1 = end_pos_span_TE * half_b * math.tan(sweep_LE)
+q_2 = (half_b - end_pos_span_TE * half_b) * math.tan(sweep_TE)
 
-length_TE = (end_pos_span_TE - start_pos_span_TE) * b / 2
-area_1 = (length_TE) ** 2 * math.tan(sweep_LE) / 2 
-area_2 = (length_TE) * (c_root - length_TE * math.tan(sweep_LE))
-area_3 = length_TE ** 2 * math.tan(sweep_TE) / 2 
+t_1 = Datum - q_1 - q_2
+t_2 = Datum - z_1 - z_2
 
-reference_area_TE = (area_1 + area_2 + area_3) * 2
+reference_area_TE = ((t_1 + t_2) / 2 * (end_pos_span_TE * half_b - radius_fuselage)) * 2
+
 
 # leading edge reference area
-Datum = c_tip + half_b * math.tan(sweep_LE)
 y_1 = start_pos_span_LE * half_b * math.tan(sweep_LE)
 x_1 = end_pos_span_LE * half_b * math.tan(sweep_LE)
 x_2 = end_pos_span_LE * half_b * math.tan(sweep_TE)
-y_2 = start_pos_span_LE * half_b * math.tan(sweep_TE)
+y_2 = (half_b - end_pos_span_LE * half_b) * math.tan(sweep_TE)
 
 c_1 = Datum - x_1 - x_2 
 c_2 = Datum - y_1 - y_2 
 
-reference_area_LE = (c_1 + c_2) / 2 * (end_pos_span_LE - start_pos_span_LE) * half_b
+reference_area_LE = ((c_1 + c_2) / 2 * (end_pos_span_LE - start_pos_span_LE) * half_b) * 2
 
 
 # C_L_max calculation trailing edge fowler flap
@@ -60,4 +66,3 @@ DELTA_c_LMAX_LE = 0.9 * delta_c_lmax_LE * reference_area_LE / wing_area * math.c
 
 print(DELTA_c_LMAX_LE + DELTA_c_LMAX_TE)
 
-print(reference_area_LE)
