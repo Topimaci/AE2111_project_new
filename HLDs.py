@@ -9,7 +9,7 @@ start_pos_span_LE = 0.2
 end_pos_span_LE = 0.8
 c_f_c_TE = 0.3
 c_f_c_LE = 0.1
-radius_fuselage = 2.5
+radius_fuselage = 1
 
 sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(30.46, fv.AR, 0.68, 24.5)
 
@@ -33,10 +33,10 @@ reference_area_TE = ((t_1 + t_2) / 2 * (end_pos_span_TE * half_b - radius_fusela
 
 
 # leading edge reference area
-y_1 = start_pos_span_LE * half_b * math.tan(sweep_LE)
-x_1 = end_pos_span_LE * half_b * math.tan(sweep_LE)
-x_2 = end_pos_span_LE * half_b * math.tan(sweep_TE)
+y_1 = end_pos_span_LE * half_b * math.tan(sweep_LE)
 y_2 = (half_b - end_pos_span_LE * half_b) * math.tan(sweep_TE)
+x_1 = start_pos_span_LE * half_b * math.tan(sweep_LE)
+x_2 = end_pos_span_LE * half_b * math.tan(sweep_TE)
 
 c_1 = Datum - x_1 - x_2 
 c_2 = Datum - y_1 - y_2 
@@ -65,4 +65,3 @@ delta_c_lmax_LE = 0.4 * c_prime_LE / c_avg_LE
 DELTA_c_LMAX_LE = 0.9 * delta_c_lmax_LE * reference_area_LE / wing_area * math.cos(sweep_LE)
 
 print(DELTA_c_LMAX_LE + DELTA_c_LMAX_TE)
-
