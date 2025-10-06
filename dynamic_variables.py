@@ -1,7 +1,7 @@
 L_over_D_max = 16.27
 
 
-designws = 4030
-designtw = 0.3
+designws = 3800
+designtw = 0.35
 
-S_w = 30.46
+S_w = 40.48

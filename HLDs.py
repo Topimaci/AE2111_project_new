@@ -10,8 +10,8 @@ end_pos_span_LE = 0.8
 c_f_c_TE = 0.3
 c_f_c_LE = 0.1
 
-sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(30.46, fv.AR, 0.68, 24.5)
-
+sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(fv.S_w, fv.AR, 0.68, 24.5)
+print(b)
 sweep_LE = math.radians(sweep_LE)
 
 # trailing edge reference area
@@ -27,6 +27,7 @@ reference_area_TE = (area_1 + area_2 + area_3) * 2
 # leading edge reference area
 x_2 = end_pos_span_LE - start_pos_span_LE  
 half_b = b / 2 
+print (half_b)
 Area1 = x_2 * half_b * math.sin(sweep_LE) * x_2 * half_b / 2  # top triangle
 Area2 = x_2 * half_b * (c_root - (x_2 + start_pos_span_LE) * half_b * math.sin(sweep_LE))  # big rectangle
 Area3 = start_pos_span_LE * half_b * math.sin(sweep_TE) * x_2 * half_b  # small rectangle
@@ -42,6 +43,7 @@ delc_cf_TE = 0.6
 c_prime_TE = c_avg_TE + delc_cf_TE * c_f_c_TE * c_avg_TE
 delta_c_lmax_TE = 1.3 * c_prime_TE / c_avg_TE
 wing_area = (c_root + c_tip) / 2 * b 
+print(wing_area)
 
 DELTA_c_LMAX_TE = 0.9 * delta_c_lmax_TE * reference_area_TE / wing_area * math.cos(sweep_TE)
 

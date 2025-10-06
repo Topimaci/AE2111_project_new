@@ -13,7 +13,7 @@ import dynamic_variables as dv
 thickness_to_chord = 0.15 # assumption 
 AR = 10
 M_cr = 0.68   #this is for requirement, maybe 0.7 for cruise?
-S_w = 30.46
+S_w = 40.48
 
 #for drag calculations the values below are assumed
 S_wet_over_S_w = 5.85
@@ -73,8 +73,8 @@ dx.plot(fv.wing_loading, loads_climb_grad_121d, label="Climb gradient CS25.121d"
 dx.plot(fv.wing_loading, loads_to_field, label="Take-off field length")
 dx.axvline(loads_minimum_speed, color = "gold", label = "Minimum speed")
 dx.axvline(loads_landing_field_length, color = "black", label = "Landing field length")
-dx.set_xlim([0, 9000])
-dx.set_ylim([0.1, 0.6])
+dx.set_xlim([0, 6000])
+dx.set_ylim([0, 0.7])
 dx.set_xlabel("W/S - [N/m2]")
 dx.set_ylabel("T/W - [N/N]")
 dx.set_title("Matching Diagram")
