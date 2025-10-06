@@ -4,6 +4,7 @@ import Planform_DESIGN1 as Pl
 import contextlib
 import io
 
+
 ## Redirect print output to avoid cluttering the output
 f = io.StringIO()
 with contextlib.redirect_stdout(f):
@@ -20,7 +21,7 @@ rear_spar_pos = 0.7 ## as fraction of chord
 c_d0 = Pl.calculate_aerodynamic_performance(0.12)
 deflection_up = 20 ## degrees
 deflection_down = 0.75 * deflection_up ## degrees
-deflection = 1/2 * (deflection_up + deflection_down)
+deflection = 1/2 * (deflection_up + deflection_down) ## degrees
 V = m.sqrt(2 * mrm.m_MTO * 9.80665 / (fv.rho_ISO * S_w * fv.C_L_max_landing))
 roll_performance_requirement = 60/11 #45/1.4 ## degrees per second for class II
 
@@ -53,4 +54,6 @@ def b_2_repetition(b_1, db):
             smaller = False
             return 0
 
-print(b_2_repetition(b_1, db)/(b/2))  ## as fraction of semi-span
+##print(b_2_repetition(b_1, db)/(b/2))  ## as fraction of semi-span
+
+print(b_1)

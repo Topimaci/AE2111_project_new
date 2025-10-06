@@ -47,7 +47,7 @@ reference_area_LE = ((c_1 + c_2) / 2 * (end_pos_span_LE - start_pos_span_LE) * h
 
 # C_L_max calculation trailing edge fowler flap
 
-c_avg_TE = c_root - (end_pos_span_TE - start_pos_span_TE) / 2 * b * math.tan(sweep_LE)
+c_avg_TE = Datum - c_tip - (end_pos_span_TE - start_pos_span_TE) / 2 * b * math.tan(sweep_LE)
 delc_cf_TE = 0.6
 c_prime_TE = c_avg_TE + delc_cf_TE * c_f_c_TE * c_avg_TE
 delta_c_lmax_TE = 1.3 * c_prime_TE / c_avg_TE
@@ -60,10 +60,11 @@ DELTA_c_LMAX_TE = 0.9 * delta_c_lmax_TE * reference_area_TE / wing_area * math.c
 # C_L_max calculation leading edge slats
 
 b_avg = (start_pos_span_LE + x_2 / 2) * half_b  # average position of leading edge HLD
-c_avg_LE = c_root - math.tan(sweep_LE) * b_avg + b_avg * math.tan(sweep_TE)
+c_avg_LE = Datum - c_tip - math.tan(sweep_LE) * b_avg + b_avg * math.tan(sweep_TE)
 delc_cf_LE = 0.2
 c_prime_LE = c_avg_LE + delc_cf_LE * c_f_c_LE * c_avg_LE
 delta_c_lmax_LE = 0.4 * c_prime_LE / c_avg_LE
 DELTA_c_LMAX_LE = 0.9 * delta_c_lmax_LE * reference_area_LE / wing_area * math.cos(sweep_LE)
 
 print(DELTA_c_LMAX_LE + DELTA_c_LMAX_TE)
+print(c_avg_LE, c_avg_TE, b_avg)
