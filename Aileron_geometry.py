@@ -38,9 +38,9 @@ def C_ldalpha(c_l_alpha, S_w, b, k_const, m_const, rear_spar_pos, c_tip, c_root,
         ((2/b * (c_tip - c_root) * b_2**3 / 3 + c_root * b_2**2 / 2) - \
          (2/b * (c_tip - c_root) * b_1**3 / 3 + c_root * b_1**2 / 2))
 
-def roll_performance(deflection, V_cruise, b, b_2): ## degrees per second
+def roll_performance(deflection, V, b, b_2): ## degrees per second
     return - C_ldalpha(c_l_alpha, S_w, b, k_const, m_const, rear_spar_pos, c_tip, c_root, b_1, b_2) /\
-        C_lP(c_l_alpha, c_d0, S_w, b, c_tip, c_root) * deflection * 2 * V_cruise / b
+        C_lP(c_l_alpha, c_d0, S_w, b, c_tip, c_root) * deflection * 2 * V / b
 
 def b_2_repetition(b_1, db):
     smaller = True
