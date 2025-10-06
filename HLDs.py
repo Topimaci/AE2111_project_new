@@ -1,5 +1,6 @@
 import Planform_DESIGN1 as Pl
 import fixed_values as fv
+import dynamic_variables as dv
 import math
 
 start_pos_span_TE = 0.15
@@ -9,31 +10,39 @@ start_pos_span_LE = 0.2
 end_pos_span_LE = 0.8
 c_f_c_TE = 0.3
 c_f_c_LE = 0.1
+radius_fuselage = 1
 
-sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(fv.S_w, fv.AR, 0.68, 24.5)
-print(b)
+sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(dv.S_w, fv.AR, 0.68, 24.5)
+
+
+# General parameters
 sweep_LE = math.radians(sweep_LE)
+half_b = b / 2 
+Datum = c_tip + half_b * math.tan(sweep_LE)
 
 # trailing edge reference area
 sweep_TE = math.atan(math.tan(sweep_LE) + (c_tip - c_root) / (b / 2) )
+z_1 = radius_fuselage * math.tan(sweep_LE)
+z_2 = (half_b - radius_fuselage) * math.tan(sweep_TE)
+q_1 = end_pos_span_TE * half_b * math.tan(sweep_LE)
+q_2 = (half_b - end_pos_span_TE * half_b) * math.tan(sweep_TE)
 
-x_1 = (end_pos_span_TE - start_pos_span_TE) * b / 2
-area_1 = (x_1) ** 2 * math.tan(sweep_LE) / 2 
-area_2 = (x_1) * (c_root - x_1 * math.tan(sweep_LE))
-area_3 = x_1 ** 2 * math.tan(sweep_TE) / 2 
+t_1 = Datum - q_1 - q_2
+t_2 = Datum - z_1 - z_2
 
-reference_area_TE = (area_1 + area_2 + area_3) * 2
+reference_area_TE = ((t_1 + t_2) / 2 * (end_pos_span_TE * half_b - radius_fuselage)) * 2
+
 
 # leading edge reference area
-x_2 = end_pos_span_LE - start_pos_span_LE  
-half_b = b / 2 
-print (half_b)
-Area1 = x_2 * half_b * math.sin(sweep_LE) * x_2 * half_b / 2  # top triangle
-Area2 = x_2 * half_b * (c_root - (x_2 + start_pos_span_LE) * half_b * math.sin(sweep_LE))  # big rectangle
-Area3 = start_pos_span_LE * half_b * math.sin(sweep_TE) * x_2 * half_b  # small rectangle
-Area4 = x_2 * half_b * math.sin(sweep_TE) * x_2 * half_b / 2  # bottom triangle
+y_1 = end_pos_span_LE * half_b * math.tan(sweep_LE)
+y_2 = (half_b - end_pos_span_LE * half_b) * math.tan(sweep_TE)
+x_1 = start_pos_span_LE * half_b * math.tan(sweep_LE)
+x_2 = end_pos_span_LE * half_b * math.tan(sweep_TE)
 
-reference_area_LE = (Area1 + Area2 + Area3 + Area4) * 2
+c_1 = Datum - x_1 - x_2 
+c_2 = Datum - y_1 - y_2 
+
+reference_area_LE = ((c_1 + c_2) / 2 * (end_pos_span_LE - start_pos_span_LE) * half_b) * 2
 
 
 # C_L_max calculation trailing edge fowler flap

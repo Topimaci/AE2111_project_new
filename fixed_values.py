@@ -15,7 +15,7 @@ R_div = 277800
 #______important for drag calculations_________
 S_wet_over_S_w = 5.85
 C_f = 0.004
-S_w = 40.48
+S_w = 43.95
 S_wet = S_w * 5.85
 psi = 0.0075
 phi = 0.97
@@ -34,9 +34,9 @@ beta = 0.95
 
 #________Matching diagram: Landing and take-off distance_____
 mass_fraction_landing = 0.7
-landing_field = 800
+landing_field = 700
 density_landing = 1.165
-C_L_max_landing = 2.61
+C_L_max_landing = 2.55
 density_takeoff = 1.225225
 CL_takeoff = 1.6370864382454
 temp_takeoff = 288.18
