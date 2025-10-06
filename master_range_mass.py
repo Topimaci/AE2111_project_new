@@ -41,3 +41,4 @@ else: print("Ferry Range: FAIL")
 
 W_to = m_MTO * 9.81
 new_S_w = W_to/designws
+print(new_S_w)

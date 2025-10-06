@@ -1,0 +1,13 @@
+intial values
+
+cl_max landing = 2.3
+
+
+iteration 1
+
+cl_max_landing = 2.28
+landing_field = 850
+designws = 3600
+tw = 0.33
+
+new S_w = 42.74
