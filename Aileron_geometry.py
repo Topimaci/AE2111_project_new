@@ -13,20 +13,20 @@ with contextlib.redirect_stdout(f):
 
 
 c_l_alpha = 0.11965 *360 / 2 * m.pi ## per radian
-S_w = fv.S_w
+S_w = 30.48
 sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(S_w, fv.AR, 0.68, 24.5)
 k_const = 2.5 ## misc constant
 m_const = 1.8 ## misc constant
-rear_spar_pos = 0.7 ## as fraction of chord
+rear_spar_pos = 0.65 ## as fraction of chord
 c_d0 = Pl.calculate_aerodynamic_performance(0.12)
 deflection_up = 20 ## degrees
 deflection_down = 0.75 * deflection_up ## degrees
 deflection = 1/2 * (deflection_up + deflection_down) ## degrees
 gap = 0.02 ## fraction of semispan
-V = m.sqrt(2 * mrm.m_MTO * 9.80665 / (fv.rho_ISO * S_w * fv.C_L_max_landing))
+V = m.sqrt(2 * mrm.m_MTO * 9.80665 / (fv.rho_ISO * S_w * 1.37))
 roll_performance_requirement = 60/11 ## degrees per second
 
-b_1 = (HLDs.end_pos_span_TE + gap) * b/2  ## in meters
+b_1 =  (HLDs.end_pos_span_TE + gap) * b/2  ## in meters
 db = 0.00001
 
 
@@ -55,5 +55,6 @@ def b_2_repetition(b_1, db):
             smaller = False
             return 0
 
-print(b_2_repetition(b_1, db)/(b/2))  ## as fraction of semi-span
-print(roll_performance(deflection, V, b, 0.95*(b/2)))  ## degrees per second
+print(b_2_repetition(b_1, db))  ## as fraction of semi-span
+## print(roll_performance(deflection, V, b, 0.95*(b/2)))  ## degrees per second
+print(V)
