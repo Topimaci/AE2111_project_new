@@ -12,7 +12,7 @@ c_f_c_TE = 0.35
 c_f_c_LE = 0.1
 radius_fuselage = 1
 
-sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(dv.S_w, fv.AR, 0.68, 24.5)
+sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(dv.S_w, fv.AR, 0.68)
 
 
 # General parameters
@@ -67,4 +67,4 @@ delta_c_lmax_LE = 0.4 * c_prime_LE / c_avg_LE
 DELTA_c_LMAX_LE = 0.9 * delta_c_lmax_LE * reference_area_LE / wing_area * math.cos(sweep_LE)
 
 print(DELTA_c_LMAX_LE + DELTA_c_LMAX_TE)
-print(c_avg_LE, c_avg_TE, b_avg)
+print(math.degrees(sweep_LE))
