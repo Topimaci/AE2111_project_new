@@ -8,7 +8,7 @@ end_pos_span_TE = 0.8
 
 start_pos_span_LE = 0.2
 end_pos_span_LE = 0.8
-c_f_c_TE = 0.3
+c_f_c_TE = 0.35
 c_f_c_LE = 0.1
 radius_fuselage = 1
 
