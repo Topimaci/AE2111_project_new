@@ -13,7 +13,6 @@ import dynamic_variables as dv
 thickness_to_chord = 0.15 # assumption 
 AR = 10
 M_cr = 0.68   #this is for requirement, maybe 0.7 for cruise?
-S_w = 40.48
 
 #for drag calculations the values below are assumed
 S_wet_over_S_w = 5.85
@@ -22,8 +21,10 @@ psi = 0.0075
 phi = 0.97
 sweep_true = 24.5
 
-sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE = pd.calculate_geometric_parameters_wing(dv.S_w, AR, M_cr, sweep_true)
+sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE = pd.calculate_geometric_parameters_wing(dv.S_w, AR, M_cr)
 c_d0 = pd.calculate_aerodynamic_performance(thickness_to_chord)
+
+print(taper, c_r, b)
 
 c_d_0_initial = c_d0_function(S_wet_over_S_w, C_f)
 
@@ -51,7 +52,7 @@ loads_to_field = td.take_off_distance(alpha, fv.wing_loading, fv.takeoff_field, 
 
 
 
-print("Wing Planform (sweep, taper, span, cr, ct, c_MAC, dihedral, sweep):", sweep_true, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE)
+print("Wing Planform (sweep, taper, span, cr, ct, c_MAC, dihedral, sweep):", sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE)
 print("cd0:", c_d0)
 print("cd0 initial:", c_d_0_initial)
 print("e initial:", e_initial)
