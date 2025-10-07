@@ -2,7 +2,14 @@ import math as m
 
 
 def calculate_geometric_parameters_wing(S_w, AR, M_cr):
+    """
+    Calculate Geometric Parameters of the Wing
 
+    :param S_w: Wing Surface Area [m^2]
+    :param AR: Aspect Ratio [-]
+    :param M_cr: Mach Cruise Number [-]
+    :return: Tuple (Sweep Angle for c/4 [deg], Taper Ratio, Wingspan [m], Root Chord [m], Tip Chord [m], Dihedral Angle [deg], Sweep Angle for LE [deg])
+    """
     sweep = m.acos(1.16/ (M_cr + 0.5) ) * 180 / m.pi
     
     taper = 0.2 *(2 - sweep * m.pi / 180 )
@@ -15,7 +22,7 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
 
     c_MAC = (2/3)* c_root * ((1 + taper + taper**2)/(1+taper))
     
-    dihedral = 3 - 0.1 * sweep + 2 #3 default for unswept, subtract 0.1 for every degree of sweep, +2 from low wing config
+    dihedral = 3 - 0.1 * sweep + 2 #3 default for unswept, subtract 0.1 for every degree of sweep, +2 from low wing configuration
 
     sweep_LE = m.atan((-1/4*c_tip + 1/4*c_root + m.tan(sweep * m.pi / 180)*b) / b ) *180 /m.pi
 
@@ -23,15 +30,29 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
 
 
 def calculate_aerodynamic_performance(thickness_to_chord):
+    """
+    Calculate Aerodynamic Performance Based on Thickness-To-Chord Ratio
 
+    :param thickness_to_chord: Thickness-To-Chord Ratio [-]
+    :return: Parasitic Drag Coefficient c_d0 [-]
+    """
     c_d0 = 0.0035 + 0.018 * thickness_to_chord
 
     return c_d0
 
 
 def calculate_MAC_position(b, c_root, c_tip, sweep):
+    """
+    Calculate MAC Position
 
-    b = b/2 #we used half the wingspan because in the geometric 
+    :param b: Wingspan [m]
+    :param c_root: Root Chord [m]
+    :param c_tip: Tip Chord [m]
+    :param sweep: Sweep Angle for c/4 [deg]
+    :return: Tuple (y-spanwise location of MAC [m], x-spanwise location of MAC [m], Chord length of MAC [m])
+    """
+
+    b = b/2 #For Calculations We Used b as half-wingspan
     print(b)
 
     sweep = sweep * m.pi/180
@@ -64,47 +85,3 @@ def calculate_MAC_position(b, c_root, c_tip, sweep):
 
 
 
-
-#----------------------------------------------------------------------------------------------------#
-# FUNCTION: calculate_geometric_parameters_wing
-
-# Inputs:
-
-# S_w = Surface area wing
-# AR = Aspect ratio
-# M_cr = Mach number at cruise
-
-# Outputs:
-
-# - sweep = Sweep angle (in degrees)
-#  - b = winsgpan
-# - taper = taper ratio
-# - c_root = root chord
-# - c_tip = tip chord
-# - dihedral = dihedral angle (in degrees)
-
-# Assumptions:
-# - MGC roughly MAC
-# - low wing config, for dihedral
-
-
-#----------------------------------------------------------------------------------------------------#
-
-# FUNCTION: calculate_geometric_parameters_wing
-
-# Inputs:
-
-# C_Lmax
-
-# Outputs "calculate_aerodynamic_performance_based_on_given_geometric_parameters": 
-
-# c_d0 
-# c_lmax
-
-# Assumptions "calculate_aerodynamic_performance_based_on_given_geometric_parameters":
-
-# -x/c front spar assumed to be 0.2 (adsee book)
-# -x/c rear spar assumed to be 0.7 (adsee book)
-# thickness_to_chord is assumed to be within 0.06 and 0.25 for the formula from adsee to be valid 
-
-#----------------------------------------------------------------------------------------------------#
