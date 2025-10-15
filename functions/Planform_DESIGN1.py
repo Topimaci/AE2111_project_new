@@ -27,7 +27,7 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
 
     sweep_LE = m.atan((-1/4*c_tip + 1/4*c_root + m.tan(sweep * m.pi / 180)*b) / b ) *180 /m.pi
 
-    return sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE
+    return  taper, b, c_root, c_tip, c_MAC, dihedral
 
 
 def C_L_design(M_MTO, v_cruise, density_cruise, Wing_area):
