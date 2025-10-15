@@ -6,15 +6,15 @@ def calculate_tail_surface_areas(
     MTOM,
     fuel_mass_fraction,
     #-------------------------Mass Fraction Estimations -------------------------#
-    m_OE = 0.607,
-    m_wing = 0.135,
-    m_fus = 0.105,
-    m_t = 0.043,
-    m_eng = 0.1,
-    m_nac = 0.018,
-    m_lg = 0.036,
-    m_fe = 0.17,
-    m_unacc = 0
+    m_OE,
+    m_wing,
+    m_fus,
+    m_t,
+    m_eng,
+    m_nac,
+    m_lg,
+    m_fe,
+    m_unacc
 ):
 
      #-----------CONSTANTS--------#
