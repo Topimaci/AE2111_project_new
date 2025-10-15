@@ -5,6 +5,7 @@ import WP2.main as ma
 import math as m
 import functions.Planform_DESIGN1 as pd
 import numpy as np
+import functions.Drag_calculations_class_II as D2
 
 mass_to_new = mrm.m_MTO
 mass_oe_new = mrm.m_oe
@@ -55,12 +56,22 @@ while S_wing_new/S_wing <= 0.05:
     W_elec, W_avi, W_aircon, W_furn = c2w.electronics_and_avionics_aircondition_furnishings_weight(W_fs, W_uav, W_des, N_pers, M)
 
     Total_Class_II_Weight = W_wing + W_htail + W_vtail + W_fuse + W_mLG + W_nLG + W_eng + W_fs + W_fc + W_hyd + W_elec + W_avi + W_aircon + W_furn
+    ##MTO and OE to be added hellyeah
+
+    ##Planfooooooooooooooooooooooorm calcs
+
 
     C_L_des = pd.C_L_design(M_MTO, velocity_cr, density_cr, S_w)
     sweep_LE_DD = pd.sweep_drag_divergence(C_L_des)
 
     taper, span, chord_root, chord_tip, chord_MAC, dihedral = pd.calculate_geometric_parameters_wing(S_w,AR, M)
 
-    MAC_y, MAC_x = pd.calculate_MAC_position(span, chord_root, chord_tip, sw)
+    sweep_c4 = pd.sweep_converter(sweep_LE_DD, chord_root, taper, 1/4, span)
+
+    MAC_y, MAC_x = pd.calculate_MAC_position(span, chord_root, chord_tip, sweep_c4)
+
+    ##Drag show
+
+    CD_0_Fus = D2.fuselage_drag_coefficient(S_w, density_cr, velocity_cr, chord_MAC, 1.79*10**(-5), length_fus, diameter_fus, length_cock, length_cyli, length_tail, M, upsweep_tail, Base_are)
 
 
