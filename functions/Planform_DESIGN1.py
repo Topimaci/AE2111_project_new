@@ -108,5 +108,9 @@ def calculate_MAC_position(b, c_root, c_tip, sweep):
 
     return y_spanwise, xlemac
 
+def sweep_converter(sweep_LE, chord_root, taper, x_over_c, span):
+    sweep_x_over_c = m.atan(m.tan(sweep_LE) - x_over_c * (2*chord_root/span)*(1-taper))
+    return sweep_x_over_c
 
+    
 
