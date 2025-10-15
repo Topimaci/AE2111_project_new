@@ -1,6 +1,6 @@
-from Range_calculations import *
-from mass_calculations import *
-from dynamic_variables import *
+from functions.Range_calculations import *
+from functions.mass_calculations import *
+from variables.dynamic_variables import *
 
 
 
