@@ -1,6 +1,6 @@
 import Planform_DESIGN1 as Pl
-import fixed_values as fv
-import dynamic_variables as dv
+import variables.fixed_values as fv
+import variables.dynamic_variables as dv
 import math
 
 start_pos_span_TE = 0.15
