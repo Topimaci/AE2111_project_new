@@ -50,7 +50,7 @@ def fuel_volume(root_chord, taper, span, m_fuel):
 
     percentage_fuel_in_wing = Total_volume_wing/Total_volume_fuel_needed
     fuel_mass_in_wing = percentage_fuel_in_wing*m_fuel
-    return Total_volume_wing, percentage_fuel_in_wing, m_fuel
+    return Total_volume_wing, percentage_fuel_in_wing, fuel_mass_in_wing
 
 
 
