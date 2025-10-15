@@ -30,10 +30,14 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
     return sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE
 
 
+def C_L_design(M_MTO, v_cruise, density_cruise, Wing_area):
+    C_L_design = M_MTO*9.81/(0.5* v_cruise**2 * density_cruise * Wing_area)
+    return  C_L_design
+
+
 def sweep_drag_divergence(C_L):
     coeffs = [0.68, -0.87, 0.14, C_L]
 
-    coeffs = [M, -ka, A, B]
     roots = np.roots(coeffs)
 
     # Find the real root where -1 <= cos(Λ) <= 1
