@@ -83,4 +83,3 @@ legend = dx.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
 plt.savefig(plotname, bbox_extra_artists=(legend,), bbox_inches='tight')
 
 #_____iterative process_____________________________________________________________________________
-
