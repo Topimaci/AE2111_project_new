@@ -120,3 +120,11 @@ W_elec, W_avi, W_aircon, W_furn = electronics_and_avionics_aircondition_furnishi
 
 Total_Class_II_Weight = W_wing + W_htail + W_vtail + W_fuse + W_mLG + W_nLG + W_eng + W_fs + W_fc + W_hyd + W_elec + W_avi + W_aircon + W_furn
 
+
+def max_takeoff_mass(OEM, crew, W_fuel, W_payload):         # Crew is equal to number of crew 
+    MTO = OEM + crew * 90 * 1.05 + W_fuel + W_payload       # in kg!!!!!!!!!!!!!!!!!!
+    return MTO
+
+
+
+
