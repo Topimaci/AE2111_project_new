@@ -1,4 +1,4 @@
-
+import math
 
 m_oe_over_m_MTO_fraction = 0.6077
 m_pl_design = 750
@@ -25,4 +25,6 @@ def m_f_harmonic_function(m_MTO, m_oe, m_pl_max):
     m_f_harmonic = m_MTO - m_oe - m_pl_max
     return m_f_harmonic
 
-
+def fuel_mass_without_reserve(Range_auxiliary, Lift_over_Drag, eta_j, e_f):
+    fuel_mass_without_reserve = 1 - math.exp(-Range_auxiliary/Lift_over_Drag*eta_j*e_f/9.81)
+    return  fuel_mass_without_reserve
