@@ -1,11 +1,11 @@
 import Planform_DESIGN1 as pd
 from Drag_calculations import *
-import Matching_Diagram.Minimum_speed as ms
-import Matching_Diagram.Climb_rate as cr
-import Matching_Diagram.Cruise_speed as cs
-import Matching_Diagram.Landing_field_length as lfl
-import Matching_Diagram.climb_grad as cg
-import Matching_Diagram.Take_off_distance as td
+import functions.Minimum_speed as ms
+import functions.Climb_rate as cr
+import functions.Cruise_speed as cs
+import functions.Landing_field_length as lfl
+import functions.climb_grad as cg
+import functions.Take_off_distance as td
 import fixed_values as fv
 import matplotlib.pyplot as plt
 import dynamic_variables as dv
@@ -74,6 +74,7 @@ dx.plot(fv.wing_loading, loads_climb_grad_121d, label="Climb gradient CS25.121d"
 dx.plot(fv.wing_loading, loads_to_field, label="Take-off field length")
 dx.axvline(loads_minimum_speed, color = "gold", label = "Minimum speed")
 dx.axvline(loads_landing_field_length, color = "black", label = "Landing field length")
+dx.scatter(3100, 0.35, label = "Selected Design Point")
 dx.set_xlim([0, 6000])
 dx.set_ylim([0, 0.7])
 dx.set_xlabel("W/S - [N/m2]")
