@@ -1,45 +1,38 @@
 def calculate_tail_surface_areas(
-    
-    #----------ITERATIVE----------#
-    #These values are outputs from other steps of the iterative procedure and are therefore affected in its process.
-    #Needs to be parametrized, (replaced with appropriate functions)
-    S_w = 49.63,
-    b_w = 22.278,
-    c_w = 2.39,
-    c_r = 3.27,
-    MTOM = 12520,
-    fuel_mass_fraction = 0.333,
-
-    #-----------CONSTANTS--------#
-    #Following values can be changed according to needs, but do not follow iterative procedure 
-
-    # nacelle length excludes the cone
-    fus_length = 15.2,
-    nacelle_length = 3,
-    # Aspect Ratio horizontal tail, ranges from 3 to 4 recommended*
-    AR_h = 3.5,
-    # Taper Ratio horizontal tail, ranges from 0.6 to 1 for T-tail.
-    taper_h = 0.7,
-    #10.4 to 50, where 10.4 originates from final planform WP2
-    sweep_leading_edge_v = 20,
-    # Coefficient of volume, also chosen based on aircraft type: for business jet
-    V_v = 0.06,
-    V_h = 0.61,
-    xc_OEWCG = 0.25, # assumption
-    cg_payload = 8, # assumed that it is located in the middle of the cabin
-    m_payload = 1010 # kg
+    S_w,
+    b_w,
+    c_w,
+    c_r,
+    MTOM,
+    fuel_mass_fraction,
+    #-------------------------Mass Fraction Estimations -------------------------#
+    m_OE = 0.607,
+    m_wing = 0.135,
+    m_fus = 0.105,
+    m_t = 0.043,
+    m_eng = 0.1,
+    m_nac = 0.018,
+    m_lg = 0.036,
+    m_fe = 0.17,
+    m_unacc = 0
 ):
 
-    #-------------------------Mass Fraction Estimations -------------------------
-    m_OE = 0.607
-    m_wing = 0.135
-    m_fus = 0.105
-    m_t = 0.043
-    m_eng = 0.1
-    m_nac = 0.018
-    m_lg = 0.036
-    m_fe = 0.17
-    m_unacc = 0
+     #-----------CONSTANTS--------#
+    #Following values can be changed according to needs, but do not follow iterative procedure 
+    fus_length = 15.2
+    nacelle_length = 3
+    # Aspect Ratio horizontal tail, ranges from 3 to 4 recommended*
+    AR_h = 3.5
+    # Taper Ratio horizontal tail, ranges from 0.6 to 1 for T-tail.
+    taper_h = 0.7
+    #10.4 to 50, where 10.4 originates from final planform WP2
+    sweep_leading_edge_v = 20
+    # Coefficient of volume, also chosen based on aircraft type: for business jet
+    V_v = 0.06
+    V_h = 0.61
+    xc_OEWCG = 0.25 # assumption
+    cg_payload = 8  # assumed that it is located in the middle of the cabin
+    m_payload = 1010 # kg
 
     # Total Mass fraction fuselage group
     m_fuselage_group = m_fus + m_t + m_eng + m_nac + m_fe 
