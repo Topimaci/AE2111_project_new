@@ -40,6 +40,7 @@ def wing_weight(wing_area, wing_fuel_weight, aspect_ratio, dynamic_pressure, tap
     W_wing = 0.036 * wing_area ** 0.758 * wing_fuel_weight ** 0.0035 * (aspect_ratio / (m.cos(quarter_sweep)) ** 2) ** 0.6 * dynamic_pressure ** 0.006 * taper_ratio ** 0.04 * (100 * tc_ratio / m.cos(quarter_sweep)) ** (-0.3) * (ultimate_load * design_gross_weight) ** 0.49
     return W_wing
 
+
 def horizontal_tail_weight(ultimate_load, design_gross_weight, dynamic_pressure, h_tail_area, tc_ratio, quarter_sweep, htail_quarter_sweep, h_tail_taper, aspect_ratio):
     htail_weight = 0.016 * (ultimate_load * design_gross_weight) ** 0.414 * dynamic_pressure ** 0.168 * h_tail_area ** 0.896 * (100 *  tc_ratio / (m.cos(quarter_sweep)) ** 2) ** (-0.12) * (aspect_ratio / (m.cos(htail_quarter_sweep)) ** 2) ** 0.043 * h_tail_taper ** (-0.02)
     return htail_weight

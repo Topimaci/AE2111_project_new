@@ -1,4 +1,5 @@
 import math as m
+import numpy as np
 
 
 def calculate_geometric_parameters_wing(S_w, AR, M_cr):
@@ -29,16 +30,36 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
     return sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE
 
 
-def calculate_aerodynamic_performance(thickness_to_chord):
+def sweep_drag_divergence(C_L):
+    coeffs = [0.68, -0.87, 0.14, C_L]
+
+    coeffs = [M, -ka, A, B]
+    roots = np.roots(coeffs)
+
+    # Find the real root where -1 <= cos(Λ) <= 1
+    for r in roots:
+        if abs(r.imag) < 1e-9:
+            x = r.real
+            if -1 <= x <= 1:
+                return np.degrees(np.arccos(x))  # Λ in degrees
+
+    return None  # no physical solution found
+
+
+
+
+
+
+#def calculate_aerodynamic_performance(thickness_to_chord):   #######newer estimations for Cd0
     """
     Calculate Aerodynamic Performance Based on Thickness-To-Chord Ratio
 
     :param thickness_to_chord: Thickness-To-Chord Ratio [-]
     :return: Parasitic Drag Coefficient c_d0 [-]
     """
-    c_d0 = 0.0035 + 0.018 * thickness_to_chord
+    #c_d0 = 0.0035 + 0.018 * thickness_to_chord
 
-    return c_d0
+    #return c_d0
 
 
 def calculate_MAC_position(b, c_root, c_tip, sweep):

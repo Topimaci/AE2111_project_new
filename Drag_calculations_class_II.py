@@ -1,4 +1,5 @@
 import math
+from math import pi as pi
 
 #25% of fuselage is laminar rest is turbulent, from table
 def fuselage_drag_coefficient(wing_area, density, velocity, MAC, dynamic_viscosity, l_fuselage, diameter_fuselage, length_cockpit, length_cylinder_part, length_tail_part, Mach, upsweep, Base_area):
@@ -20,8 +21,8 @@ def fuselage_drag_coefficient(wing_area, density, velocity, MAC, dynamic_viscosi
     C_D_0_fuselage_friction = FF*c_f_total*S_wet_fus/wing_area
 
      #### miscellaneous drag fuselage
-    #upsweep
-    C_D_upsweep = (3.83*upsweep**(2.5)*(math.pi*(diameter_fuselage/2)**2))/wing_area
+    #upsweep                                                          
+    C_D_upsweep = (3.83*upsweep**(2.5)*((math.pi*(diameter_fuselage/2)**2)))/wing_area
     C_D_base_drag = ((0.139+0.419*(Mach-0.161)**2)*Base_area)
     C_D_0_fuselage = C_D_0_fuselage_friction + C_D_base_drag + C_D_upsweep
     return C_D_0_fuselage
@@ -110,10 +111,42 @@ def nacelle_drag_coefficient(wing_area, density, velocity, dynamic_viscosity, le
     C_D_0_nacelle = FF*c_f_total* IF_c*S_wet_nacelle/wing_area
     return C_D_0_nacelle
 
+def C_D_landing_gear_whells(h_from_fuselage, width_tire_and_strut, height_strut, width_strut, height_gear, width_gear, wing_area):
+    ##assume closed wheels wells
+    C_D_s = 0.04955*math.exp(5.615*(width_strut*height_strut+width_gear*height_gear)/(width_tire_and_strut*h_from_fuselage))
+    C_D_landing_gear = C_D_s * (h_from_fuselage*width_tire_and_strut)/wing_area
+    return C_D_landing_gear
+    
+def flap_drag_coefficient(c_f_over_c, S_flap, wing_area, deflection_flap):
+    C_D_Flap = 0.0074 * c_f_over_c * S_flap/wing_area *(deflection_flap-10)
+    return C_D_Flap
+
+
+# Raymar Oswald efficiency estimation for swept wings
+def induced_drag(AR, LE_sweep, C_L, flap_deflection, h_winglet, b, alt): # b is the wing span of the jet, alt is the height of the aircraft above the ground, h_winglet is the height of the winglet
+    delta_AR = 1.9 * (h_winglet / b) * AR
+    AR = AR + delta_AR
+    e = 4.6 * (1 - 0.045 * AR ** 0.68) * (math.cos(LE_sweep)) ** 0.15 - 3.1 
+    delta_e = 0.0026 * flap_deflection
+    e = e * delta_e
+    K = 1 / (pi * e * AR)
+    if alt < b/2:
+        K = 33 * (alt/b) ** 1.5 / (1 + 33 * (alt/b) ** 1.5)
+    c_induced = K * C_L ** 2
+    return c_induced, e, AR
+
+## wave drag
+## min cp0 at 1.5 alpha -1.02
+##M_crit = 0.648
+def wave_C_D(Mach, M_DD):
+    C_D_wave = 0.002*(1+2.5*(M_DD-Mach)/0.05)**(-1)
+    return C_D_wave
 
 
 
-
+def final_C_D_increase(C_D):
+    C_D_final = C_D *1.03
+    return C_D_final
 
 
 
