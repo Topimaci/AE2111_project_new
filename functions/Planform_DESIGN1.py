@@ -27,13 +27,17 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
 
     sweep_LE = m.atan((-1/4*c_tip + 1/4*c_root + m.tan(sweep * m.pi / 180)*b) / b ) *180 /m.pi
 
-    return sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE
+    return  taper, b, c_root, c_tip, c_MAC, dihedral
+
+
+def C_L_design(M_MTO, v_cruise, density_cruise, Wing_area):
+    C_L_design = M_MTO*9.81/(0.5* v_cruise**2 * density_cruise * Wing_area)
+    return  C_L_design
 
 
 def sweep_drag_divergence(C_L):
     coeffs = [0.68, -0.87, 0.14, C_L]
 
-    coeffs = [M, -ka, A, B]
     roots = np.roots(coeffs)
 
     # Find the real root where -1 <= cos(Λ) <= 1
@@ -102,7 +106,7 @@ def calculate_MAC_position(b, c_root, c_tip, sweep):
 
 
 
-    return y_spanwise, xlemac, lengthMAC
+    return y_spanwise, xlemac
 
 
 
