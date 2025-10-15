@@ -106,7 +106,7 @@ def calculate_MAC_position(b, c_root, c_tip, sweep):
 
 
 
-    return y_spanwise, xlemac, lengthMAC
+    return y_spanwise, xlemac
 
 
 
