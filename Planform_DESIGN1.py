@@ -6,6 +6,7 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr, sweep_true):
     sweep = m.acos(1.16/ (M_cr + 0.5) ) * 180 / m.pi
     
     sweep = sweep_true 
+    
     taper = 0.2 *(2 - sweep * m.pi / 180 )
 
     b = m.sqrt(AR*S_w)
