@@ -1,11 +1,11 @@
 import Planform_DESIGN1 as pd
 from Drag_calculations import *
-import Matching_Diagram.Minimum_speed as ms
-import Matching_Diagram.Climb_rate as cr
-import Matching_Diagram.Cruise_speed as cs
-import Matching_Diagram.Landing_field_length as lfl
-import Matching_Diagram.climb_grad as cg
-import Matching_Diagram.Take_off_distance as td
+import functions.Minimum_speed as ms
+import functions.Climb_rate as cr
+import functions.Cruise_speed as cs
+import functions.Landing_field_length as lfl
+import functions.climb_grad as cg
+import functions.Take_off_distance as td
 import fixed_values as fv
 import matplotlib.pyplot as plt
 import dynamic_variables as dv
@@ -13,7 +13,6 @@ import dynamic_variables as dv
 thickness_to_chord = 0.15 # assumption 
 AR = 10
 M_cr = 0.68   #this is for requirement, maybe 0.7 for cruise?
-S_w = 30.46
 
 #for drag calculations the values below are assumed
 S_wet_over_S_w = 5.85
@@ -22,8 +21,10 @@ psi = 0.0075
 phi = 0.97
 sweep_true = 24.5
 
-sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE = pd.calculate_geometric_parameters_wing(dv.S_w, AR, M_cr, sweep_true)
+sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE = pd.calculate_geometric_parameters_wing(dv.S_w, AR, M_cr)
 c_d0 = pd.calculate_aerodynamic_performance(thickness_to_chord)
+
+print(taper, c_r, b)
 
 c_d_0_initial = c_d0_function(S_wet_over_S_w, C_f)
 
@@ -35,7 +36,7 @@ y_spanwise, xlemac, lengthMAC = pd.calculate_MAC_position(b, c_r, c_t, sweep_tru
 
 #_________Wing Loading Calculations______________________________________________________________________________________________________
 loads_minimum_speed = ms.Minimum_speed(fv.rho_ISO, 0.7, 66, fv.C_L_max_landing)
-loads_landing_field_length = lfl.landing_field_length(fv.mass_fraction_landing, 950, 1.225, fv.C_L_max_landing)
+loads_landing_field_length = lfl.landing_field_length(fv.mass_fraction_landing, fv.landing_field, 1.225, fv.C_L_max_landing)
 loads_cruise_speed = cs.cruise_speed(0.95,fv.thrust_lapse,fv.wing_loading_cs,fv.C_d0, 0.2872, fv.v_cr, fv.AR, e_initial)
 loads_climb_rate = cr.climb_rate(fv.wing_loading)
 loads_climb_grad_119 = cg.climb_grad(fv.wing_loading, fv.mass_fraction_119, fv.cg_119, fv.C_d0_119, fv.e_119, fv.AR, 1.225, fv.C_l_at_max_climb_gradient_119, fv.B)
@@ -51,7 +52,7 @@ loads_to_field = td.take_off_distance(alpha, fv.wing_loading, fv.takeoff_field, 
 
 
 
-print("Wing Planform (sweep, taper, span, cr, ct, c_MAC, dihedral, sweep):", sweep_true, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE)
+print("Wing Planform (sweep, taper, span, cr, ct, c_MAC, dihedral, sweep):", sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE)
 print("cd0:", c_d0)
 print("cd0 initial:", c_d_0_initial)
 print("e initial:", e_initial)
@@ -73,8 +74,9 @@ dx.plot(fv.wing_loading, loads_climb_grad_121d, label="Climb gradient CS25.121d"
 dx.plot(fv.wing_loading, loads_to_field, label="Take-off field length")
 dx.axvline(loads_minimum_speed, color = "gold", label = "Minimum speed")
 dx.axvline(loads_landing_field_length, color = "black", label = "Landing field length")
-dx.set_xlim([0, 9000])
-dx.set_ylim([0.1, 0.6])
+dx.scatter(3100, 0.35, label = "Selected Design Point")
+dx.set_xlim([0, 6000])
+dx.set_ylim([0, 0.7])
 dx.set_xlabel("W/S - [N/m2]")
 dx.set_ylabel("T/W - [N/N]")
 dx.set_title("Matching Diagram")
