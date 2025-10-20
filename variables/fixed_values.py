@@ -66,8 +66,8 @@ cg_121c = 1.2
 cg_121d = 2.1
 
 
-flap_to = 12
-flap_la = 30
+flap_to = 13
+flap_la = 40
 
 
 C_d0_119 = C_d0 + 0.02 +flap_la*0.0013
