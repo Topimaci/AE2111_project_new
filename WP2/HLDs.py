@@ -3,18 +3,18 @@ import variables.fixed_values as fv
 import variables.dynamic_variables as dv
 import math
 
-start_pos_span_TE = 0.15
-end_pos_span_TE = 0.8
 
-start_pos_span_LE = 0.2
-end_pos_span_LE = 0.8
-c_f_c_TE = 0.35  # fraction of local chord
-c_f_c_LE = 0.1 
-radius_fuselage = 1
 
 
 def HLD(S_w, sweep_LE, span, c_tip, c_root):
+    start_pos_span_TE = 0.15
+    end_pos_span_TE = 0.8
 
+    start_pos_span_LE = 0.2
+    end_pos_span_LE = 0.8
+    c_f_c_TE = 0.35  # fraction of local chord
+    c_f_c_LE = 0.1 
+    radius_fuselage = 1
 
     # all letters as specified in the drawing in the report 
 
@@ -69,5 +69,5 @@ def HLD(S_w, sweep_LE, span, c_tip, c_root):
     delta_c_lmax_LE = 0.4 * c_prime_LE / c_avg_LE
     DELTA_c_LMAX_LE = 0.9 * delta_c_lmax_LE * reference_area_LE / S_w * math.cos(sweep_LE)
 
-    return c_avg_TE
+    return c_avg_TE, reference_area_TE, 
 
