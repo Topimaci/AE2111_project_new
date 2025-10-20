@@ -122,13 +122,14 @@ def flap_drag_coefficient(c_f_over_c, S_flap, wing_area, deflection_flap):
     return C_D_Flap
 
 
+
 # Raymar Oswald efficiency estimation for swept wings
 def induced_drag(AR, LE_sweep, C_L, flap_deflection, h_winglet, b, alt): # b is the wing span of the jet, alt is the height of the aircraft above the ground, h_winglet is the height of the winglet
     delta_AR = 1.9 * (h_winglet / b) * AR
     AR = AR + delta_AR
     e = 4.6 * (1 - 0.045 * AR ** 0.68) * (math.cos(LE_sweep)) ** 0.15 - 3.1 
     delta_e = 0.0026 * flap_deflection
-    e = e * delta_e
+    e = e + delta_e
     K = 1 / (pi * e * AR)
     if alt < b/2:
         K = 33 * (alt/b) ** 1.5 / (1 + 33 * (alt/b) ** 1.5)
