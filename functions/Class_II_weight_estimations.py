@@ -1,8 +1,8 @@
 import math as m
-import fixed_values as fv
-import dynamic_variables as dv
+import variables.fixed_values as fv
+import variables.dynamic_variables as dv
 import Planform_DESIGN1 as Pl
-import main as ma
+import WP2.main as ma
 
 #--------------Convert Inputs to Imperial Units-------------------------------------------------------------------
 def m_to_ft(m):
@@ -49,8 +49,8 @@ def vertical_tail_weight(ultimate_load, design_gross_weight, dynamic_pressure, v
     vtail_weight = 0.073 * (1 + 0.2 * H_t_H_v_ratio) * (ultimate_load * design_gross_weight) ** 0.376 * dynamic_pressure ** 0.122 * v_tail_area ** 0.873 * (100 * tc_ratio / m.cos(quarter_sweep)) ** (-0.49) * (aspect_ratio / (m.cos(vtail_quarter_sweep)) ** 2) ** 0.357 * v_tail_taper ** 0.039
     return vtail_weight
 
-def fuselage_weight(fuselage_wetted_A, ultimate_load, design_gross_weight, tail_distance, L_over_D, dynamic_pressure, W_pressure):
-    fuse_weight = 0.052 * (fuselage_wetted_A) ** 1.086 (ultimate_load * design_gross_weight) ** 0.177 * tail_distance ** (-0.051) * L_over_D ** (-0.072) * dynamic_pressure ** 0.241 + W_pressure
+def fuselage_weight(fuselage_wetted_A, ultimate_load, design_gross_weight, tail_distance, L_fuselage, D_fuselage, dynamic_pressure, W_pressure):        # D_fuselage is the structural depth of the fuselage
+    fuse_weight = 0.052 * (fuselage_wetted_A) ** 1.086 (ultimate_load * design_gross_weight) ** 0.177 * tail_distance ** (-0.051) * L_fuselage / D_fuselage ** (-0.072) * dynamic_pressure ** 0.241 + W_pressure
     return fuse_weight
 
 def main_landing_gear_weight(ultimate_landing_load, weight_landing, length_main_gear):
