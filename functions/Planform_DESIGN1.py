@@ -30,8 +30,8 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
     return  taper, b, c_root, c_tip, c_MAC, dihedral
 
 
-def C_L_design(M_MTO, v_cruise, density_cruise, Wing_area):
-    C_L_design = M_MTO*9.81/(0.5* v_cruise**2 * density_cruise * Wing_area)
+def C_L_design(M_MTO, m_fuel, v_cruise, density_cruise, Wing_area):
+    C_L_design = 0.5*(M_MTO+(M_MTO-m_fuel))*9.81/(0.5* v_cruise**2 * density_cruise * Wing_area)
     return  C_L_design
 
 
