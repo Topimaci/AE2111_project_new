@@ -1,4 +1,4 @@
-import Planform_DESIGN1 as Pl
+import functions.Planform_DESIGN1 as Pl
 import variables.fixed_values as fv
 import variables.dynamic_variables as dv
 import math

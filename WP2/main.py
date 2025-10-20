@@ -1,14 +1,14 @@
-import Planform_DESIGN1 as pd
-from Drag_calculations import *
+import functions.Planform_DESIGN1 as pd
+from functions.Drag_calculations import *
 import functions.Minimum_speed as ms
 import functions.Climb_rate as cr
 import functions.Cruise_speed as cs
 import functions.Landing_field_length as lfl
 import functions.climb_grad as cg
 import functions.Take_off_distance as td
-import fixed_values as fv
+import variables.fixed_values as fv
 import matplotlib.pyplot as plt
-import dynamic_variables as dv
+import variables.dynamic_variables as dv
 
 thickness_to_chord = 0.15 # assumption 
 AR = 10
@@ -84,3 +84,4 @@ legend = dx.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
 plt.savefig(plotname, bbox_extra_artists=(legend,), bbox_inches='tight')
 
 #_____iterative process_____________________________________________________________________________
+
