@@ -131,9 +131,12 @@ def induced_drag(AR, LE_sweep, C_L, flap_deflection, h_winglet, b, alt): # b is 
     delta_e = 0.0026 * flap_deflection
     e = e + delta_e
     K = 1 / (pi * e * AR)
+    
     if alt < b/2:
-        K = 33 * (alt/b) ** 1.5 / (1 + 33 * (alt/b) ** 1.5)
-    c_induced = K * C_L ** 2
+        omega = 33 * (alt/b) ** 1.5 / (1 + 33 * (alt/b) ** 1.5)
+    else:
+        omega = 1
+    c_induced = omega * K * C_L ** 2
     return c_induced, e, AR
 
 ## wave drag
