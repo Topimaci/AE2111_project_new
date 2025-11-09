@@ -22,8 +22,9 @@ mass_oe_new = mrm.m_oe
 mass_fuel_new = mrm.m_f_des
 
 S_wing = dv.S_w
-S_wing_new = S_wing
-#change dv.S_w to S_wing in all code
+
+Running = True
+#change dv.S_w to S_wing in all code DONE
 
 
 density_cr = 0.2872
@@ -55,7 +56,7 @@ W_press = 11.9 + (V_pr * P_delta) ** 0.271                  # Penalization due t
 t_w = dv.designtw
 w_s = dv.designws
 
-while S_wing_new/S_wing <= 0.05:
+while Running == True:
 
     
 
@@ -78,11 +79,11 @@ while S_wing_new/S_wing <= 0.05:
     ##Planfooooooooooooooooooooooorm calcs
 
 
-    C_L_des = pd.C_L_design(M_MTO, mass_fuel_new, velocity_cr, density_cr, dv.S_w)
+    C_L_des = pd.C_L_design(M_MTO, mass_fuel_new, velocity_cr, density_cr, S_wing)
     C_L_land = pd.C_L_design(M)
     sweep_LE_DD = pd.sweep_drag_divergence(C_L_des)
 
-    taper, span, chord_root, chord_tip, chord_MAC, dihedral = pd.calculate_geometric_parameters_wing(dv.S_w,AR, M)
+    taper, span, chord_root, chord_tip, chord_MAC, dihedral = pd.calculate_geometric_parameters_wing(S_wing,AR, M)
     htail_taper, htail_span, htail_chord_root, htail_chord_tip, htail_chord_MAC, htail_dihedral = pd.calculate_geometric_parameters_wing(es.S_h,3.5,M)
     vtail_taper, vtail_span, vtail_chord_root, vtail_chord_tip, vtail_chord_MAC, vtail_dihedral = pd.calculate_geometric_parameters_wing(es.S_v,3.5,M)
 
@@ -98,14 +99,14 @@ while S_wing_new/S_wing <= 0.05:
 
     ##Drag show
 
-    CD_0_Fus = D2.fuselage_drag_coefficient(dv.S_w, density_cr, velocity_cr, chord_MAC, visc, length_fus, diameter_fus, length_cock, length_cyli, length_tail, M, upsweep_tail, Base_are)
-    CD_0_Wing = D2.wing_drag_coefficient(0.14,0.378,pd.sweep_converter(sweep_LE_DD,chord_root, taper, 0.378, span),dv.S_w, density_cr, velocity_cr, chord_MAC, visc, M)
+    CD_0_Fus = D2.fuselage_drag_coefficient(S_wing, density_cr, velocity_cr, chord_MAC, visc, length_fus, diameter_fus, length_cock, length_cyli, length_tail, M, upsweep_tail, Base_are)
+    CD_0_Wing = D2.wing_drag_coefficient(0.14,0.378,pd.sweep_converter(sweep_LE_DD,chord_root, taper, 0.378, span),S_wing, density_cr, velocity_cr, chord_MAC, visc, M)
     CD_0_Htail = D2.horizontal_tail_drag_coefficient(0.12,0.3, pd.sweep_converter(25, htail_chord_root, htail_taper, 0.3, htail_span), es.S_h, density_cr, velocity_cr, htail_chord_MAC, visc, M)
     CD_0_Vtail = D2.vertical_tail_drag_coefficient(0.12, 0.3, pd.sweep_converter(20, vtail_chord_root, vtail_taper, 0.3, vtail_span),es.S_v, density_cr, velocity_cr, vtail_chord_MAC, visc, M)
-    CD_0_Nacelle = D2.nacelle_drag_coefficient(dv.S_w, density_cr, velocity_cr, visc, engine[5], engine[4], M)
+    CD_0_Nacelle = D2.nacelle_drag_coefficient(S_wing, density_cr, velocity_cr, visc, engine[5], engine[4], M)
     CD_0_surf = CD_0_Fus + CD_0_Wing + CD_0_Htail + CD_0_Vtail + CD_0_Nacelle
 
-    CD_Wheelwell = D2.C_D_landing_gear_whells(fuselage_height, strut, height_strut, width_strut, height_gear, width_gear, dv.S_w)
+    CD_Wheelwell = D2.C_D_landing_gear_whells(fuselage_height, strut, height_strut, width_strut, height_gear, width_gear, S_wing)
     CD_flap = D2.flap_drag_coefficient(cf/chord_MAC,S_flap,S_wing_new, 40)
 
     CD_0_misc = CD_Wheelwell + CD_flap
@@ -136,3 +137,39 @@ while S_wing_new/S_wing <= 0.05:
     theta, delta = td.find_theta_delta(fv.temp_takeoff, Mach)
     alpha = td.find_alpha_t(delta, Mach, fv.B)
     loads_to_field = td.take_off_distance(alpha, fv.wing_loading, fv.takeoff_field, fv.density_takeoff, fv.oswald_efficiency, fv.AR)
+
+    intersection_tocr = np.intersect1d(loads_to_field, loads_cruise_speed)
+    intersection_tola = loads_to_field[np.where(fv.wing_loading == loads_landing_field_length)]
+
+    wingload_1 = fv.wing_loading[np.where(loads_to_field == intersection_tocr)]
+    wingload_2 = loads_landing_field_length
+
+    if wingload_1*1.05 <= wingload_2 and wingload_1 <= wingload_2:
+
+        w_s_new = wingload_2*0.95
+        t_w_new = intersection_tola * 1.05
+    
+    elif wingload_1*1.05 >= wingload_2 and wingload_1 <= wingload_2: 
+
+        w_s_new = wingload_1
+        t_w_new = intersection_tocr * 1.05
+    else:
+
+        if intersection_tocr >= intersection_tola:
+
+            w_s_new = wingload_2*0.95
+            t_w_new = intersection_tocr*1.05
+
+        else:
+
+            w_s_new = wingload_2*0.95
+            t_w_new = intersection_tola*1.05
+
+    W_to = m_MTO * 9.81
+    S_wing_new = W_to/w_s_new
+
+    if S_wing_new/S_wing <= 0.05 or S_wing_new/S_wing >= 0.05:
+
+        Running = False
+
+    else: S_wing = S_wing_new
