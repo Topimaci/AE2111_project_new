@@ -62,18 +62,24 @@ while Running == True:
 
     ##Class II mass calculaitons
 
+    #EEEEEEEEEEEEEEEEEEEEEEEEEngine
+
+    engine = et.engine_required(t_w*9.81*mass_to_new)
+
     W_wing = c2w.wing_weight(S_w, W_fuel, AR, q, taper, t_c, sweep, N_z, W_des)
     W_htail = c2w.horizontal_tail_weight(N_z, W_des, q, taper, c2w.m2_to_ft2(tail_area), t_c, sweep, htailsweep, h_tailtaper, AR)
     W_vtail = c2w.vertical_tail_weight(N_z, W_des, q, c2w.m2_to_ft2(tail_area), t_c, sweep, sweep_tail, taper_tail, AR)
     W_fuse = c2w.fuselage_weight(S_wfus, N_z, W_des, c2w.m_to_ft(tail_distance), dv.L_over_D_max, q, W_press)
     W_mLG = c2w.main_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_main_gear))
     W_nLG = c2w.nose_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_nose_gear))
-    W_eng = c2w.engine_weight(c2w.kg_to_lb(weight_engine), 2)
+    W_eng = c2w.engine_weight(c2w.kg_to_lb(engine[7]), 2)
     W_fs = c2w.fuel_system_weight(c2w.liters_to_gal(tot_fuel_vol), c2w.liters_to_gal(int_tank_vol), number_fueltanks, 2)
     W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(L_fuselage), b, N_z, W_des)
     W_elec, W_avi, W_aircon, W_furn = c2w.electronics_and_avionics_aircondition_furnishings_weight(W_fs, W_uav, W_des, N_pers, M)
 
-    Total_Class_II_Weight = W_wing + W_htail + W_vtail + W_fuse + W_mLG + W_nLG + W_eng + W_fs + W_fc + W_hyd + W_elec + W_avi + W_aircon + W_furn
+    OEW = W_wing + W_htail + W_vtail + W_fuse + W_mLG + W_nLG + W_eng + W_fs + W_fc + W_hyd + W_elec + W_avi + W_aircon + W_furn
+
+    MTOW = c2w.max_takeoff_mass(OEW, 3, W_fuel, W_payload)
     ##MTO and OE to be added hellyeah
 
     ##Planfooooooooooooooooooooooorm calcs
@@ -92,14 +98,9 @@ while Running == True:
     MAC_y, MAC_x = pd.calculate_MAC_position(span, chord_root, chord_tip, sweep_c4)
     cf, S_flap = hld.HLD(S_wing_new, sweep_LE_DD, span, chord_tip, chord_root)
 
-    #EEEEEEEEEEEEEEEEEEEEEEEEEngine
-
-    engine = et.engine_required(t_w*9.81*mass_to_new)
-
-
     ##Drag show
 
-    CD_0_Fus = D2.fuselage_drag_coefficient(S_wing, density_cr, velocity_cr, chord_MAC, visc, length_fus, diameter_fus, length_cock, length_cyli, length_tail, M, upsweep_tail, Base_are)
+    CD_0_Fus = D2.fuselage_drag_coefficient(S_wing, density_cr, velocity_cr, chord_MAC, visc, length_fus, diameter_fus, length_cock, length_cyli, length_tail, M, upsweep_tail, Base_area)
     CD_0_Wing = D2.wing_drag_coefficient(0.14,0.378,pd.sweep_converter(sweep_LE_DD,chord_root, taper, 0.378, span),S_wing, density_cr, velocity_cr, chord_MAC, visc, M)
     CD_0_Htail = D2.horizontal_tail_drag_coefficient(0.12,0.3, pd.sweep_converter(25, htail_chord_root, htail_taper, 0.3, htail_span), es.S_h, density_cr, velocity_cr, htail_chord_MAC, visc, M)
     CD_0_Vtail = D2.vertical_tail_drag_coefficient(0.12, 0.3, pd.sweep_converter(20, vtail_chord_root, vtail_taper, 0.3, vtail_span),es.S_v, density_cr, velocity_cr, vtail_chord_MAC, visc, M)
