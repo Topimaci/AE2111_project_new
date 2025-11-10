@@ -24,7 +24,7 @@ sweep_true = 24.5
 sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE = pd.calculate_geometric_parameters_wing(dv.S_w, AR, M_cr)
 c_d0 = pd.calculate_aerodynamic_performance(thickness_to_chord)
 
-print(taper, c_r, b)
+
 
 c_d_0_initial = c_d0_function(S_wet_over_S_w, C_f)
 
@@ -57,7 +57,7 @@ print("cd0:", c_d0)
 print("cd0 initial:", c_d_0_initial)
 print("e initial:", e_initial)
 print("L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D:", dv.L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D )
-print("THIS ONE", y_spanwise, xlemac, lengthMAC)
+
 
 #____Plots____
 

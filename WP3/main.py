@@ -30,7 +30,7 @@ S_wing = dv.S_w
 Running = True
 #change dv.S_w to S_wing in all code DONE
 
-
+print("Fuel:" , W_fuel)
 density_cr = 0.2872
 velocity_cr = 200.629
 
@@ -102,9 +102,7 @@ while Running == True:
     #EEEEEEEEEEEEEEEEEEEEEEEEEngine
 
     engine = et.engine_required(t_w*9.81*MTOW)
-    print(MTOW)
-    print(engine)
-    print(t_w)
+
     
 
 
@@ -138,7 +136,7 @@ while Running == True:
 
 
     C_L_des = pd.C_L_design(MTOW, W_fuel, velocity_cr, density_cr, S_wing)
-    sweep_LE_DD =  25           #pd.sweep_drag_divergence(C_L_des)  FIX SWEEPR DRAG DIVERGENCE
+    sweep_LE_DD = pd.sweep_drag_divergence(C_L_des)  
     print("sweep:" ,sweep_LE_DD)
     ##sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE
 
@@ -185,9 +183,9 @@ while Running == True:
     L_over_D = C_L_des/CD_total_clean
 
     #Fuel mass fraction
-
-   
-    print(AR_new_clean)
+    print("CL design", C_L_des)
+    print("CD induced", CD_wave)
+ 
     R_lost = range.R_lost_function(L_over_D, fv.h_cr, velocity_cr)
     R_eq_res = range.R_eq_res_function(fv.R_div, fv.t_E, velocity_cr)
     R_eq = range.R_eq_function(fv.R_des, R_lost, fv.f_cont, R_eq_res)

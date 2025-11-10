@@ -1,6 +1,6 @@
 import math as m
 import numpy as np
-from scipy.optimize import fsolve
+from scipy.optimize import root_scalar
 
 def calculate_geometric_parameters_wing(S_w, AR, M_cr):
     """
@@ -31,26 +31,29 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
 
 
 def C_L_design(M_MTO, m_fuel, v_cruise, density_cruise, Wing_area):
-    C_L_design = 0.5*(M_MTO+(M_MTO-m_fuel))*9.81/(0.5* v_cruise**2 * density_cruise * Wing_area)
+    C_L_design = 1.1*(M_MTO+(M_MTO-m_fuel))*9.81/(0.5* v_cruise**2 * density_cruise * Wing_area)
     return  C_L_design
 
 
 def sweep_drag_divergence(C_L):
     def equation(L):
-        M_DD = 0.68
-        t_c_streamwise = 0.14
-        ka = -0.87
-        return M_DD - (ka/np.cos(L) - t_c_streamwise/(np.cos(L)**2) - C_L/(10*np.cos(L)**3))
+        # Avoid division by zero near 90°
+        if np.isclose(np.cos(L), 0):
+            return np.inf
+        return 0.68 - (0.87/np.cos(L) - 0.14/np.cos(L)**2 - C_L/(10*np.cos(L)**3))
 
-    # Initial guess (in radians)
-    L_guess = np.radians(25)
+    # Search in a realistic range (0°–70°)
+    lower, upper = np.radians(0), np.radians(85)
 
-    # Solve numerically
-    Lambda_solution, = fsolve(equation, L_guess)
-
-    # Convert to degrees
-    Lambda_deg = np.degrees(Lambda_solution)
-    return Lambda_deg
+    try:
+        sol = root_scalar(equation, bracket=[lower, upper], method='brentq')
+        if sol.converged:
+            return np.degrees(sol.root)
+        else:
+            return np.nan
+    except ValueError:
+        # If no root found, return NaN
+        return np.nan
 
 
 
@@ -81,10 +84,10 @@ def calculate_MAC_position(b, c_root, c_tip, sweep):
     """
 
     b = b/2 #For Calculations We Used b as half-wingspan
-    print(b)
+ 
 
     sweep = sweep * m.pi/180
-    print(c_root, c_tip, sweep)
+   
 
 
     a_1 = (b/(5/4 * c_tip + 7/4 * c_root - m.tan(sweep)*b))**(-1)
