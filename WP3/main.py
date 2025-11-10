@@ -119,7 +119,7 @@ while Running == True:
     MTOW = c2w.max_takeoff_mass(OEW, 3, W_fuel, W_payload)
 
 
-    fuel_mass_fraction = 
+    fuel_mass_fraction = 0.333
     m_OE = 0.607
     m_wing = 0.135
     m_fus = 0.105
