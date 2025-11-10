@@ -76,6 +76,7 @@ while Running == True:
     W_fs = c2w.fuel_system_weight(c2w.liters_to_gal(tot_fuel_vol), c2w.liters_to_gal(int_tank_vol), number_fueltanks, 2)
     W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(L_fuselage), b, N_z, W_des)
     W_elec, W_avi, W_aircon, W_furn = c2w.electronics_and_avionics_aircondition_furnishings_weight(W_fs, W_uav, W_des, N_pers, M)
+    W_payload  = 1010
 
     OEW = W_wing + W_htail + W_vtail + W_fuse + W_mLG + W_nLG + W_eng + W_fs + W_fc + W_hyd + W_elec + W_avi + W_aircon + W_furn
 
@@ -85,7 +86,7 @@ while Running == True:
     ##Planfooooooooooooooooooooooorm calcs
 
 
-    C_L_des = pd.C_L_design(M_MTO, mass_fuel_new, velocity_cr, density_cr, S_wing)
+    C_L_des = pd.C_L_design(MTOW, mass_fuel_new, velocity_cr, density_cr, S_wing)
     C_L_land = pd.C_L_design(M)
     sweep_LE_DD = pd.sweep_drag_divergence(C_L_des)
 
