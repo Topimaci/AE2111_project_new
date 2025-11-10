@@ -1,21 +1,30 @@
 import math as m
-import fixed_values as fv
-import Planform_DESIGN1 as Pl
-import contextlib
 import io
+import contextlib
+import os
+import sys
 
-
-## Redirect print output to avoid cluttering the output
+# Capture any print output during imports
 f = io.StringIO()
 with contextlib.redirect_stdout(f):
-    import HLDs as HLDs
-    import master_range_mass as mrm
+    # Current folder (functions/)
+    current_dir = os.path.dirname(__file__)
+    
+    # Add the project root (parent of functions, WP2, variables) to sys.path
+    project_root = os.path.abspath(os.path.join(current_dir, ".."))
+    sys.path.insert(0, project_root)
+
+    # Now you can use package-style imports
+    import WP2.HLDs as HLDs
+    import WP2.master_range_mass as mrm
+    import variables.fixed_values as fv
+    import functions.Planform_DESIGN1 as Pl
 
 
 ## Required values for roll performance
 c_l_alpha = 0.11965 *360 / 2 * m.pi ## per radian
 S_w = 30.48
-sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE = Pl.calculate_geometric_parameters_wing(S_w, fv.AR, 0.68)
+taper, b, c_root, c_tip, c_MAC, dihedral = Pl.calculate_geometric_parameters_wing(S_w, fv.AR, 0.68)
 k_const = 2.5 ## misc constant
 m_const = 1.8 ## misc constant
 rear_spar_pos = 0.65 ## as fraction of chord

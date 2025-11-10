@@ -18,9 +18,9 @@ import functions.Take_off_distance as td
 import variables.fixed_values as fv
 import functions.Fuel_Volume as fuelv
 
-mass_to_new = mrm.m_MTO
-mass_oe_new = mrm.m_oe
-mass_fuel_new = mrm.m_f_des
+MTOW = mrm.m_MTO
+OEW = mrm.m_oe
+W_fuel = mrm.m_f_des
 
 S_wing = dv.S_w
 
@@ -50,12 +50,10 @@ sweep = ma.sweep_true
 taper = ma.taper
 t_c = ma.thickness_to_chord
 AR = ma.AR
-b = c2w.m_to_ft()                                               # wing span
-S_w = c2w.m2_to_ft2(dv.S_w)                                           # wing area
-W_fuel = c2w.kg_to_lb()                                         # Wing fuel weight
+span = ma.b                                              # wing span
 N_z = 1.5 * 3.8                                             # Ultimate load factor
 N_l =                                                       # Load factor landing
-W_des = c2w.kg_to_lb()                                          # Gross design weight
+W_des =                                          # Gross design weight
 S_wfus = c2w.m2_to_ft2()                                        # Wetted area fuselage
 W_l = c2w.kg_to_lb()                                            # Weight landing
 M = ma.M_cr                                                 # Mach number
@@ -64,6 +62,19 @@ N_pers = 11                                                  # Number personell 
 V_pr = c2w.m3_to_ft3(1.92/2*m.pi*7)                                          # Volume of pressurized section
 P_delta = c2w.pas_to_psi()                                      # Cabin pressure
 W_press = 11.9 + (V_pr * P_delta) ** 0.271                  # Penalization due to Pressure difference, UNITS?????????????????????????????
+chord_MAC = 2.39
+chord_root = 3.269
+
+fuel_mass_fraction = 
+m_OE = OEW / MTOW
+m_wing = W_wing / MTOW
+m_fus = W_fuse / MTOW
+m_t = (W_vtail + W_htail)/MTOW
+m_eng = (W_eng)/ MTOW
+m_nac = 
+m_lg = 
+m_fe = 
+m_unacc = 
 
 AR_h = 3.5                                                      #Aspect ratio horizontal tail
 AR_v = 1.5                                                      #Aspect ratio vertical tail
@@ -77,7 +88,7 @@ w_s = dv.designws
 
 while Running == True:
 
-    tail_area_v, tail_area_h, tail_distance =  es.calculate_tail_surface_areas(S_w, span, chord_MAC, chord_root, MTOW, fuel_mass_fraction, m_OE, m_wing, m_fus, m_t, m_eng, m_nac, m_lg, m_fe, m_unacc)
+    tail_area_v, tail_area_h, tail_distance =  es.calculate_tail_surface_areas(S_wing, span, chord_MAC, chord_root, MTOW, fuel_mass_fraction, m_OE, m_wing, m_fus, m_t, m_eng, m_nac, m_lg, m_fe, m_unacc)
     
 
 
@@ -86,12 +97,12 @@ while Running == True:
 
     #EEEEEEEEEEEEEEEEEEEEEEEEEngine
 
-    engine = et.engine_required(t_w*9.81*mass_to_new)
+    engine = et.engine_required(t_w*9.81*MTOW)
 
     Total_volume_wing, percentage_fuel_in_wing, fuel_mass_in_wing, Total_volume_fuel_needed = fuelv.fuel_volume
 
 
-    W_wing = c2w.wing_weight(S_w, W_fuel, AR, q, taper, t_c, sweep, N_z, W_des)
+    W_wing = c2w.wing_weight(S_wing, W_fuel, AR, q, taper, t_c, sweep, N_z, W_des)
     W_htail = c2w.horizontal_tail_weight(N_z, W_des, q, taper, c2w.m2_to_ft2(tail_area_h), t_c, sweep, h_tailsweep, h_tailtaper, AR_h)
     W_vtail = c2w.vertical_tail_weight(N_z, W_des, q, c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v)
     W_fuse = c2w.fuselage_weight(S_wfus, N_z, W_des, c2w.m_to_ft(tail_distance), dv.L_over_D_max, q, W_press)
@@ -99,8 +110,9 @@ while Running == True:
     W_nLG = c2w.nose_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_nose_gear))
     W_eng = c2w.engine_weight(c2w.kg_to_lb(engine[7]), 2)
     W_fs = c2w.fuel_system_weight(c2w.liters_to_gal(Total_volume_fuel_needed*1000), c2w.liters_to_gal(Total_volume_fuel_needed*1000), number_fueltanks, 2)
-    W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), b, N_z, W_des)
+    W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), span, N_z, W_des)
     W_elec, W_avi, W_aircon, W_furn = c2w.electronics_and_avionics_aircondition_furnishings_weight(W_fs, W_uav, W_des, N_pers, M)
+    W_payload  = 1010
 
     OEW = W_wing + W_htail + W_vtail + W_fuse + W_mLG + W_nLG + W_eng + W_fs + W_fc + W_hyd + W_elec + W_avi + W_aircon + W_furn
 
@@ -146,10 +158,10 @@ while Running == True:
     CD_0_surf = CD_0_Fus + CD_0_Wing + CD_0_Htail + CD_0_Vtail + CD_0_Nacelle
 
     ## Have to decide which ones count to fwhich configuration, also CD_wheelwell times 3 or only 1 or what??
-    CD_Wheelwell = D2.C_D_landing_gear_whells(fuselage_height, width_tire_and_strut, height_strut, width_strut, height_gear, width_gear, S_wing)
+    #CD_Wheelwell = D2.C_D_landing_gear_whells(fuselage_height, width_tire_and_strut, height_strut, width_strut, height_gear, width_gear, S_wing)
     CD_flap = D2.flap_drag_coefficient(cf/chord_MAC,S_flap,S_wing_new, 40)
 
-    CD_0_misc = CD_Wheelwell + CD_flap
+    CD_0_misc = CD_flap
 
     CD_ind_clean, e, AR_new = D2.induced_drag(AR, sweep_LE_DD, C_L_des, 0, 1, span, 10000000000000)
     CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_LE_DD, C_L_land, 40, 1, span, 100000000000000000000000)
@@ -164,7 +176,7 @@ while Running == True:
     #matching diagram
 
     loads_minimum_speed = ms.Minimum_speed(1.225, engine[7], 66, C_L_land)
-    loads_landing_field_length = lfl.landing_field_length(mass_landing/mass_to_new, 700, 1.225, C_L_land)
+    loads_landing_field_length = lfl.landing_field_length(mass_landing/MTOW, 700, 1.225, C_L_land)
     loads_cruise_speed = cs.cruise_speed(0.95,0.24,fv.wing_loading_cs,CD_0_surf, 0.2872, velocity_cr, AR_new, e)
     loads_climb_rate = cr.climb_rate(fv.wing_loading)
     loads_climb_grad_119 = cg.climb_grad(fv.wing_loading, fv.mass_fraction_119, fv.cg_119, fv.C_d0_119, fv.e_119, fv.AR, 1.225, fv.C_l_at_max_climb_gradient_119, fv.B)
