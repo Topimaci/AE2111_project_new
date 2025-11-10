@@ -103,8 +103,8 @@ while Running == True:
     Total_volume_wing, percentage_fuel_in_wing, fuel_mass_in_wing, Total_volume_fuel_needed = fuelv.fuel_volume
 
 
-    W_wing = c2w.wing_weight(S_wing, W_fuel, AR, q, taper, t_c, sweep, N_z, W_des)
-    W_htail = c2w.horizontal_tail_weight(N_z, W_des, q, taper, c2w.m2_to_ft2(tail_area_h), t_c, sweep, h_tailsweep, h_tailtaper, AR_h)
+    W_wing = c2w.wing_weight(c2w.m2_to_ft2(S_wing),  c2w.kg_to_lb(W_fuel), AR, q, taper, t_c, sweep, N_z,  c2w.kg_to_lb(W_des))
+    W_htail = c2w.horizontal_tail_weight(N_z,  c2w.kg_to_lb(W_des), q, taper, c2w.m2_to_ft2(tail_area_h), t_c, sweep, h_tailsweep, h_tailtaper, AR_h)
     W_vtail = c2w.vertical_tail_weight(N_z, W_des, q, c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v)
     W_fuse = c2w.fuselage_weight(S_wfus, N_z, W_des, c2w.m_to_ft(tail_distance), dv.L_over_D_max, q, W_press)
     W_mLG = c2w.main_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_main_gear))
