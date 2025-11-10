@@ -50,7 +50,7 @@ sweep = ma.sweep_true
 taper = ma.taper
 t_c = ma.thickness_to_chord
 AR = ma.AR
-b = ma.b                                              # wing span
+span = ma.b                                              # wing span
 N_z = 1.5 * 3.8                                             # Ultimate load factor
 N_l =                                                       # Load factor landing
 W_des =                                          # Gross design weight
@@ -62,6 +62,19 @@ N_pers = 11                                                  # Number personell 
 V_pr = c2w.m3_to_ft3(1.92/2*m.pi*7)                                          # Volume of pressurized section
 P_delta = c2w.pas_to_psi()                                      # Cabin pressure
 W_press = 11.9 + (V_pr * P_delta) ** 0.271                  # Penalization due to Pressure difference, UNITS?????????????????????????????
+chord_MAC = 2.39
+chord_root = 3.269
+
+fuel_mass_fraction = 
+m_OE = OEW / MTOW
+m_wing = W_wing / MTOW
+m_fus = W_fuse / MTOW
+m_t = (W_vtail + W_htail)/MTOW
+m_eng = (W_eng)/ MTOW
+m_nac = 
+m_lg = 
+m_fe = 
+m_unacc = 
 
 AR_h = 3.5                                                      #Aspect ratio horizontal tail
 AR_v = 1.5                                                      #Aspect ratio vertical tail
@@ -97,7 +110,7 @@ while Running == True:
     W_nLG = c2w.nose_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_nose_gear))
     W_eng = c2w.engine_weight(c2w.kg_to_lb(engine[7]), 2)
     W_fs = c2w.fuel_system_weight(c2w.liters_to_gal(Total_volume_fuel_needed*1000), c2w.liters_to_gal(Total_volume_fuel_needed*1000), number_fueltanks, 2)
-    W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), b, N_z, W_des)
+    W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), span, N_z, W_des)
     W_elec, W_avi, W_aircon, W_furn = c2w.electronics_and_avionics_aircondition_furnishings_weight(W_fs, W_uav, W_des, N_pers, M)
     W_payload  = 1010
 
