@@ -1,6 +1,6 @@
 import math as m
 import numpy as np
-
+from scipy.optimize import fsolve
 
 def calculate_geometric_parameters_wing(S_w, AR, M_cr):
     """
@@ -36,21 +36,25 @@ def C_L_design(M_MTO, m_fuel, v_cruise, density_cruise, Wing_area):
 
 
 def sweep_drag_divergence(C_L):
-    coeffs = [0.68, -0.87, 0.14, C_L]
+    def equation(L):
+        M_DD = 0.68
+        t_c_streamwise = 0.14
+        ka = -0.87
+        return M_DD - (ka/np.cos(L) - t_c_streamwise/(np.cos(L)**2) - C_L/(10*np.cos(L)**3))
 
-    roots = np.roots(coeffs)
+    # Initial guess (in radians)
+    L_guess = np.radians(25)
 
-    # Find the real root where -1 <= cos(Λ) <= 1
-    for r in roots:
-        if abs(r.imag) < 1e-9:
-            x = r.real
-            if -1 <= x <= 1:
-                return np.degrees(np.arccos(x))  # Λ in degrees
+    # Solve numerically
+    Lambda_solution, = fsolve(equation, L_guess)
 
-    return None  # no physical solution found
-
+    # Convert to degrees
+    Lambda_deg = np.degrees(Lambda_solution)
+    return Lambda_deg
 
 
+
+0.68, -0.87, 0.14
 
 
 def calculate_aerodynamic_performance(thickness_to_chord):   #######newer estimations for Cd0

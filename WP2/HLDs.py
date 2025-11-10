@@ -50,7 +50,7 @@ def HLD(S_w, sweep_LE, span, c_tip, c_root):
 
     # C_L_max calculation trailing edge fowler flap
 
-    c_avg_TE = a_base - c_tip - (end_pos_span_TE - start_pos_span_TE) / 2 * b * math.tan(sweep_LE)  # average chordwise position of trailing edge HLD
+    c_avg_TE = a_base - c_tip - (end_pos_span_TE - start_pos_span_TE) / 2 * span * math.tan(sweep_LE)  # average chordwise position of trailing edge HLD
     delc_cf_TE = 0.6
     c_prime_TE = c_avg_TE + delc_cf_TE * c_f_c_TE * c_avg_TE
     delta_c_lmax_TE = 1.3 * c_prime_TE / c_avg_TE

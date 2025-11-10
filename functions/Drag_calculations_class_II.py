@@ -3,11 +3,9 @@ from math import pi as pi
 
 #25% of fuselage is laminar rest is turbulent, from table
 def fuselage_drag_coefficient(wing_area, density, velocity, MAC, dynamic_viscosity, l_fuselage, diameter_fuselage, length_cockpit, length_cylinder_part, length_tail_part, Mach, upsweep, Base_area):
-    Re_1 = density*velocity*MAC/dynamic_viscosity
+    Re = density*velocity*MAC/dynamic_viscosity
     Re_check = 38.21*(l_fuselage/(0.052*10**(-5)))**1.053 #assumed smooth molded composite
-    if Re <= Re_check:
-        Re = Re_1
-    else:
+    if Re > Re_check:
         Re = Re_check
     #laminar friciton coefficient calculations
     C_f_laminar = 1.328/math.sqrt(Re)
@@ -29,11 +27,9 @@ def fuselage_drag_coefficient(wing_area, density, velocity, MAC, dynamic_viscosi
 
 ##35% of wing is laminar
 def wing_drag_coefficient(t_over_c, x_over_c_max, sweep_max_t_c, wing_area, density, velocity, MAC, dynamic_viscosity, Mach):
-    Re_1 = density*velocity*MAC/dynamic_viscosity
+    Re = density*velocity*MAC/dynamic_viscosity
     Re_check = 38.21*(MAC/(0.152*10**(-5)))**1.053 #assumed polished sheet metal
-    if Re <= Re_check:
-        Re = Re_1
-    else:
+    if Re > Re_check:
         Re = Re_check
 
     C_f_laminar = 1.328/math.sqrt(Re)
@@ -41,20 +37,20 @@ def wing_drag_coefficient(t_over_c, x_over_c_max, sweep_max_t_c, wing_area, dens
 
     c_f_total = 0.35*C_f_laminar+0.65*C_f_turbulent
 
-    FF = ((1+0.6*t_over_c/x_over_c_max +100*t_over_c**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c))**0.28))
+    FF = ((1+0.6*t_over_c/x_over_c_max +100*t_over_c**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c*math.pi/180))**0.28))
     S_wet_wing = 1.07*2* wing_area 
     IF_c = 1.25 ##interference when connecting wing to fuselage
     C_D_0_wing = FF * c_f_total* IF_c * S_wet_wing
 
     return C_D_0_wing
 
+
+
 #35% is laminar
 def horizontal_tail_drag_coefficient(t_over_c_htail, x_over_c_max_htail, sweep_max_t_c_htail, horizontal_tail_area, density, velocity, MAC_htail, dynamic_viscosity, Mach):
-    Re_1 = density*velocity*MAC_htail/dynamic_viscosity
+    Re = density*velocity*MAC_htail/dynamic_viscosity
     Re_check = 38.21*(MAC_htail/(0.152*10**(-5)))**1.053 #assumed polished sheet metal
-    if Re <= Re_check:
-        Re = Re_1
-    else:
+    if Re > Re_check:
         Re = Re_check
 
     C_f_laminar = 1.328/math.sqrt(Re)
@@ -62,7 +58,7 @@ def horizontal_tail_drag_coefficient(t_over_c_htail, x_over_c_max_htail, sweep_m
 
     c_f_total = 0.35*C_f_laminar+0.65*C_f_turbulent
 
-    FF = ((1+0.6*t_over_c_htail/x_over_c_max_htail +100*t_over_c_htail**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c_htail))**0.28))
+    FF = ((1+0.6*t_over_c_htail/x_over_c_max_htail +100*t_over_c_htail**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c_htail*math.pi/180))**0.28))
     S_wet_hwing = 1.07*2* horizontal_tail_area
     IF_c = 1.044 ##interference when connecting wing to fuselage
     C_D_0_horizontal_tail = FF * IF_c* c_f_total * S_wet_hwing
@@ -70,11 +66,9 @@ def horizontal_tail_drag_coefficient(t_over_c_htail, x_over_c_max_htail, sweep_m
 
 
 def vertical_tail_drag_coefficient(t_over_c_vtail, x_over_c_max_vtail, sweep_max_t_c_vtail, vertical_tail_area, density, velocity, MAC_vtail, dynamic_viscosity, Mach):
-    Re_1 = density*velocity*MAC_vtail/dynamic_viscosity
+    Re = density*velocity*MAC_vtail/dynamic_viscosity
     Re_check = 38.21*(MAC_vtail/(0.152*10**(-5)))**1.053 #assumed polished sheet metal
-    if Re <= Re_check:
-        Re = Re_1
-    else:
+    if Re > Re_check:
         Re = Re_check
 
     C_f_laminar = 1.328/math.sqrt(Re)
@@ -82,7 +76,7 @@ def vertical_tail_drag_coefficient(t_over_c_vtail, x_over_c_max_vtail, sweep_max
 
     c_f_total = 0.35*C_f_laminar+0.65*C_f_turbulent
 
-    FF = ((1+0.6*t_over_c_vtail/x_over_c_max_vtail +100*t_over_c_vtail**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c_vtail))**0.28))
+    FF = ((1+0.6*t_over_c_vtail/x_over_c_max_vtail +100*t_over_c_vtail**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c_vtail*math.pi/180))**0.28))
     S_wet_wing = 1.07*2* vertical_tail_area
     IF_c = 1.044 ##interference when connecting wing to fuselage
     C_D_0_vertical_tail = FF * IF_c * c_f_total * S_wet_wing
@@ -90,11 +84,9 @@ def vertical_tail_drag_coefficient(t_over_c_vtail, x_over_c_max_vtail, sweep_max
 
 
 def nacelle_drag_coefficient(wing_area, density, velocity, dynamic_viscosity, length_nacelle, diameter_nacelle,Mach):
-    Re_1 = density*velocity*length_nacelle/dynamic_viscosity
+    Re = density*velocity*length_nacelle/dynamic_viscosity
     Re_check = 38.21*(length_nacelle/(0.052*10**(-5)))**1.053 #assumed smooth molded composite
-    if Re <= Re_check:
-        Re = Re_1
-    else:
+    if Re > Re_check:
         Re = Re_check
     #laminar friciton coefficient calculations
     C_f_laminar = 1.328/math.sqrt(Re)
@@ -127,7 +119,7 @@ def flap_drag_coefficient(c_f_over_c, S_flap, wing_area, deflection_flap):
 def induced_drag(AR, LE_sweep, C_L, flap_deflection, h_winglet, b, alt): # b is the wing span of the jet, alt is the height of the aircraft above the ground, h_winglet is the height of the winglet
     delta_AR = 1.9 * (h_winglet / b) * AR
     AR = AR + delta_AR
-    e = 4.6 * (1 - 0.045 * AR ** 0.68) * (math.cos(LE_sweep)) ** 0.15 - 3.1 
+    e = 4.6 * (1 - 0.045 * AR ** 0.68) * ((math.cos(LE_sweep*math.pi/180)) ** 0.15) - 3.1 
     delta_e = 0.0026 * flap_deflection
     e = e + delta_e
     K = 1 / (pi * e * AR)
@@ -137,7 +129,7 @@ def induced_drag(AR, LE_sweep, C_L, flap_deflection, h_winglet, b, alt): # b is 
     else:
         omega = 1
     c_induced = omega * K * C_L ** 2
-    return c_induced, e, AR
+    return c_induced, e, LE_sweep
 
 ## wave drag
 ## min cp0 at 1.5 alpha -1.02
