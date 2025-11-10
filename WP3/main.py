@@ -17,6 +17,7 @@ import functions.climb_grad as cg
 import functions.Take_off_distance as td
 import variables.fixed_values as fv
 import functions.Fuel_Volume as fuelv
+import functions.Range_calculations as range
 
 MTOW = mrm.m_MTO
 OEW = mrm.m_oe
@@ -120,7 +121,7 @@ while Running == True:
 
 
 
-    fuel_mass_fraction = 
+  
     m_OE = OEW / MTOW
     m_wing = W_wing / MTOW
     m_fus = W_fuse / MTOW
@@ -174,7 +175,19 @@ while Running == True:
     CD_total_clean = CD_0_surf*1.03+CD_ind_clean+CD_wave
     CD_total_landing = CD_0_final + CD_ind_Landing
 
+    #LIFT OVER DRAG
+    L_over_D = C_L_des/CD_total_clean
+
+    #Fuel mass fraction
+    R_lost = range.R_lost_function(L_over_D, fv.h_cr, velocity_cr)
+    R_eq_res = range.R_eq_res_function(fv.R_div, fv.t_E, velocity_cr)
+    R_eq = range.R_eq_function(fv.R_des, R_lost, fv.f_cont, R_eq_res)
+    eta_j = range.eta_j_function(fv.e_f, velocity_cr, engine(9))
+    fuel_mass_fraction = range.fuel_mass_fraction_function(R_eq, eta_j, fv.e_f, L_over_D)
+
+    W_fuel = fuel_mass_fraction * MTOW
     #matching diagram
+
 
     loads_minimum_speed = ms.Minimum_speed(1.225, engine[7], 66, C_L_land)
     loads_landing_field_length = lfl.landing_field_length(mass_landing/MTOW, 700, 1.225, C_L_land)
