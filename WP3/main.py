@@ -80,7 +80,7 @@ while Running == True:
     W_nLG = c2w.nose_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_nose_gear))
     W_eng = c2w.engine_weight(c2w.kg_to_lb(engine[7]), 2)
     W_fs = c2w.fuel_system_weight(c2w.liters_to_gal(tot_fuel_vol), c2w.liters_to_gal(int_tank_vol), number_fueltanks, 2)
-    W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(L_fuselage), b, N_z, W_des)
+    W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), b, N_z, W_des)
     W_elec, W_avi, W_aircon, W_furn = c2w.electronics_and_avionics_aircondition_furnishings_weight(W_fs, W_uav, W_des, N_pers, M)
 
     OEW = W_wing + W_htail + W_vtail + W_fuse + W_mLG + W_nLG + W_eng + W_fs + W_fc + W_hyd + W_elec + W_avi + W_aircon + W_furn
@@ -113,7 +113,8 @@ while Running == True:
     CD_0_Nacelle = D2.nacelle_drag_coefficient(S_wing, density_cr, velocity_cr, visc, engine[5], engine[4], M)
     CD_0_surf = CD_0_Fus + CD_0_Wing + CD_0_Htail + CD_0_Vtail + CD_0_Nacelle
 
-    CD_Wheelwell = D2.C_D_landing_gear_whells(fuselage_height, strut, height_strut, width_strut, height_gear, width_gear, S_wing)
+    ## Have to decide which ones count to fwhich configuration, also CD_wheelwell times 3 or only 1 or what??
+    CD_Wheelwell = D2.C_D_landing_gear_whells(fuselage_height, width_tire_and_strut, height_strut, width_strut, height_gear, width_gear, S_wing)
     CD_flap = D2.flap_drag_coefficient(cf/chord_MAC,S_flap,S_wing_new, 40)
 
     CD_0_misc = CD_Wheelwell + CD_flap
