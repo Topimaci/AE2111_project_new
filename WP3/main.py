@@ -65,10 +65,22 @@ V_pr = c2w.m3_to_ft3(1.92/2*m.pi*7)                                          # V
 P_delta = c2w.pas_to_psi()                                      # Cabin pressure
 W_press = 11.9 + (V_pr * P_delta) ** 0.271                  # Penalization due to Pressure difference, UNITS?????????????????????????????
 
+AR_h = 3.5                                                      #Aspect ratio horizontal tail
+AR_v = 1.5                                                      #Aspect ratio vertical tail
+h_tailtaper = 0.7                                               #Horizontal tail taper ratio
+v_tailtaper = 0.9                                               #Horizontal tail taper ratio 
+v_tailsweep = 20                                                #Vertical Tail sweep, degrees
+h_tailsweep = 15                                                #Horizontal Tail sweep, degrees
+
 t_w = dv.designtw
 w_s = dv.designws
 
 while Running == True:
+
+    tail_area_v, tail_area_h, tail_distance =  es.calculate_tail_surface_areas(S_w, span, chord_MAC, chord_root, MTOW, fuel_mass_fraction, m_OE, m_wing, m_fus, m_t, m_eng, m_nac, m_lg, m_fe, m_unacc)
+    
+
+
 
     ##Class II mass calculaitons
 
@@ -80,8 +92,8 @@ while Running == True:
 
 
     W_wing = c2w.wing_weight(S_w, W_fuel, AR, q, taper, t_c, sweep, N_z, W_des)
-    W_htail = c2w.horizontal_tail_weight(N_z, W_des, q, taper, c2w.m2_to_ft2(tail_area), t_c, sweep, htailsweep, h_tailtaper, AR)
-    W_vtail = c2w.vertical_tail_weight(N_z, W_des, q, c2w.m2_to_ft2(tail_area), t_c, sweep, sweep_tail, taper_tail, AR)
+    W_htail = c2w.horizontal_tail_weight(N_z, W_des, q, taper, c2w.m2_to_ft2(tail_area_h), t_c, sweep, h_tailsweep, h_tailtaper, AR_h)
+    W_vtail = c2w.vertical_tail_weight(N_z, W_des, q, c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v)
     W_fuse = c2w.fuselage_weight(S_wfus, N_z, W_des, c2w.m_to_ft(tail_distance), dv.L_over_D_max, q, W_press)
     W_mLG = c2w.main_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_main_gear))
     W_nLG = c2w.nose_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_nose_gear))
@@ -95,7 +107,7 @@ while Running == True:
     MTOW = c2w.max_takeoff_mass(OEW, 3, W_fuel, W_payload)
 
 
-    
+
     fuel_mass_fraction = 
     m_OE = OEW / MTOW
     m_wing = W_wing / MTOW
