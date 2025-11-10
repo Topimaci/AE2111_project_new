@@ -183,10 +183,9 @@ while Running == True:
     m_fus = W_fuse / MTOW
     m_t = (W_vtail + W_htail)/MTOW
     m_eng = (W_eng)/ MTOW
-    m_nac = 
-    m_lg = (W_mLG + W_nLG) / MTOW
-    m_fe = 
-    m_unacc = 
+    m_nac = (engine[3]-engine[2])/MTOW
+    m_fe = 0.17
+    m_unacc = 1-(m_OE+m_wing+m_fus+m_t+m_eng+m_nac+m_fe)
     #matching diagram
 
 
