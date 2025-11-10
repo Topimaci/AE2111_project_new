@@ -180,7 +180,7 @@ while Running == True:
             w_s_new = wingload_2*0.95
             t_w_new = intersection_tola*1.05
 
-    W_to = m_MTO * 9.81
+    W_to = MTOW * 9.81
     S_wing_new = W_to/w_s_new
 
     if S_wing_new/S_wing <= 0.05 or S_wing_new/S_wing >= 0.05:
