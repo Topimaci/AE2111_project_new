@@ -106,7 +106,7 @@ while Running == True:
     W_wing = c2w.wing_weight(S_wing, W_fuel, AR, q, taper, t_c, sweep, N_z, W_des)
     W_htail = c2w.horizontal_tail_weight(N_z, W_des, q, taper, c2w.m2_to_ft2(tail_area_h), t_c, sweep, h_tailsweep, h_tailtaper, AR_h)
     W_vtail = c2w.vertical_tail_weight(N_z, W_des, q, c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v)
-    W_fuse = c2w.fuselage_weight(S_wfus, N_z, W_des, c2w.m_to_ft(tail_distance), dv.L_over_D_max, q, W_press)
+    W_fuse = c2w.fuselage_weight(S_wfus, N_z, W_des, c2w.m_to_ft(tail_distance), length_fus, diameter_fus, q, W_press)
     W_mLG = c2w.main_landing_gear_weight(N_l, W_l, c2w.m_to_in(1.5))  ###assumed 1.5
     W_nLG = c2w.nose_landing_gear_weight(N_l, W_l, c2w.m_to_in(1.2)) ###assumed 1.2
     W_eng = c2w.engine_weight(c2w.kg_to_lb(engine[7]), 2)
