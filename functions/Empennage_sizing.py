@@ -12,21 +12,13 @@ def calculate_tail_surface_areas(
     m_t,
     m_eng,
     m_nac,
-    m_lg,
     m_fe,
-    m_unacc
 ):
 
      #-----------CONSTANTS--------#
     #Following values can be changed according to needs, but do not follow iterative procedure 
     fus_length = 15.2
     nacelle_length = 3
-    # Aspect Ratio horizontal tail, ranges from 3 to 4 recommended*
-    AR_h = 3.5
-    # Taper Ratio horizontal tail, ranges from 0.6 to 1 for T-tail.
-    taper_h = 0.7
-    #10.4 to 50, where 10.4 originates from final planform WP2
-    sweep_leading_edge_v = 20
     # Coefficient of volume, also chosen based on aircraft type: for business jet
     V_v = 0.06
     V_h = 0.61
@@ -50,7 +42,7 @@ def calculate_tail_surface_areas(
 
     # Moment calculations for each subcomponent of Fuselage and Wing subgroups
     mom_fuselage_group = arm_fus * m_fus + arm_t * m_t + arm_eng * m_eng + arm_nac * m_nac + arm_fe * m_fe
-    mom_wing_group = arm_wing * m_wing
+    mom_wing_group = arm_wing * m_wing_group
 
     # functions
     def Xlemac_func(m_fuselage_group, mom_fuselage_group, mom_wing_group, xc_OEWCG, c_w):
@@ -91,7 +83,7 @@ def calculate_tail_surface_areas(
     S_v = calculate_surface_area_vertical_tail(V_v, S_w, b_w, l_v)
     S_h = calculate_surface_area_horizontal_tail(V_h, S_w, c_w, l_h)
 
-    return S_v, S_h
+    return S_v, S_h, l_v
 
 
 # Example usage:
@@ -99,3 +91,12 @@ S_v, S_h = calculate_tail_surface_areas()
 print("Vertical tail area:", S_v)
 print("Horizontal tail area:", S_h)
 
+S_v, S_h = calculate_tail_surface_areas(S_w, b_w, c_w, c_r, MTOM, fuel_mass_fraction, m_OE, m_wing, m_fus, m_t, m_eng, m_nac, m_lg, m_fe, m_unacc)
+
+
+# Aspect Ratio horizontal tail, ranges from 3 to 4 recommended*
+AR_h = 3.5
+# Taper Ratio horizontal tail, ranges from 0.6 to 1 for T-tail.
+taper_h = 0.7
+#10.4 to 50, where 10.4 originates from final planform WP2
+sweep_leading_edge_v = 20
