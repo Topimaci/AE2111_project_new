@@ -53,10 +53,10 @@ t_c = ma.thickness_to_chord
 AR = ma.AR
 span = ma.b                                              # wing span
 N_z = 1.5 * 3.8                                             # Ultimate load factor
-N_l =                                                       # Load factor landing
-W_des =                                          # Gross design weight
+N_l = 2.5                                                      # Load factor landing
+W_des = MTOW-0.5*W_fuel                                          # Gross design weight
 S_wfus = c2w.m2_to_ft2()                                        # Wetted area fuselage
-W_l = c2w.kg_to_lb()                                            # Weight landing
+W_l =                                             # Weight landing
 M = ma.M_cr                                                 # Mach number
 W_uav = c2w.kg_to_lb()                                          # Weight uninstalled avionics
 N_pers = 11                                                  # Number personell (Assuming pilot, copilot and one flight attendent)
@@ -103,16 +103,16 @@ while Running == True:
     Total_volume_wing, percentage_fuel_in_wing, fuel_mass_in_wing, Total_volume_fuel_needed = fuelv.fuel_volume
 
 
-    W_wing = c2w.wing_weight(c2w.m2_to_ft2(S_wing),  c2w.kg_to_lb(W_fuel), AR, q, taper, t_c, sweep, N_z,  c2w.kg_to_lb(W_des))
-    W_htail = c2w.horizontal_tail_weight(N_z,  c2w.kg_to_lb(W_des), q, taper, c2w.m2_to_ft2(tail_area_h), t_c, sweep, h_tailsweep, h_tailtaper, AR_h)
-    W_vtail = c2w.vertical_tail_weight(N_z, W_des, q, c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v)
-    W_fuse = c2w.fuselage_weight(S_wfus, N_z, W_des, c2w.m_to_ft(tail_distance), dv.L_over_D_max, q, W_press)
-    W_mLG = c2w.main_landing_gear_weight(N_l, W_l, c2w.m_to_in(1.5))  ###assumed 1.5
-    W_nLG = c2w.nose_landing_gear_weight(N_l, W_l, c2w.m_to_in(1.2)) ###assumed 1.2
+    W_wing = c2w.wing_weight(c2w.m2_to_ft2(S_wing),  c2w.kg_to_lb(W_fuel), AR, c2w.pas_to_psi(q), taper, t_c, sweep, N_z,  c2w.kg_to_lb(W_des))
+    W_htail = c2w.horizontal_tail_weight(N_z,  c2w.kg_to_lb(W_des), c2w.pas_to_psi(q), taper, c2w.m2_to_ft2(tail_area_h), t_c, sweep, h_tailsweep, h_tailtaper, AR_h)
+    W_vtail = c2w.vertical_tail_weight(N_z,  c2w.kg_to_lb(W_des), c2w.pas_to_psi(q), c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v)
+    W_fuse = c2w.fuselage_weight(S_wfus, N_z,  c2w.kg_to_lb(W_des), c2w.m_to_ft(tail_distance), dv.L_over_D_max, c2w.pas_to_psi(q),  c2w.kg_to_lb(W_press))
+    W_mLG = c2w.main_landing_gear_weight(N_l,  c2w.kg_to_lb(mass_landing), c2w.m_to_in(1.5))  ###assumed 1.5
+    W_nLG = c2w.nose_landing_gear_weight(N_l,  c2w.kg_to_lb(mass_landing), c2w.m_to_in(1.2)) ###assumed 1.2
     W_eng = c2w.engine_weight(c2w.kg_to_lb(engine[7]), 2)
     W_fs = c2w.fuel_system_weight(c2w.liters_to_gal(Total_volume_fuel_needed*1000), c2w.liters_to_gal(Total_volume_fuel_needed*1000), number_fueltanks, 2)
-    W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), span, N_z, W_des)
-    W_elec, W_avi, W_aircon, W_furn = c2w.electronics_and_avionics_aircondition_furnishings_weight(W_fs, W_uav, W_des, N_pers, M)
+    W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), c2w.m_to_ft(span), N_z,  c2w.kg_to_lb(W_des))
+    W_elec, W_avi, W_aircon, W_furn = c2w.electronics_and_avionics_aircondition_furnishings_weight( c2w.kg_to_lb(W_fs),  c2w.kg_to_lb(W_uav),  c2w.kg_to_lb(W_des), N_pers, M)
     W_payload  = 1010
 
     OEW = W_wing + W_htail + W_vtail + W_fuse + W_mLG + W_nLG + W_eng + W_fs + W_fc + W_hyd + W_elec + W_avi + W_aircon + W_furn
