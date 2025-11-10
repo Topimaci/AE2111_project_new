@@ -91,7 +91,6 @@ S_v, S_h = calculate_tail_surface_areas()
 print("Vertical tail area:", S_v)
 print("Horizontal tail area:", S_h)
 
-S_v, S_h = calculate_tail_surface_areas(S_w, b_w, c_w, c_r, MTOM, fuel_mass_fraction, m_OE, m_wing, m_fus, m_t, m_eng, m_nac, m_lg, m_fe, m_unacc)
 
 
 # Aspect Ratio horizontal tail, ranges from 3 to 4 recommended*
