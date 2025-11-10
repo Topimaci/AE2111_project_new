@@ -121,8 +121,6 @@ while Running == True:
 
 
 
-    
-
     ##MTO and OE to be added hellyeah
 
     ##Planfooooooooooooooooooooooorm calcs
@@ -144,8 +142,8 @@ while Running == True:
     ##Drag show
 
     ####assumptions for base area and upsweep
-    upsweep = 0.349 ##20deg
-    Base_area = 0.2
+    upsweep_tail = 0.349 ##20deg
+    Base_area = 0.2 
 
     CD_0_Fus = D2.fuselage_drag_coefficient(S_wing, density_cr, velocity_cr, chord_MAC, visc, length_fus, diameter_fus, length_cock, length_cyli, length_tail, M, upsweep_tail, Base_area)
     CD_0_Wing = D2.wing_drag_coefficient(0.14,0.378,pd.sweep_converter(sweep_LE_DD,chord_root, taper, 0.378, span),S_wing, density_cr, velocity_cr, chord_MAC, visc, M)
