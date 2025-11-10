@@ -16,6 +16,7 @@ import functions.Landing_field_length as lfl
 import functions.climb_grad as cg
 import functions.Take_off_distance as td
 import variables.fixed_values as fv
+import functions.Fuel_Volume as fuelv
 
 mass_to_new = mrm.m_MTO
 mass_oe_new = mrm.m_oe
@@ -38,6 +39,9 @@ diameter_fus = 2.2
 length_cock = 3
 length_cyli = 10
 length_tail = 2.2
+
+#
+number_fueltanks = 3
 
 
 
@@ -72,6 +76,9 @@ while Running == True:
 
     engine = et.engine_required(t_w*9.81*mass_to_new)
 
+    Total_volume_wing, percentage_fuel_in_wing, fuel_mass_in_wing, Total_volume_fuel_needed = fuelv.fuel_volume
+
+
     W_wing = c2w.wing_weight(S_w, W_fuel, AR, q, taper, t_c, sweep, N_z, W_des)
     W_htail = c2w.horizontal_tail_weight(N_z, W_des, q, taper, c2w.m2_to_ft2(tail_area), t_c, sweep, htailsweep, h_tailtaper, AR)
     W_vtail = c2w.vertical_tail_weight(N_z, W_des, q, c2w.m2_to_ft2(tail_area), t_c, sweep, sweep_tail, taper_tail, AR)
@@ -79,7 +86,7 @@ while Running == True:
     W_mLG = c2w.main_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_main_gear))
     W_nLG = c2w.nose_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_nose_gear))
     W_eng = c2w.engine_weight(c2w.kg_to_lb(engine[7]), 2)
-    W_fs = c2w.fuel_system_weight(c2w.liters_to_gal(tot_fuel_vol), c2w.liters_to_gal(int_tank_vol), number_fueltanks, 2)
+    W_fs = c2w.fuel_system_weight(c2w.liters_to_gal(Total_volume_fuel_needed*1000), c2w.liters_to_gal(Total_volume_fuel_needed*1000), number_fueltanks, 2)
     W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), b, N_z, W_des)
     W_elec, W_avi, W_aircon, W_furn = c2w.electronics_and_avionics_aircondition_furnishings_weight(W_fs, W_uav, W_des, N_pers, M)
 
@@ -91,7 +98,7 @@ while Running == True:
     ##Planfooooooooooooooooooooooorm calcs
 
 
-    C_L_des = pd.C_L_design(M_MTO, mass_fuel_new, velocity_cr, density_cr, S_wing)
+    C_L_des = pd.C_L_design(MTOW, mass_fuel_new, velocity_cr, density_cr, S_wing)
     C_L_land = pd.C_L_design(M)
     sweep_LE_DD = pd.sweep_drag_divergence(C_L_des)
 
