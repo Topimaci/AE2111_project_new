@@ -55,7 +55,7 @@ span = ma.b                                              # wing span
 N_z = 1.5 * 3.8                                             # Ultimate load factor
 N_l = 2.5                                                      # Load factor landing
 W_des = MTOW-0.5*W_fuel                                          # Gross design weight
-S_wfus = c2w.m2_to_ft2()                                        # Wetted area fuselage
+S_wfus = (m.pi*diameter_fus/4)*(1/(3*length_cock**2)*((4*length_cock**2 + (diameter_fus**2)/4)**1.5 -(diameter_fus**3 /8))-diameter_fus+4*length_cyli+2*m.sqrt(length_tail**2 + (diameter_fus**2)/4))                                        # Wetted area fuselage
 W_l =                                             # Weight landing
 M = ma.M_cr                                                 # Mach number
 W_uav = c2w.kg_to_lb()                                          # Weight uninstalled avionics
@@ -121,8 +121,6 @@ while Running == True:
 
 
 
-    
-
     ##MTO and OE to be added hellyeah
 
     ##Planfooooooooooooooooooooooorm calcs
@@ -144,8 +142,8 @@ while Running == True:
     ##Drag show
 
     ####assumptions for base area and upsweep
-    upsweep = 0.349 ##20deg
-    Base_area = 0.2
+    upsweep_tail = 0.349 ##20deg
+    Base_area = 0.2 
 
     CD_0_Fus = D2.fuselage_drag_coefficient(S_wing, density_cr, velocity_cr, chord_MAC, visc, length_fus, diameter_fus, length_cock, length_cyli, length_tail, M, upsweep_tail, Base_area)
     CD_0_Wing = D2.wing_drag_coefficient(0.14,0.378,pd.sweep_converter(sweep_LE_DD,chord_root, taper, 0.378, span),S_wing, density_cr, velocity_cr, chord_MAC, visc, M)
