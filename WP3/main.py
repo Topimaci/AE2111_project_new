@@ -32,6 +32,14 @@ velocity_cr = 200.629
 
 visc = 1.79*10**(-5)
 
+##FUselage variables
+length_fus = 15.2
+diameter_fus = 2.2
+length_cock = 3
+length_cyli = 10
+length_tail = 2.2
+
+
 
 q = c2w.pas_to_psi(0.5 * 0.2872 * fv.v_cr ** 2)
 sweep = ma.sweep_true
@@ -57,8 +65,6 @@ t_w = dv.designtw
 w_s = dv.designws
 
 while Running == True:
-
-    
 
     ##Class II mass calculaitons
 
