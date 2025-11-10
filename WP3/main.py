@@ -16,6 +16,7 @@ import functions.Landing_field_length as lfl
 import functions.climb_grad as cg
 import functions.Take_off_distance as td
 import variables.fixed_values as fv
+import functions.Fuel_Volume as fuelv
 
 mass_to_new = mrm.m_MTO
 mass_oe_new = mrm.m_oe
@@ -38,6 +39,9 @@ diameter_fus = 2.2
 length_cock = 3
 length_cyli = 10
 length_tail = 2.2
+
+#
+number_fueltanks = 3
 
 
 
@@ -72,6 +76,9 @@ while Running == True:
 
     engine = et.engine_required(t_w*9.81*mass_to_new)
 
+    Total_volume_wing, percentage_fuel_in_wing, fuel_mass_in_wing, Total_volume_fuel_needed = fuelv.fuel_volume
+
+
     W_wing = c2w.wing_weight(S_w, W_fuel, AR, q, taper, t_c, sweep, N_z, W_des)
     W_htail = c2w.horizontal_tail_weight(N_z, W_des, q, taper, c2w.m2_to_ft2(tail_area), t_c, sweep, htailsweep, h_tailtaper, AR)
     W_vtail = c2w.vertical_tail_weight(N_z, W_des, q, c2w.m2_to_ft2(tail_area), t_c, sweep, sweep_tail, taper_tail, AR)
@@ -79,14 +86,28 @@ while Running == True:
     W_mLG = c2w.main_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_main_gear))
     W_nLG = c2w.nose_landing_gear_weight(N_l, W_l, c2w.m_to_in(length_nose_gear))
     W_eng = c2w.engine_weight(c2w.kg_to_lb(engine[7]), 2)
-    W_fs = c2w.fuel_system_weight(c2w.liters_to_gal(tot_fuel_vol), c2w.liters_to_gal(int_tank_vol), number_fueltanks, 2)
-    W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(L_fuselage), b, N_z, W_des)
+    W_fs = c2w.fuel_system_weight(c2w.liters_to_gal(Total_volume_fuel_needed*1000), c2w.liters_to_gal(Total_volume_fuel_needed*1000), number_fueltanks, 2)
+    W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), b, N_z, W_des)
     W_elec, W_avi, W_aircon, W_furn = c2w.electronics_and_avionics_aircondition_furnishings_weight(W_fs, W_uav, W_des, N_pers, M)
     W_payload  = 1010
 
     OEW = W_wing + W_htail + W_vtail + W_fuse + W_mLG + W_nLG + W_eng + W_fs + W_fc + W_hyd + W_elec + W_avi + W_aircon + W_furn
 
     MTOW = c2w.max_takeoff_mass(OEW, 3, W_fuel, W_payload)
+
+
+    
+    fuel_mass_fraction = 
+    m_OE = OEW / MTOW
+    m_wing = W_wing / MTOW
+    m_fus = W_fuse / MTOW
+    m_t = (W_vtail + W_htail)/MTOW
+    m_eng = (W_eng)/ MTOW
+    m_nac = 
+    m_lg = 
+    m_fe = 
+    m_unacc = 
+
     ##MTO and OE to be added hellyeah
 
     ##Planfooooooooooooooooooooooorm calcs
@@ -114,7 +135,8 @@ while Running == True:
     CD_0_Nacelle = D2.nacelle_drag_coefficient(S_wing, density_cr, velocity_cr, visc, engine[5], engine[4], M)
     CD_0_surf = CD_0_Fus + CD_0_Wing + CD_0_Htail + CD_0_Vtail + CD_0_Nacelle
 
-    CD_Wheelwell = D2.C_D_landing_gear_whells(fuselage_height, strut, height_strut, width_strut, height_gear, width_gear, S_wing)
+    ## Have to decide which ones count to fwhich configuration, also CD_wheelwell times 3 or only 1 or what??
+    CD_Wheelwell = D2.C_D_landing_gear_whells(fuselage_height, width_tire_and_strut, height_strut, width_strut, height_gear, width_gear, S_wing)
     CD_flap = D2.flap_drag_coefficient(cf/chord_MAC,S_flap,S_wing_new, 40)
 
     CD_0_misc = CD_Wheelwell + CD_flap
@@ -173,7 +195,7 @@ while Running == True:
             w_s_new = wingload_2*0.95
             t_w_new = intersection_tola*1.05
 
-    W_to = m_MTO * 9.81
+    W_to = MTOW * 9.81
     S_wing_new = W_to/w_s_new
 
     if S_wing_new/S_wing <= 0.05 or S_wing_new/S_wing >= 0.05:
