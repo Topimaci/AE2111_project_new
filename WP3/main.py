@@ -120,16 +120,7 @@ while Running == True:
     MTOW = c2w.max_takeoff_mass(OEW, 3, W_fuel, W_payload)
 
 
-    fuel_mass_fraction = 
-    m_OE = OEW / MTOW
-    m_wing = W_wing / MTOW
-    m_fus = W_fuse / MTOW
-    m_t = (W_vtail + W_htail)/MTOW
-    m_eng = (W_eng)/ MTOW
-    m_nac = 
-    m_lg = 
-    m_fe = 
-    m_unacc = 
+
     
 
     ##MTO and OE to be added hellyeah
@@ -137,7 +128,7 @@ while Running == True:
     ##Planfooooooooooooooooooooooorm calcs
 
 
-    C_L_des = pd.C_L_design(MTOW, mass_fuel_new, velocity_cr, density_cr, S_wing)
+    C_L_des = pd.C_L_design(MTOW, W_fuel, velocity_cr, density_cr, S_wing)
     C_L_land = pd.C_L_design(M)
     sweep_LE_DD = pd.sweep_drag_divergence(C_L_des)
 
@@ -186,6 +177,16 @@ while Running == True:
     fuel_mass_fraction = range.fuel_mass_fraction_function(R_eq, eta_j, fv.e_f, L_over_D)
 
     W_fuel = fuel_mass_fraction * MTOW
+
+    m_OE = OEW / MTOW
+    m_wing = W_wing / MTOW
+    m_fus = W_fuse / MTOW
+    m_t = (W_vtail + W_htail)/MTOW
+    m_eng = (W_eng)/ MTOW
+    m_nac = 
+    m_lg = (W_mLG + W_nLG) / MTOW
+    m_fe = 
+    m_unacc = 
     #matching diagram
 
 
