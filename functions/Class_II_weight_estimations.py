@@ -33,6 +33,10 @@ def pas_to_psi(pas):
     psi = 0.000145038 * pas
     return psi
 
+def lb_to_kg(lb):
+    kg = 0.45359237 * lb
+    return kg
+
 
 
 #--------------Class II aircraft weight estimations, formulas from Reymar-----------------------------------------
