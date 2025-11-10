@@ -27,7 +27,7 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
 
     sweep_LE = m.atan((-1/4*c_tip + 1/4*c_root + m.tan(sweep * m.pi / 180)*b) / b ) *180 /m.pi
 
-    return  taper, b, c_root, c_tip, c_MAC, dihedral
+    return  sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE
 
 
 def C_L_design(M_MTO, m_fuel, v_cruise, density_cruise, Wing_area):
@@ -53,17 +53,16 @@ def sweep_drag_divergence(C_L):
 
 
 
-
-#def calculate_aerodynamic_performance(thickness_to_chord):   #######newer estimations for Cd0
+def calculate_aerodynamic_performance(thickness_to_chord):   #######newer estimations for Cd0
     """
     Calculate Aerodynamic Performance Based on Thickness-To-Chord Ratio
 
     :param thickness_to_chord: Thickness-To-Chord Ratio [-]
     :return: Parasitic Drag Coefficient c_d0 [-]
     """
-    #c_d0 = 0.0035 + 0.018 * thickness_to_chord
+    c_d0 = 0.0035 + 0.018 * thickness_to_chord
 
-    #return c_d0
+    return c_d0
 
 
 def calculate_MAC_position(b, c_root, c_tip, sweep):
@@ -106,7 +105,7 @@ def calculate_MAC_position(b, c_root, c_tip, sweep):
 
 
 
-    return y_spanwise, xlemac
+    return y_spanwise, xlemac, lengthMAC
 
 def sweep_converter(sweep_LE, chord_root, taper, x_over_c, span):
     sweep_x_over_c = m.atan(m.tan(sweep_LE*m.pi/180) - x_over_c * (2*chord_root/span)*(1-taper)) * 180/m.pi

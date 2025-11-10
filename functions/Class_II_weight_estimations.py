@@ -1,7 +1,7 @@
 import math as m
 import variables.fixed_values as fv
 import variables.dynamic_variables as dv
-import Planform_DESIGN1 as Pl
+import functions.Planform_DESIGN1 as Pl
 import WP2.main as ma
 
 #--------------Convert Inputs to Imperial Units-------------------------------------------------------------------
@@ -34,7 +34,7 @@ def pas_to_psi(pas):
     return psi
 
 def lb_to_kg(lb):
-    kg = 0.45359237 * lb
+    kg = 0.45359237 * float(lb)
     return kg
 
 
@@ -54,7 +54,7 @@ def vertical_tail_weight(ultimate_load, design_gross_weight, dynamic_pressure, v
     return vtail_weight
 
 def fuselage_weight(fuselage_wetted_A, ultimate_load, design_gross_weight, tail_distance, L_fuselage, D_fuselage, dynamic_pressure, W_pressure):        # D_fuselage is the structural depth of the fuselage
-    fuse_weight = 0.052 * (fuselage_wetted_A) ** 1.086 (ultimate_load * design_gross_weight) ** 0.177 * tail_distance ** (-0.051) * L_fuselage / D_fuselage ** (-0.072) * dynamic_pressure ** 0.241 + W_pressure
+    fuse_weight = 0.052 * (fuselage_wetted_A) ** 1.086 * (ultimate_load * design_gross_weight) ** 0.177 * tail_distance ** (-0.051) * L_fuselage / D_fuselage ** (-0.072) * dynamic_pressure ** 0.241 + W_pressure
     return fuse_weight
 
 def main_landing_gear_weight(ultimate_landing_load, weight_landing, length_main_gear):
@@ -87,42 +87,7 @@ def electronics_and_avionics_aircondition_furnishings_weight(weight_fuel_system,
 
 
 
-#-------------Calculate final aircraft weight----------------------------------------
 
-q = pas_to_psi(0.5 * 0.2872 * fv.v_cr ** 2)
-sweep = ma.sweep_true
-taper = ma.taper
-t_c = ma.thickness_to_chord
-AR = ma.AR
-b = m_to_ft()                                               # wing span
-S_w = m2_to_ft2()                                           # wing area
-W_fuel = kg_to_lb()                                         # Wing fuel weight
-N_z = 1.5 * 3.8                                             # Ultimate load factor
-N_l =                                                       # Load factor landing
-W_des = kg_to_lb()                                          # Gross design weight
-S_wfus = m2_to_ft2()                                        # Wetted area fuselage
-W_l = kg_to_lb()                                            # Weight landing
-M = ma.M_cr                                                 # Mach number
-W_uav = kg_to_lb()                                          # Weight uninstalled avionics
-N_pers = 3                                                  # Number personell (Assuming pilot, copilot and one flight attendent)
-V_pr = m3_to_ft3()                                          # Volume of pressurized section
-P_delta = pas_to_psi()                                      # Cabin pressure
-W_press = 11.9 + (V_pr * P_delta) ** 0.271                  # Penalization due to Pressure difference, UNITS?????????????????????????????
-
-
-
-W_wing = wing_weight(S_w, W_fuel, AR, q, taper, t_c, sweep, N_z, W_des)
-W_htail = horizontal_tail_weight(N_z, W_des, q, taper, m2_to_ft2(tail_area), t_c, sweep, htailsweep, h_tailtaper, AR)
-W_vtail = vertical_tail_weight(N_z, W_des, q, m2_to_ft2(tail_area), t_c, sweep, sweep_tail, taper_tail, AR)
-W_fuse = fuselage_weight(S_wfus, N_z, W_des, m_to_ft(tail_distance), dv.L_over_D_max, q, W_press)
-W_mLG = main_landing_gear_weight(N_l, W_l, m_to_in(length_main_gear))
-W_nLG = nose_landing_gear_weight(N_l, W_l, m_to_in(length_nose_gear))
-W_eng = engine_weight(kg_to_lb(weight_engine), 2)
-W_fs = fuel_system_weight(liters_to_gal(tot_fuel_vol), liters_to_gal(int_tank_vol), number_fueltanks, 2)
-W_fc, W_hyd = flight_control_and_hydraulics_weight(m_to_ft(L_fuselage), b, N_z, W_des)
-W_elec, W_avi, W_aircon, W_furn = electronics_and_avionics_aircondition_furnishings_weight(W_fs, W_uav, W_des, N_pers, M)
-
-Total_Class_II_Weight = W_wing + W_htail + W_vtail + W_fuse + W_mLG + W_nLG + W_eng + W_fs + W_fc + W_hyd + W_elec + W_avi + W_aircon + W_furn
 
 
 def max_takeoff_mass(OEM, crew, W_fuel, W_payload):         # Crew is equal to number of crew 

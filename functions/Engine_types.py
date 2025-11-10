@@ -21,6 +21,8 @@ def engine_required(thrust_required):
 
 
     for engine in engines_sorted:
-        if engine[1] >= thrust_required/2:
-            return engine ## returns a list of all specific engine values
-        else: return ["00"]
+            if engine[1] >= thrust_required/2:
+                return engine  # found the smallest that meets requirement
+
+        # If none meet the thrust requirement
+    return ["00"]

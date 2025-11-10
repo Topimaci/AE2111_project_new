@@ -12,19 +12,19 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 # Now import your module
-import fixed_values
+import variables.fixed_values
 
-C_d0 = fixed_values.C_d0
-AR = fixed_values.AR
-e = fixed_values.oswald_efficiency
-B = fixed_values.B
-p_ISO = fixed_values.p_ISO
-T_ISO = fixed_values.T_ISO
-rho_ISO = fixed_values.rho_ISO
+C_d0 = variables.fixed_values.C_d0
+AR = variables.fixed_values.AR
+e = variables.fixed_values.oswald_efficiency
+B = variables.fixed_values.B
+p_ISO = variables.fixed_values.p_ISO
+T_ISO = variables.fixed_values.T_ISO
+rho_ISO = variables.fixed_values.rho_ISO
 
 ## needs to be specified:
-mass_fraction_climb = fixed_values.mass_fraction_climb
-climb_rate_requirement = fixed_values.climb_rate_requirement
+mass_fraction_climb = variables.fixed_values.mass_fraction_climb
+climb_rate_requirement = variables.fixed_values.climb_rate_requirement
 
 velocity_climb_rate = []
 Mach_number = []

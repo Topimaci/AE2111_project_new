@@ -86,12 +86,6 @@ def calculate_tail_surface_areas(
     return S_v, S_h, l_v
 
 
-# Example usage:
-S_v, S_h = calculate_tail_surface_areas()
-print("Vertical tail area:", S_v)
-print("Horizontal tail area:", S_h)
-
-
 
 # Aspect Ratio horizontal tail, ranges from 3 to 4 recommended*
 AR_h = 3.5
