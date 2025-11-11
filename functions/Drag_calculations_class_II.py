@@ -144,7 +144,8 @@ def induced_drag(AR, sweep_half, C_L, flap_deflection, h_winglet, b, alt): # b i
     else:
         omega = 1
     c_induced = omega * K * C_L ** 2
-    return c_induced, e, sweep_half
+
+    return c_induced, e, AR
 
 ## wave drag
 ## min cp0 at 1.5 alpha -1.02

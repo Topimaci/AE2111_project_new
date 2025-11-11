@@ -177,10 +177,10 @@ while Running == True:
 
     CD_0_misc = CD_flap
     sweep_half = pd.sweep_converter(sweep, chord_root, taper, 0.5, span)
-    CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep_half, C_L_des, 0, 1.3, span, 10000000000000)
-    CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_half, 2.59, 40, 1.2, span, 100000000000000000000000)
+    CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep_half, C_L_des, 0, 1.3, span, 10000000000000) ########find reference wignlet
+    CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_half, 2.59, 40, 1.3, span, 100000000000000000000000)
                                                         ### 2.59 assumed from WP2
-    CD_wave = D2.wave_C_D(M, 0.75)
+    CD_wave = D2.wave_C_D(M, 0.70)
 
     CD_0_final = CD_0_surf+CD_0_misc+0.03*(CD_0_surf+CD_0_misc)
 
@@ -252,10 +252,10 @@ while Running == True:
     Fuel mass in wing: {fuel_mass_in_wing}        
     """)
     #matching diagram
-    
+
 
     loads_minimum_speed = ms.Minimum_speed(1.225, engine[7], 66, 2.59) ### 2.59 is CL_max
-    loads_landing_field_length = lfl.landing_field_length(mass_landing/MTOW, 700, 1.225, 2.59)
+    loads_landing_field_length = lfl.landing_field_length(mass_landing/MTOW, 700, 1.225, 2.59)  ### changed landing mass fraction from constant to iterative
     loads_cruise_speed = cs.cruise_speed(0.95,0.24,fv.wing_loading_cs,CD_0_surf, 0.2872, velocity_cr, AR_new, e)
     loads_climb_rate = cr.climb_rate(fv.wing_loading)
     loads_climb_grad_119 = cg.climb_grad(fv.wing_loading, fv.mass_fraction_119, fv.cg_119, fv.C_d0_119, fv.e_119, fv.AR, 1.225, fv.C_l_at_max_climb_gradient_119, fv.B)
