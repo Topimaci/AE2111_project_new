@@ -80,3 +80,17 @@ plt.savefig(plotname, bbox_extra_artists=(legend,), bbox_inches='tight')
 
 #_____iterative process_____________________________________________________________________________
 
+
+
+
+print(f"""
+Span: {span}
+Chord root: {chord_root}
+Taper: {taper}
+LE Sweep: {sweep}
+Wing Area: {S_wing}
+CL Design: {C_L_des}
+MTO: {MTOW}
+Fuel mass: {W_fuel}
+""")
+
