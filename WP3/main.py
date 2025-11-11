@@ -163,8 +163,8 @@ while Running == True:
 
     CD_0_Fus = D2.fuselage_drag_coefficient(S_wing, density_cr, velocity_cr, chord_MAC, visc, length_fus, diameter_fus, length_cock, length_cyli, length_tail, M, upsweep_tail, Base_area)
     CD_0_Wing = D2.wing_drag_coefficient(0.14,0.378,pd.sweep_converter(sweep_t_c_max,chord_root, taper, 0.378, span),S_wing, density_cr, velocity_cr, chord_MAC, visc, M)
-    CD_0_Htail = D2.horizontal_tail_drag_coefficient(0.12,0.3, pd.sweep_converter(25, htail_chord_root, htail_taper, 0.3, htail_span), tail_area_h, density_cr, velocity_cr, htail_chord_MAC, visc, M)
-    CD_0_Vtail = D2.vertical_tail_drag_coefficient(0.12, 0.3, pd.sweep_converter(20, vtail_chord_root, vtail_taper, 0.3, vtail_span),tail_area_v, density_cr, velocity_cr, vtail_chord_MAC, visc, M)
+    CD_0_Htail = D2.horizontal_tail_drag_coefficient(S_wing,0.12,0.3, pd.sweep_converter(25, htail_chord_root, htail_taper, 0.3, htail_span), tail_area_h, density_cr, velocity_cr, htail_chord_MAC, visc, M)
+    CD_0_Vtail = D2.vertical_tail_drag_coefficient(S_wing, 0.12, 0.3, pd.sweep_converter(20, vtail_chord_root, vtail_taper, 0.3, vtail_span),tail_area_v, density_cr, velocity_cr, vtail_chord_MAC, visc, M)
     CD_0_Nacelle = D2.nacelle_drag_coefficient(S_wing, density_cr, velocity_cr, visc, engine[5], engine[4], M)
     CD_0_surf = CD_0_Fus + CD_0_Wing + CD_0_Htail + CD_0_Vtail + CD_0_Nacelle
 

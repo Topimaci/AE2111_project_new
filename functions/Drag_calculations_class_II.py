@@ -48,7 +48,7 @@ def wing_drag_coefficient(t_over_c, x_over_c_max, sweep_max_t_c, wing_area, dens
 
 
 #35% is laminar
-def horizontal_tail_drag_coefficient(t_over_c_htail, x_over_c_max_htail, sweep_max_t_c_htail, horizontal_tail_area, density, velocity, MAC_htail, dynamic_viscosity, Mach):
+def horizontal_tail_drag_coefficient(wing_area, t_over_c_htail, x_over_c_max_htail, sweep_max_t_c_htail, horizontal_tail_area, density, velocity, MAC_htail, dynamic_viscosity, Mach):
     Re = density*velocity*MAC_htail/dynamic_viscosity
     Re_check = 38.21*(MAC_htail/(0.152*10**(-5)))**1.053 #assumed polished sheet metal
     if Re > Re_check:
@@ -62,11 +62,11 @@ def horizontal_tail_drag_coefficient(t_over_c_htail, x_over_c_max_htail, sweep_m
     FF = ((1+0.6*t_over_c_htail/x_over_c_max_htail +100*t_over_c_htail**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c_htail*math.pi/180))**0.28))
     S_wet_hwing = 1.07*2* horizontal_tail_area
     IF_c = 1.044 ##interference when connecting wing to fuselage
-    C_D_0_horizontal_tail = FF * IF_c* c_f_total * S_wet_hwing
+    C_D_0_horizontal_tail = FF * IF_c* c_f_total * S_wet_hwing/wing_area
     return C_D_0_horizontal_tail
 
 
-def vertical_tail_drag_coefficient(t_over_c_vtail, x_over_c_max_vtail, sweep_max_t_c_vtail, vertical_tail_area, density, velocity, MAC_vtail, dynamic_viscosity, Mach):
+def vertical_tail_drag_coefficient(wing_area, t_over_c_vtail, x_over_c_max_vtail, sweep_max_t_c_vtail, vertical_tail_area, density, velocity, MAC_vtail, dynamic_viscosity, Mach):
     Re = density*velocity*MAC_vtail/dynamic_viscosity
     Re_check = 38.21*(MAC_vtail/(0.152*10**(-5)))**1.053 #assumed polished sheet metal
     if Re > Re_check:
@@ -80,7 +80,7 @@ def vertical_tail_drag_coefficient(t_over_c_vtail, x_over_c_max_vtail, sweep_max
     FF = ((1+0.6*t_over_c_vtail/x_over_c_max_vtail +100*t_over_c_vtail**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c_vtail*math.pi/180))**0.28))
     S_wet_wing = 1.07*2* vertical_tail_area
     IF_c = 1.044 ##interference when connecting wing to fuselage
-    C_D_0_vertical_tail = FF * IF_c * c_f_total * S_wet_wing
+    C_D_0_vertical_tail = FF * IF_c * c_f_total * S_wet_wing/wing_area
     return C_D_0_vertical_tail
 
 
