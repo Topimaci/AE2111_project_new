@@ -16,13 +16,14 @@ def fuselage_drag_coefficient(wing_area, density, velocity, MAC, dynamic_viscosi
     f = l_fuselage/diameter_fuselage
     FF = (1+60/f**3 + f/400)
     S_wet_fus = (math.pi*diameter_fuselage/4)*(1/(3*length_cockpit**2)*((4*length_cockpit**2 + (diameter_fuselage**2)/4)**1.5 -(diameter_fuselage**3 /8))-diameter_fuselage+4*length_cylinder_part+2*math.sqrt(length_tail_part**2 + (diameter_fuselage**2)/4))
-    C_D_0_fuselage_friction = FF*c_f_total*S_wet_fus
+    C_D_0_fuselage_friction = FF*c_f_total*S_wet_fus/wing_area
 
      #### miscellaneous drag fuselage
     #upsweep                                                          
-    C_D_upsweep = (3.83*upsweep**(2.5)*((math.pi*(diameter_fuselage/2)**2)))/wing_area
+    C_D_upsweep = (3.83*upsweep**(2.5)*((math.pi*(diameter_fuselage/2)**2)))
     C_D_base_drag = ((0.139+0.419*(Mach-0.161)**2)*Base_area)
     C_D_0_fuselage = C_D_0_fuselage_friction + C_D_base_drag + C_D_upsweep
+
     return C_D_0_fuselage
 
 ##35% of wing is laminar
@@ -40,7 +41,7 @@ def wing_drag_coefficient(t_over_c, x_over_c_max, sweep_max_t_c, wing_area, dens
     FF = ((1+0.6*t_over_c/x_over_c_max +100*t_over_c**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c*math.pi/180))**0.28))
     S_wet_wing = 1.07*2* wing_area 
     IF_c = 1.25 ##interference when connecting wing to fuselage
-    C_D_0_wing = FF * c_f_total* IF_c * S_wet_wing
+    C_D_0_wing = FF * c_f_total* IF_c * S_wet_wing/wing_area
 
     return C_D_0_wing
 
