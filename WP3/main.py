@@ -173,9 +173,9 @@ while Running == True:
     CD_flap = D2.flap_drag_coefficient(cf/chord_MAC,S_flap,S_wing, 40)
 
     CD_0_misc = CD_flap
-
-    CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep, C_L_des, 0, 1, span, 10000000000000)
-    CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep, 2.59, 40, 1, span, 100000000000000000000000)
+    sweep_half = pd.sweep_converter(sweep, chord_root, taper, 0.5, span)
+    CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep_half, C_L_des, 0, 1, span, 10000000000000)
+    CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_half, 2.59, 40, 1, span, 100000000000000000000000)
                                                         ### 2.59 assumed from WP2
     CD_wave = D2.wave_C_D(M, 0.68)
 
