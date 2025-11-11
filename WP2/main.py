@@ -52,11 +52,6 @@ loads_to_field = td.take_off_distance(alpha, fv.wing_loading, fv.takeoff_field, 
 
 
 
-print("Wing Planform (sweep, taper, span, cr, ct, c_MAC, dihedral, sweep):", sweep, taper, b , c_r, c_t, c_MAC, dihedral, sweep_LE)
-print("cd0:", c_d0)
-print("cd0 initial:", c_d_0_initial)
-print("e initial:", e_initial)
-print("L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D:", dv.L_over_D_max, C_L_for_max_L_over_D, C_D_for_max_L_over_D )
 
 
 #____Plots____
