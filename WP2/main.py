@@ -10,7 +10,7 @@ import variables.fixed_values as fv
 import matplotlib.pyplot as plt
 import variables.dynamic_variables as dv
 
-thickness_to_chord = 0.15 # assumption 
+thickness_to_chord = 0.14 # assumption 
 AR = 10
 M_cr = 0.68   #this is for requirement, maybe 0.7 for cruise?
 

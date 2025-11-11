@@ -89,7 +89,7 @@ h_tailsweep = 15                                                #Horizontal Tail
 t_w = dv.designtw
 w_s = dv.designws
 
-Total_volume_fuel_needed = 4.2
+
 sweep_t_c_max = pd.sweep_converter(sweep, chord_root, taper, 0.3, span)
 i = 0
 
@@ -169,18 +169,18 @@ while Running == True:
     CD_0_Htail = D2.horizontal_tail_drag_coefficient(S_wing, 0.12,0.3, pd.sweep_converter(25, htail_chord_root, htail_taper, 0.3, htail_span), tail_area_h, density_cr, velocity_cr, htail_chord_MAC, visc, M)
     CD_0_Vtail = D2.vertical_tail_drag_coefficient(S_wing, 0.12, 0.3, pd.sweep_converter(20, vtail_chord_root, vtail_taper, 0.3, vtail_span),tail_area_v, density_cr, velocity_cr, vtail_chord_MAC, visc, M)
     CD_0_Nacelle = D2.nacelle_drag_coefficient(S_wing, density_cr, velocity_cr, visc, engine[5], engine[4], M)
-    CD_0_surf = CD_0_Fus + CD_0_Wing + CD_0_Htail + CD_0_Vtail + CD_0_Nacelle
-
+    CD_0_surf = CD_0_Fus + CD_0_Wing + 1.06*(CD_0_Htail + CD_0_Vtail) + CD_0_Nacelle
+                                ### 1.06 = IFc
     ## Have to decide which ones count to fwhich configuration, also CD_wheelwell times 3 or only 1 or what??
     #CD_Wheelwell = D2.C_D_landing_gear_whells(fuselage_height, width_tire_and_strut, height_strut, width_strut, height_gear, width_gear, S_wing)
     CD_flap = D2.flap_drag_coefficient(cf/chord_MAC,S_flap,S_wing, 40)
 
     CD_0_misc = CD_flap
     sweep_half = pd.sweep_converter(sweep, chord_root, taper, 0.5, span)
-    CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep_half, C_L_des, 0, 1, span, 10000000000000)
-    CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_half, 2.59, 40, 1, span, 100000000000000000000000)
+    CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep_half, C_L_des, 0, 1.3, span, 10000000000000)
+    CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_half, 2.59, 40, 1.2, span, 100000000000000000000000)
                                                         ### 2.59 assumed from WP2
-    CD_wave = D2.wave_C_D(M, 0.68)
+    CD_wave = D2.wave_C_D(M, 0.75)
 
     CD_0_final = CD_0_surf+CD_0_misc+0.03*(CD_0_surf+CD_0_misc)
 
@@ -224,7 +224,6 @@ while Running == True:
 
     #Fuel mass fraction
     print("CL design", C_L_des)
-    print("CD induced", CD_wave)
  
     R_lost = range.R_lost_function(L_over_D, fv.h_cr, velocity_cr)
     R_eq_res = range.R_eq_res_function(fv.R_div, fv.t_E, velocity_cr)
@@ -246,9 +245,14 @@ while Running == True:
     m_unacc = 1-(m_OE+m_wing+m_fus+m_t+m_eng+m_nac+m_fe)
 
     Total_volume_wing, percentage_fuel_in_wing, fuel_mass_in_wing, Total_volume_fuel_needed = fuelv.fuel_volume(chord_root, taper, span, W_fuel)
-
+    print(f"""
+    Total Fuel Volume: {Total_volume_fuel_needed}
+    Total Fuel Volume in wing: {Total_volume_wing}
+    Percentage of Fuel in wing: {percentage_fuel_in_wing}
+    Fuel mass in wing: {fuel_mass_in_wing}        
+    """)
     #matching diagram
-
+    
 
     loads_minimum_speed = ms.Minimum_speed(1.225, engine[7], 66, 2.59) ### 2.59 is CL_max
     loads_landing_field_length = lfl.landing_field_length(mass_landing/MTOW, 700, 1.225, 2.59)
