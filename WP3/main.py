@@ -19,13 +19,13 @@ import variables.fixed_values as fv
 import functions.Fuel_Volume as fuelv
 import functions.Range_calculations as range
 
-from scipy.optimize import fsolve
+#from scipy.optimize import fsolve
 
-MTOW = mrm.m_MTO
-OEW = mrm.m_oe
-W_fuel = mrm.m_f_des
+MTOW = 12520
+OEW = 7608
+W_fuel = 4161
 mass_landing = MTOW-W_fuel
-S_wing = dv.S_w
+S_wing = 49.63
 
 Running = True
 #change dv.S_w to S_wing in all code DONE
@@ -49,7 +49,8 @@ number_fueltanks = 3
 
 
 q = c2w.pas_to_psi(0.5 * 0.2872 * fv.v_cr ** 2)
-sweep = ma.sweep_true
+sweep = 11.852
+
 taper = ma.taper
 t_c = ma.thickness_to_chord
 AR = ma.AR
@@ -89,8 +90,11 @@ t_w = dv.designtw
 w_s = dv.designws
 
 Total_volume_fuel_needed = 4.2
+sweep_t_c_max = pd.sweep_converter(sweep, chord_root, taper, 0.3, span)
+i = 0
 
 while Running == True:
+    i = i+1
 
     tail_area_v, tail_area_h, tail_distance =  es.calculate_tail_surface_areas(S_wing, span, chord_MAC, chord_root, MTOW, fuel_mass_fraction, m_OE, m_wing, m_fus, m_t, m_eng, m_nac, m_fe)
     
@@ -103,7 +107,7 @@ while Running == True:
 
     engine = et.engine_required(t_w*9.81*MTOW)
 
-    
+    sweep_c4 = pd.sweep_converter(sweep, chord_root, taper, 0.25, span)
 
 
     W_wing = c2w.lb_to_kg(c2w.wing_weight(c2w.m2_to_ft2(S_wing),  c2w.kg_to_lb(W_fuel), AR, c2w.pas_to_psi(q), taper, t_c, sweep, N_z,  c2w.kg_to_lb(W_des)))
@@ -136,18 +140,19 @@ while Running == True:
 
 
     C_L_des = pd.C_L_design(MTOW, W_fuel, velocity_cr, density_cr, S_wing)
-    sweep_LE_DD = pd.sweep_drag_divergence(C_L_des)  
-    print("sweep:" ,sweep_LE_DD)
+    #sweep_LE_DD = pd.sweep_drag_divergence(C_L_des)  
+    #print("sweep:" ,sweep_LE_DD)
     ##sweep, taper, b, c_root, c_tip, c_MAC, dihedral, sweep_LE
 
     sweep_false, taper, span, chord_root, chord_tip, chord_MAC, dihedral, sweep_LE_false = pd.calculate_geometric_parameters_wing(S_wing,AR, M)
     sweep_htail_false, htail_taper, htail_span, htail_chord_root, htail_chord_tip, htail_chord_MAC, htail_dihedral, sweep_LE_h_false = pd.calculate_geometric_parameters_wing(tail_area_h,3.5,M)
     sweep_vtail_false, vtail_taper, vtail_span, vtail_chord_root, vtail_chord_tip, vtail_chord_MAC, vtail_dihedral, sweep_LE_v_false = pd.calculate_geometric_parameters_wing(tail_area_v,1.5,M)
 
-    sweep_c4 = pd.sweep_converter(sweep_LE_DD, chord_root, taper, 1/4, span)
 
 
-    cf, S_flap = hld.HLD(S_wing, sweep_LE_DD, span, chord_tip, chord_root)
+    cf, S_flap = hld.HLD(S_wing, sweep, span, chord_tip, chord_root)
+
+    print(f"[HLD] cf/c={cf:.3f}, S_flap={S_flap:.3f} m² (S_wing={S_wing:.1f} m²)")
 
     #y_spanwise, xlemac, lengthMAC
     ##Drag show
@@ -157,7 +162,7 @@ while Running == True:
     Base_area = 0.0314 
 
     CD_0_Fus = D2.fuselage_drag_coefficient(S_wing, density_cr, velocity_cr, chord_MAC, visc, length_fus, diameter_fus, length_cock, length_cyli, length_tail, M, upsweep_tail, Base_area)
-    CD_0_Wing = D2.wing_drag_coefficient(0.14,0.378,pd.sweep_converter(sweep_LE_DD,chord_root, taper, 0.378, span),S_wing, density_cr, velocity_cr, chord_MAC, visc, M)
+    CD_0_Wing = D2.wing_drag_coefficient(0.14,0.378,pd.sweep_converter(sweep_t_c_max,chord_root, taper, 0.378, span),S_wing, density_cr, velocity_cr, chord_MAC, visc, M)
     CD_0_Htail = D2.horizontal_tail_drag_coefficient(0.12,0.3, pd.sweep_converter(25, htail_chord_root, htail_taper, 0.3, htail_span), tail_area_h, density_cr, velocity_cr, htail_chord_MAC, visc, M)
     CD_0_Vtail = D2.vertical_tail_drag_coefficient(0.12, 0.3, pd.sweep_converter(20, vtail_chord_root, vtail_taper, 0.3, vtail_span),tail_area_v, density_cr, velocity_cr, vtail_chord_MAC, visc, M)
     CD_0_Nacelle = D2.nacelle_drag_coefficient(S_wing, density_cr, velocity_cr, visc, engine[5], engine[4], M)
@@ -169,8 +174,8 @@ while Running == True:
 
     CD_0_misc = CD_flap
 
-    CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep_LE_DD, C_L_des, 0, 1, span, 10000000000000)
-    CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_LE_DD, 2.59, 40, 1, span, 100000000000000000000000)
+    CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep, C_L_des, 0, 1, span, 10000000000000)
+    CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep, 2.59, 40, 1, span, 100000000000000000000000)
                                                         ### 2.59 assumed from WP2
     CD_wave = D2.wave_C_D(M, 0.68)
 
@@ -178,9 +183,41 @@ while Running == True:
 
     CD_total_clean = CD_0_surf*1.03+CD_ind_clean+CD_wave
     CD_total_landing = CD_0_final + CD_ind_Landing
+    print("Cdtotalclen" , CD_total_clean)
+    print(f"""
+    ==================== DRAG COMPONENT SUMMARY ====================
+
+    Parasite Drag Components:
+    CD₀ (Fuselage):        {CD_0_Fus:.6f}
+    CD₀ (Wing):            {CD_0_Wing:.6f}
+    CD₀ (H. Tail):         {CD_0_Htail:.6f}
+    CD₀ (V. Tail):         {CD_0_Vtail:.6f}
+    CD₀ (Nacelle):         {CD_0_Nacelle:.6f}
+    ---------------------------------------------------------------
+    CD₀ (Surface total):   {CD_0_surf:.6f}
+    CD₀ (Flaps):           {CD_flap:.6f}
+    CD₀ (Misc.):           {CD_0_misc:.6f}
+    CD₀ (Final):           {CD_0_final:.6f}
+
+    Induced and Wave Drag:
+    CDᵢ (Clean):           {CD_ind_clean:.6f}
+    CDᵢ (Landing):         {CD_ind_Landing:.6f}
+    Oswald e (Clean):      {e_clean:.4f}
+    Oswald e (Landing):    {e:.4f}
+    AR (Clean):            {AR_new_clean:.3f}
+    AR (Landing):          {AR_new:.3f}
+    CD_wave:               {CD_wave:.6f}
+
+    Total Drag:
+    CD_total (Clean):      {CD_total_clean:.6f}
+    CD_total (Landing):    {CD_total_landing:.6f}
+
+    ===============================================================
+    """)
 
     #LIFT OVER DRAG
     L_over_D = C_L_des/CD_total_clean
+    print("LoverD", L_over_D)
 
     #Fuel mass fraction
     print("CL design", C_L_des)
@@ -191,7 +228,7 @@ while Running == True:
     R_eq = range.R_eq_function(fv.R_des, R_lost, fv.f_cont, R_eq_res)
     eta_j = range.eta_j_function(fv.e_f, velocity_cr, engine[8])
     fuel_mass_fraction = range.fuel_mass_fraction_function(R_eq, eta_j, fv.e_f, L_over_D)
-
+    print("fmf", fuel_mass_fraction)
     W_fuel = fuel_mass_fraction * MTOW
 
     mass_landing = MTOW - W_fuel
@@ -225,10 +262,20 @@ while Running == True:
     alpha = td.find_alpha_t(delta, Mach, fv.B)
     loads_to_field = td.take_off_distance(alpha, fv.wing_loading, fv.takeoff_field, fv.density_takeoff, fv.oswald_efficiency, fv.AR)
 
-    intersection_tocr = np.intersect1d(loads_to_field, loads_cruise_speed)
-    intersection_tola = loads_to_field[np.where(fv.wing_loading == loads_landing_field_length)]
+    intersection_tola = np.interp(loads_landing_field_length, fv.wing_loading, loads_to_field)
 
-    wingload_1 = fv.wing_loading[np.where(loads_to_field == intersection_tocr)]
+    from scipy.optimize import fsolve
+
+    def f(w):
+        return np.interp(w, fv.wing_loading, loads_to_field) - np.interp(w, fv.wing_loading, loads_cruise_speed)
+
+    try:
+        intersection_tocr = fsolve(f, x0=fv.wing_loading.mean())[0]
+    except Exception:
+        intersection_tocr = np.nan
+
+    wingload_1 = intersection_tocr
+
     wingload_2 = loads_landing_field_length
 
     if wingload_1*1.05 <= wingload_2 and wingload_1 <= wingload_2:
@@ -255,8 +302,21 @@ while Running == True:
     W_to = MTOW * 9.81
     S_wing_new = W_to/w_s_new
 
-    if S_wing_new/S_wing <= 0.05 or S_wing_new/S_wing >= 0.05:
+    print(f"""
+    Span:        {span:.3f} m
+    Chord root:  {chord_root:.3f} m
+    Taper:       {taper:.3f}
+    LE Sweep:    {sweep:.2f}°
+    Wing Area:   {S_wing_new:.3f} m²
+    CL Design:   {C_L_des:.3f}
+    MTOW:        {MTOW:.1f} kg
+    Fuel mass:   {W_fuel:.1f} kg
+    """)
 
+
+    if S_wing/S_wing_new <= 0.05 or i == 3:
+
+        print(i)
         Running = False
 
     else: S_wing = S_wing_new
