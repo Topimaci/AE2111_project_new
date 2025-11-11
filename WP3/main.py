@@ -153,8 +153,7 @@ while Running == True:
 
     cf, S_flap = hld.HLD(S_wing, sweep, span, chord_tip, chord_root)
 
-    cf = 1-cf
-    S_flap = cf*S_flap
+
 
     print(f"[HLD] cf/c={cf:.3f}, S_flap={S_flap:.3f} m² (S_wing={S_wing:.1f} m²)")
 
