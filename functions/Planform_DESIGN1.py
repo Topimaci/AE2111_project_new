@@ -31,7 +31,7 @@ def calculate_geometric_parameters_wing(S_w, AR, M_cr):
 
 
 def C_L_design(M_MTO, m_fuel, v_cruise, density_cruise, Wing_area):
-    C_L_design = 1.1*(M_MTO+(M_MTO-m_fuel))*9.81/(0.5* v_cruise**2 * density_cruise * Wing_area)
+    C_L_design = 1.1*0.5*(M_MTO+(M_MTO-m_fuel))*9.81/(0.5* v_cruise**2 * density_cruise)
     return  C_L_design
 
 
