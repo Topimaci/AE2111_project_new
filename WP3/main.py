@@ -106,6 +106,7 @@ while Running == True:
     #EEEEEEEEEEEEEEEEEEEEEEEEEngine
 
     engine = et.engine_required(t_w*9.81*MTOW)
+    print("engine", engine)
 
     sweep_c4 = pd.sweep_converter(sweep, chord_root, taper, 0.25, span)
 
@@ -317,7 +318,7 @@ while Running == True:
     """)
 
 
-    if S_wing/S_wing_new <= 0.05 or i == 3:
+    if abs(S_wing_new - S_wing)/S_wing < 0.0000000000001 or i == 100:
 
         print(i)
         Running = False
