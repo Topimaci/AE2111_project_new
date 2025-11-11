@@ -20,10 +20,23 @@ def fuselage_drag_coefficient(wing_area, density, velocity, MAC, dynamic_viscosi
 
      #### miscellaneous drag fuselage
     #upsweep                                                          
-    C_D_upsweep = (3.83*upsweep**(2.5)*((math.pi*(diameter_fuselage/2)**2)))
+    C_D_upsweep = (3.83*upsweep**(2.5)*((math.pi*(diameter_fuselage/2)**2)))/(0.5*density*velocity**2)
     C_D_base_drag = ((0.139+0.419*(Mach-0.161)**2)*Base_area)
     C_D_0_fuselage = C_D_0_fuselage_friction + C_D_base_drag + C_D_upsweep
-
+    print(f"""
+    Re = {Re:.3e}
+    Re_check = {Re_check:.3e}
+    C_f_laminar = {C_f_laminar:.6f}
+    C_f_turbulent = {C_f_turbulent:.6f}
+    c_f_total = {c_f_total:.6f}
+    f (slenderness ratio) = {f:.3f}
+    FF (form factor) = {FF:.3f}
+    S_wet_fus (wet surface area) = {S_wet_fus:.3f}
+    C_D_0_fuselage_friction = {C_D_0_fuselage_friction:.6f}
+    C_D_upsweep = {C_D_upsweep:.6f}
+    C_D_base_drag = {C_D_base_drag:.6f}
+    C_D_0_fuselage = {C_D_0_fuselage:.6f}
+    """)
     return C_D_0_fuselage
 
 ##35% of wing is laminar
@@ -120,7 +133,8 @@ def flap_drag_coefficient(c_f_over_c, S_flap, wing_area, deflection_flap):
 def induced_drag(AR, LE_sweep, C_L, flap_deflection, h_winglet, b, alt): # b is the wing span of the jet, alt is the height of the aircraft above the ground, h_winglet is the height of the winglet
     delta_AR = 1.9 * (h_winglet / b) * AR
     AR = AR + delta_AR
-    e = 4.6 * (1 - 0.045 * AR ** 0.68) * ((math.cos(LE_sweep*math.pi/180)) ** 0.15) - 3.1 
+    LE_sweep_rad = math.radians(LE_sweep)
+    e = 4.61 * (1.0 - 0.045 * AR**0.68) * (math.cos(LE_sweep_rad) ** 0.15) - 3.1 
     delta_e = 0.0026 * flap_deflection
     e = e + delta_e
     K = 1 / (pi * e * AR)
