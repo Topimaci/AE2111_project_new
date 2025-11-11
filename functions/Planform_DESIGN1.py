@@ -43,7 +43,7 @@ def sweep_drag_divergence(C_L):
         return 0.68 - (0.87/np.cos(L) - 0.14/np.cos(L)**2 - C_L/(10*np.cos(L)**3))
 
     # Search in a realistic range (0°–70°)
-    lower, upper = np.radians(0), np.radians(85)
+    lower, upper = np.radians(0), np.radians(30)
 
     try:
         sol = root_scalar(equation, bracket=[lower, upper], method='brentq')
@@ -57,7 +57,7 @@ def sweep_drag_divergence(C_L):
 
 
 
-0.68, -0.87, 0.14
+
 
 
 def calculate_aerodynamic_performance(thickness_to_chord):   #######newer estimations for Cd0
