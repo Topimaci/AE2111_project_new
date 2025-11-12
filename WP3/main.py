@@ -18,6 +18,9 @@ import functions.Take_off_distance as td
 import variables.fixed_values as fv
 import functions.Fuel_Volume as fuelv
 import functions.Range_calculations as range
+import pandas as pa
+
+iteration_data = []
 
 #from scipy.optimize import fsolve
 
@@ -111,7 +114,7 @@ while Running == True:
 
     sweep_c4 = pd.sweep_converter(sweep, chord_root, taper, 0.25, span)
 
-                    ############# change fuel weight to wing fuel weight
+            
     W_wing = c2w.lb_to_kg(c2w.wing_weight(c2w.m2_to_ft2(S_wing),  c2w.kg_to_lb(W_fuel*percentage_fuel_in_wing), AR, c2w.pas_to_psi(q), taper, t_c, sweep, N_z,  c2w.kg_to_lb(W_des)))
     W_htail = c2w.lb_to_kg(c2w.horizontal_tail_weight(N_z,  c2w.kg_to_lb(W_des), c2w.pas_to_psi(q), c2w.m2_to_ft2(tail_area_h), t_c, sweep, h_tailsweep, h_tailtaper, AR_h))
     W_vtail = c2w.lb_to_kg(c2w.vertical_tail_weight(N_z,  c2w.kg_to_lb(W_des), c2w.pas_to_psi(q), c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v, 0.4))
@@ -119,7 +122,7 @@ while Running == True:
     W_mLG = c2w.lb_to_kg(c2w.main_landing_gear_weight(N_l,  c2w.kg_to_lb(mass_landing), c2w.m_to_in(0.74)))  
     W_nLG = c2w.lb_to_kg(c2w.nose_landing_gear_weight(N_l,  c2w.kg_to_lb(mass_landing), c2w.m_to_in(0.74))) 
     W_eng = c2w.lb_to_kg(c2w.engine_weight(c2w.kg_to_lb(engine[2]), 2))
-    W_fs = c2w.lb_to_kg(c2w.fuel_system_weight(c2w.liters_to_gal(W_fuel/800*1000), c2w.liters_to_gal(W_fuel/800*1000), number_fueltanks, 2))### relook at fuel weights
+    W_fs = c2w.lb_to_kg(c2w.fuel_system_weight(c2w.liters_to_gal(W_fuel/800*1000), c2w.liters_to_gal(W_fuel/800*1000), number_fueltanks, 2))
     W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), c2w.m_to_ft(span), N_z,  c2w.kg_to_lb(W_des))
     W_fc = c2w.lb_to_kg(W_fc)
     W_hyd = c2w.lb_to_kg(W_hyd)
@@ -180,7 +183,7 @@ while Running == True:
     CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep_half, C_L_des, 0, 1.3, span, 10000000000000) ########find reference winglet
     CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_half, 2.59, 40, 1.3, span, 100000000000000000000000)
                                                         ### 2.59 assumed from WP2
-    CD_wave = D2.wave_C_D(M, 0.7)
+    CD_wave = D2.wave_C_D(M, 0.682)
 
     CD_0_final = CD_0_surf+CD_0_misc+0.03*(CD_0_surf+CD_0_misc)
 
@@ -309,6 +312,37 @@ while Running == True:
     W_to = MTOW * 9.81
     S_wing_new = W_to/w_s_new
 
+    iteration_data.append({
+        "Iteration": i,
+        "Span [m]": span,
+        "Chord root [m]": chord_root,
+        "Taper [-]": taper,
+        "LE Sweep [deg]": sweep,
+        "Wing Area [m²]": S_wing_new,
+        "CL Design [-]": C_L_des,
+        "MTOW [kg]": MTOW,
+        "Fuel mass [kg]": W_fuel,
+        "Total Fuel Volume [m³]": Total_volume_fuel_needed,
+        "Fuel Volume in Wing [m³]": Total_volume_wing,
+        "Fuel % in Wing [%]": percentage_fuel_in_wing * 100,
+        "HTail Sweep [deg]": sweep_htail_false,
+        "HTail Taper [-]": htail_taper,
+        "HTail Span [m]": htail_span,
+        "HTail Root Chord [m]": htail_chord_root,
+        "HTail Tip Chord [m]": htail_chord_tip,
+        "HTail MAC [m]": htail_chord_MAC,
+        "HTail Dihedral [deg]": htail_dihedral,
+        "HTail LE Sweep [deg]": sweep_LE_h_false,
+        "VTail Sweep [deg]": sweep_vtail_false,
+        "VTail Taper [-]": vtail_taper,
+        "VTail Span [m]": vtail_span,
+        "VTail Root Chord [m]": vtail_chord_root,
+        "VTail Tip Chord [m]": vtail_chord_tip,
+        "VTail MAC [m]": vtail_chord_MAC,
+        "VTail Dihedral [deg]": vtail_dihedral,
+        "VTail LE Sweep [deg]": sweep_LE_v_false,
+    })
+
     print(f"""
     Span:        {span:.3f} m
     Chord root:  {chord_root:.3f} m
@@ -329,7 +363,10 @@ while Running == True:
     else: S_wing = S_wing_new
 
 
+df = pa.DataFrame(iteration_data)
+df.to_csv("iteration_results.csv", index=False)
 
+print("✅ Iteration results exported to 'iteration_results.csv'")
 
 
 print(f"""
