@@ -318,7 +318,7 @@ while Running == True:
     """)
 
 
-    if abs(S_wing_new - S_wing)/S_wing < 0.0000000000001 or i == 100:
+    if abs(S_wing_new - S_wing)/S_wing < 0.001 or i == 100:
 
         print(i)
         Running = False
