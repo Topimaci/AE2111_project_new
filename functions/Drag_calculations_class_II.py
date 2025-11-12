@@ -20,8 +20,8 @@ def fuselage_drag_coefficient(wing_area, density, velocity, MAC, dynamic_viscosi
 
      #### miscellaneous drag fuselage
     #upsweep                                                          
-    C_D_upsweep = (3.83*upsweep**(2.5)*((math.pi*(diameter_fuselage/2)**2)))/(0.5*density*velocity**2)
-    C_D_base_drag = ((0.139+0.419*(Mach-0.161)**2)*Base_area)
+    C_D_upsweep = (3.83*upsweep**(2.5)*((math.pi*(diameter_fuselage/2)**2)))/wing_area
+    C_D_base_drag = ((0.139+0.419*(Mach-0.161)**2)*Base_area)/wing_area
     C_D_0_fuselage = C_D_0_fuselage_friction + C_D_base_drag + C_D_upsweep
     print(f"""
     Re = {Re:.3e}
@@ -39,7 +39,7 @@ def fuselage_drag_coefficient(wing_area, density, velocity, MAC, dynamic_viscosi
     """)
     return C_D_0_fuselage
 
-##35% of wing is laminar
+##50% of wing is laminar
 def wing_drag_coefficient(t_over_c, x_over_c_max, sweep_max_t_c, wing_area, density, velocity, MAC, dynamic_viscosity, Mach):
     Re = density*velocity*MAC/dynamic_viscosity
     Re_check = 38.21*(MAC/(0.152*10**(-5)))**1.053 #assumed polished sheet metal
@@ -49,7 +49,7 @@ def wing_drag_coefficient(t_over_c, x_over_c_max, sweep_max_t_c, wing_area, dens
     C_f_laminar = 1.328/math.sqrt(Re)
     C_f_turbulent = 0.455/((math.log10(Re))**(2.58) * (1+0.144*Mach**2)**(0.65))
 
-    c_f_total = 0.35*C_f_laminar+0.65*C_f_turbulent
+    c_f_total = 0.5*C_f_laminar+0.5*C_f_turbulent
 
     FF = ((1+0.6*t_over_c/x_over_c_max +100*t_over_c**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c*math.pi/180))**0.28))
     S_wet_wing = 1.07*2* wing_area 
@@ -60,7 +60,7 @@ def wing_drag_coefficient(t_over_c, x_over_c_max, sweep_max_t_c, wing_area, dens
 
 
 
-#35% is laminar
+#50% is laminar
 def horizontal_tail_drag_coefficient(wing_area, t_over_c_htail, x_over_c_max_htail, sweep_max_t_c_htail, horizontal_tail_area, density, velocity, MAC_htail, dynamic_viscosity, Mach):
     Re = density*velocity*MAC_htail/dynamic_viscosity
     Re_check = 38.21*(MAC_htail/(0.152*10**(-5)))**1.053 #assumed polished sheet metal
@@ -70,12 +70,12 @@ def horizontal_tail_drag_coefficient(wing_area, t_over_c_htail, x_over_c_max_hta
     C_f_laminar = 1.328/math.sqrt(Re)
     C_f_turbulent = 0.455/((math.log10(Re))**(2.58) * (1+0.144*Mach**2)**(0.65))
 
-    c_f_total = 0.35*C_f_laminar+0.65*C_f_turbulent
+    c_f_total = 0.5*C_f_laminar+0.5*C_f_turbulent
 
     FF = ((1+0.6*t_over_c_htail/x_over_c_max_htail +100*t_over_c_htail**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c_htail*math.pi/180))**0.28))
     S_wet_hwing = 1.07*2* horizontal_tail_area
-    IF_c = 1.044 ##interference when connecting wing to fuselage
-    C_D_0_horizontal_tail = FF * IF_c* c_f_total * S_wet_hwing/wing_area
+
+    C_D_0_horizontal_tail = FF * c_f_total * S_wet_hwing/wing_area
     return C_D_0_horizontal_tail
 
 
@@ -88,12 +88,12 @@ def vertical_tail_drag_coefficient(wing_area, t_over_c_vtail, x_over_c_max_vtail
     C_f_laminar = 1.328/math.sqrt(Re)
     C_f_turbulent = 0.455/((math.log10(Re))**(2.58) * (1+0.144*Mach**2)**(0.65))
 
-    c_f_total = 0.35*C_f_laminar+0.65*C_f_turbulent
+    c_f_total = 0.5*C_f_laminar+0.5*C_f_turbulent
 
     FF = ((1+0.6*t_over_c_vtail/x_over_c_max_vtail +100*t_over_c_vtail**4)*(1.34*Mach**0.18 *(math.cos(sweep_max_t_c_vtail*math.pi/180))**0.28))
     S_wet_wing = 1.07*2* vertical_tail_area
-    IF_c = 1.044 ##interference when connecting wing to fuselage
-    C_D_0_vertical_tail = FF * IF_c * c_f_total * S_wet_wing/wing_area
+    
+    C_D_0_vertical_tail = FF * c_f_total * S_wet_wing/wing_area
     return C_D_0_vertical_tail
 
 
@@ -112,7 +112,7 @@ def nacelle_drag_coefficient(wing_area, density, velocity, dynamic_viscosity, le
 
     f = length_nacelle/diameter_nacelle
     FF = 1 + 0.35/f
-    IF_c = 1.5 
+    IF_c = 1.3 
     S_wet_nacelle = math.pi*(diameter_nacelle/2)**2 *length_nacelle
     C_D_0_nacelle = FF*c_f_total* IF_c*S_wet_nacelle/wing_area
     return C_D_0_nacelle
@@ -137,14 +137,15 @@ def induced_drag(AR, sweep_half, C_L, flap_deflection, h_winglet, b, alt): # b i
 
     delta_e = 0.0026 * flap_deflection
     e = e + delta_e
-    K = 1 / (pi * e * AR)
+    K = 1 / (math.pi * e * AR)
     
     if alt < b/2:
         omega = 33 * (alt/b) ** 1.5 / (1 + 33 * (alt/b) ** 1.5)
     else:
         omega = 1
     c_induced = omega * K * C_L ** 2
-    return c_induced, e, sweep_half
+
+    return c_induced, e, AR
 
 ## wave drag
 ## min cp0 at 1.5 alpha -1.02
