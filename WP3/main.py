@@ -175,6 +175,7 @@ while Running == True:
     CD_0_Nacelle = D2.nacelle_drag_coefficient(S_wing, density_cr, velocity_cr, visc, engine[5], engine[4], M)
     CD_0_surf = CD_0_Fus + CD_0_Wing + 1.06*(CD_0_Htail + CD_0_Vtail) + CD_0_Nacelle
                                 ### 1.06 = IFc
+    
     ## assumed values for now
     width_tire_main = 0.145
     width_strut_main = 0.12
@@ -196,7 +197,7 @@ while Running == True:
     CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_half, 2.59, 40, 1.3, span, 100000000000000000000000)
                                                         ### 2.59 assumed from WP2
     CD_wave = D2.wave_C_D(M, 0.682)
-
+    CD_0_clean = CD_0_surf + CD_wave
     CD_0_surf_misc = (CD_0_surf+CD_0_misc)*1.03
 
     CD_total_clean = CD_0_surf*1.03+CD_ind_clean+CD_wave
@@ -375,9 +376,8 @@ while Running == True:
         "C_D htail": CD_0_Htail,
         "C_D vtail": CD_0_Vtail,
         "C_D nacelle": CD_0_Nacelle,
-        "C_D_0 clean": CD_0_surf,
-
         "C_D wave drag": CD_wave,
+        "C_D_0 clean": CD_0_clean,
 
         "C_D flap deflection": CD_flap,
         "C_D_0 landing": CD_0_surf_misc,
