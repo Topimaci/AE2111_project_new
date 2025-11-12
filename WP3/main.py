@@ -114,7 +114,7 @@ while Running == True:
                     ############# change fuel weight to wing fuel weight
     W_wing = c2w.lb_to_kg(c2w.wing_weight(c2w.m2_to_ft2(S_wing),  c2w.kg_to_lb(W_fuel*percentage_fuel_in_wing), AR, c2w.pas_to_psi(q), taper, t_c, sweep, N_z,  c2w.kg_to_lb(W_des)))
     W_htail = c2w.lb_to_kg(c2w.horizontal_tail_weight(N_z,  c2w.kg_to_lb(W_des), c2w.pas_to_psi(q), c2w.m2_to_ft2(tail_area_h), t_c, sweep, h_tailsweep, h_tailtaper, AR_h))
-    W_vtail = c2w.lb_to_kg(c2w.vertical_tail_weight(N_z,  c2w.kg_to_lb(W_des), c2w.pas_to_psi(q), c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v, 0))
+    W_vtail = c2w.lb_to_kg(c2w.vertical_tail_weight(N_z,  c2w.kg_to_lb(W_des), c2w.pas_to_psi(q), c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v, 0.4))
     W_fuse = c2w.lb_to_kg(c2w.fuselage_weight(c2w.m2_to_ft2(S_wfus), N_z,  c2w.kg_to_lb(W_des), c2w.m_to_ft(tail_distance), c2w.m_to_ft(length_fus), c2w.m_to_ft(diameter_fus), c2w.pas_to_psi(q),  c2w.kg_to_lb(W_press)))
     W_mLG = c2w.lb_to_kg(c2w.main_landing_gear_weight(N_l,  c2w.kg_to_lb(mass_landing), c2w.m_to_in(0.74)))  
     W_nLG = c2w.lb_to_kg(c2w.nose_landing_gear_weight(N_l,  c2w.kg_to_lb(mass_landing), c2w.m_to_in(0.74))) 
