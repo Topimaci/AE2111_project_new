@@ -7,7 +7,7 @@ def fuel_volume(root_chord, taper, span, m_fuel):
     LE_pos = 0.18
     TE_pos = 0.58
 
-    Landing_gear_beginning = 0.3
+    Landing_gear_beginning = 0.35
     Landing_gear_end = 0.4
 
     distance_tank1 =  span/2 *Landing_gear_beginning - span/2 *beginning_fuel_tank
@@ -51,12 +51,6 @@ def fuel_volume(root_chord, taper, span, m_fuel):
     percentage_fuel_in_wing = Total_volume_wing/Total_volume_fuel_needed
     fuel_mass_in_wing = percentage_fuel_in_wing*m_fuel
     return Total_volume_wing, percentage_fuel_in_wing, fuel_mass_in_wing, Total_volume_fuel_needed
-
-
-
-
-
-
 
 
 
