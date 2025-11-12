@@ -14,7 +14,7 @@ def HLD(S_w, sweep_LE, span, c_tip, c_root):
     end_pos_span_LE = 0.8
     c_f_c_TE = 0.35  # fraction of local chord
     c_f_c_LE = 0.1 
-    radius_fuselage = 1
+    radius_fuselage = 1.1
 
     # all letters as specified in the drawing in the report 
 
