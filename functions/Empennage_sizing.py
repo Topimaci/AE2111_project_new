@@ -78,12 +78,14 @@ def calculate_tail_surface_areas(
     # Tail arm distances
     l_v = 0.9*fus_length - cgaft_val
     l_h = l_v 
+    tail_distance = 0.9*fus_length - Xlemac - 0.25*c_w
+
 
     # Tail surface areas
     S_v = calculate_surface_area_vertical_tail(V_v, S_w, b_w, l_v)
     S_h = calculate_surface_area_horizontal_tail(V_h, S_w, c_w, l_h)
 
-    return S_v, S_h, l_v
+    return S_v, S_h, l_v, tail_distance
 
 
 
