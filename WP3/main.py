@@ -19,6 +19,7 @@ import variables.fixed_values as fv
 import functions.Fuel_Volume as fuelv
 import functions.Range_calculations as range
 import pandas as pa
+import matplotlib.pyplot as plt
 
 iteration_data = []
 
@@ -257,7 +258,7 @@ while Running == True:
     #matching diagram
 
 
-    loads_minimum_speed = ms.Minimum_speed(1.225, engine[7], 66, 2.59) ### 2.59 is CL_max
+    loads_minimum_speed = ms.Minimum_speed(1.225, mass_landing/MTOW, 66, 2.59) ### 2.59 is CL_max
     loads_landing_field_length = lfl.landing_field_length(mass_landing/MTOW, 700, 1.225, 2.59)  ### changed landing mass fraction from constant to iterative
     loads_cruise_speed = cs.cruise_speed(0.95,0.24,fv.wing_loading_cs,CD_0_surf, 0.2872, velocity_cr, AR_new, e)
     loads_climb_rate = cr.climb_rate(fv.wing_loading)
@@ -369,13 +370,27 @@ df.to_csv("iteration_results.csv", index=False)
 print("✅ Iteration results exported to 'iteration_results.csv'")
 
 
-print(f"""
-FINAL VALUES:
-Lift Over Drag: {L_over_D}
-Total drag clean: {CD_total_clean}
-CL design: {C_L_des}
-MTOW: {MTOW}
-LE Sweep: {sweep}
-Fuel mass: {W_fuel}
-Fuel percentage in wings: {percentage_fuel_in_wing}
-""")
+
+plotname = f"FINAL_Matching_Diagram_iteration.png"
+
+fig, dx = plt.subplots()
+dx.plot(fv.wing_loading_cs, loads_cruise_speed, label="Cruise speed")
+dx.plot(fv.wing_loading, loads_climb_rate, label="Climb Rate")
+dx.plot(fv.wing_loading, loads_climb_grad_119, label="Climb gradient CS25.119")
+dx.plot(fv.wing_loading, loads_climb_grad_121a, label="Climb gradient CS25.121a")
+dx.plot(fv.wing_loading, loads_climb_grad_121b, label="Climb gradient CS25.121b")
+dx.plot(fv.wing_loading, loads_climb_grad_121c, label="Climb gradient CS25.121c")
+dx.plot(fv.wing_loading, loads_climb_grad_121d, label="Climb gradient CS25.121d")
+dx.plot(fv.wing_loading, loads_to_field, label="Take-off field length")
+dx.axvline(loads_minimum_speed, color = "gold", label = "Minimum speed")
+dx.axvline(loads_landing_field_length, color = "black", label = "Landing field length")
+dx.scatter(w_s_new, t_w_new, label = "Selected Design Point")
+dx.set_xlim([0, 7200])
+dx.set_ylim([0, 0.7])
+dx.set_xlabel("W/S - [N/m2]")
+dx.set_ylabel("T/W - [N/N]")
+dx.set_title("Matching Diagram")
+legend = dx.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3)
+plt.savefig(plotname, bbox_extra_artists=(legend,), bbox_inches='tight')
+
+print("MInimum speed", loads_minimum_speed)
