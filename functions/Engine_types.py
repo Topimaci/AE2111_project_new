@@ -4,7 +4,7 @@
 def engine_required(thrust_required):
 
     # Format: ["Engine name", T_per_engine_N, Weight_per_engine_kg, Wtot_plus_nacelle, Nacelle_diameter_m, 
-    #           Nacelle_length_m, CG_from_front_m, B_ratio, Specific_fuel_consumption_cruise_kg/N/s]
+    #           Nacelle_length_m, CG_from_front_m, B_ratio, Specific_fuel_consumption_cruise_g/kN/s]
     engines = [
     ["Honeywell HTF7500E",            33486, 687,   916,     1.116, 2.282, 0.9128, 4.2, 18.2],
     ["Honeywell HTF7350 turbofans",   32574, 696,   928,     1.156, 2.281, 0.9124, 4.2, 18.2],
