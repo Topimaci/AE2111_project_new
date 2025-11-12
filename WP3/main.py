@@ -111,15 +111,15 @@ while Running == True:
 
     sweep_c4 = pd.sweep_converter(sweep, chord_root, taper, 0.25, span)
 
-                    ############# change fuel weight to wing fuel weight
+            
     W_wing = c2w.lb_to_kg(c2w.wing_weight(c2w.m2_to_ft2(S_wing),  c2w.kg_to_lb(W_fuel*percentage_fuel_in_wing), AR, c2w.pas_to_psi(q), taper, t_c, sweep, N_z,  c2w.kg_to_lb(W_des)))
     W_htail = c2w.lb_to_kg(c2w.horizontal_tail_weight(N_z,  c2w.kg_to_lb(W_des), c2w.pas_to_psi(q), c2w.m2_to_ft2(tail_area_h), t_c, sweep, h_tailsweep, h_tailtaper, AR_h))
-    W_vtail = c2w.lb_to_kg(c2w.vertical_tail_weight(N_z,  c2w.kg_to_lb(W_des), c2w.pas_to_psi(q), c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v, 0))
+    W_vtail = c2w.lb_to_kg(c2w.vertical_tail_weight(N_z,  c2w.kg_to_lb(W_des), c2w.pas_to_psi(q), c2w.m2_to_ft2(tail_area_v), t_c, sweep, v_tailsweep, v_tailtaper, AR_v, 0.4))####assumed Ht over Hv to be 0.4 for cruciform style
     W_fuse = c2w.lb_to_kg(c2w.fuselage_weight(c2w.m2_to_ft2(S_wfus), N_z,  c2w.kg_to_lb(W_des), c2w.m_to_ft(tail_distance), c2w.m_to_ft(length_fus), c2w.m_to_ft(diameter_fus), c2w.pas_to_psi(q),  c2w.kg_to_lb(W_press)))
     W_mLG = c2w.lb_to_kg(c2w.main_landing_gear_weight(N_l,  c2w.kg_to_lb(mass_landing), c2w.m_to_in(0.74)))  
     W_nLG = c2w.lb_to_kg(c2w.nose_landing_gear_weight(N_l,  c2w.kg_to_lb(mass_landing), c2w.m_to_in(0.74))) 
     W_eng = c2w.lb_to_kg(c2w.engine_weight(c2w.kg_to_lb(engine[2]), 2))
-    W_fs = c2w.lb_to_kg(c2w.fuel_system_weight(c2w.liters_to_gal(W_fuel/800*1000), c2w.liters_to_gal(W_fuel/800*1000), number_fueltanks, 2))### relook at fuel weights
+    W_fs = c2w.lb_to_kg(c2w.fuel_system_weight(c2w.liters_to_gal(W_fuel/800*1000), c2w.liters_to_gal(W_fuel/800*1000), number_fueltanks, 2))
     W_fc, W_hyd = c2w.flight_control_and_hydraulics_weight(c2w.m_to_ft(length_fus), c2w.m_to_ft(span), N_z,  c2w.kg_to_lb(W_des))
     W_fc = c2w.lb_to_kg(W_fc)
     W_hyd = c2w.lb_to_kg(W_hyd)
@@ -180,7 +180,7 @@ while Running == True:
     CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep_half, C_L_des, 0, 1.3, span, 10000000000000) ########find reference winglet
     CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_half, 2.59, 40, 1.3, span, 100000000000000000000000)
                                                         ### 2.59 assumed from WP2
-    CD_wave = D2.wave_C_D(M, 0.7)
+    CD_wave = D2.wave_C_D(M, 0.682)
 
     CD_0_final = CD_0_surf+CD_0_misc+0.03*(CD_0_surf+CD_0_misc)
 
