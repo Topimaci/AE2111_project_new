@@ -375,12 +375,18 @@ while Running == True:
         "C_D htail": CD_0_Htail,
         "C_D vtail": CD_0_Vtail,
         "C_D nacelle": CD_0_Nacelle,
+        "C_D_0 clean": CD_0_surf,
+
         "C_D wave drag": CD_wave,
+
         "C_D flap deflection": CD_flap,
         "C_D_0 landing": CD_0_surf_misc,
-        "C_D_0 clean": C_D_0_surf,
+
+        "C_D All wheels extracted": 2*CD_Wheelwell_main + CD_Wheelwell_nose,
+        
         "C_D induced clean": CD_ind_clean,
         "C_D induced landing": CD_ind_Landing,
+
         "C_D total clean": CD_total_clean,
         "C_D total landing": CD_total_landing,
     })
