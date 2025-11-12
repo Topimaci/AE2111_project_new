@@ -177,14 +177,14 @@ while Running == True:
                                 ### 1.06 = IFc
     ## assumed values for now
     width_tire_main = 0.145
-    width_strut_main =
+    width_strut_main = 0.12
     height_tire_main = 0.56
-    height_strut_main =
+    height_strut_main = 0.75
 
     width_tire_nose = 0.17
-    width_strut_nose =
+    width_strut_nose = 0.12
     height_tire_nose =0.56
-    height_strut_nose =
+    height_strut_nose = 0.7
 
     CD_Wheelwell_main = D2.C_D_landing_gear_whells(width_strut_main, height_strut_main, width_tire_main, height_tire_main, S_wing)
     CD_Wheelwell_nose = D2.C_D_landing_gear_whells(width_strut_nose, height_strut_nose, width_tire_nose, height_tire_nose, S_wing)
@@ -197,10 +197,10 @@ while Running == True:
                                                         ### 2.59 assumed from WP2
     CD_wave = D2.wave_C_D(M, 0.682)
 
-    CD_0_final = CD_0_surf+CD_0_misc+0.03*(CD_0_surf+CD_0_misc)
+    CD_0_surf_misc = (CD_0_surf+CD_0_misc)*1.03
 
     CD_total_clean = CD_0_surf*1.03+CD_ind_clean+CD_wave
-    CD_total_landing = CD_0_final + CD_ind_Landing + 2*CD_Wheelwell_main + CD_Wheelwell_nose + CD_flap
+    CD_total_landing = CD_0_surf_misc + CD_ind_Landing + 2*CD_Wheelwell_main + CD_Wheelwell_nose + CD_flap
     print("Cdtotalclen" , CD_total_clean)
     print(f"""
     ==================== DRAG COMPONENT SUMMARY ====================
@@ -215,7 +215,7 @@ while Running == True:
     CD₀ (Surface total):   {CD_0_surf:.6f}
     CD₀ (Flaps):           {CD_flap:.6f}
     CD₀ (Misc.):           {CD_0_misc:.6f}
-    CD₀ (Final):           {CD_0_final:.6f}
+    CD₀ (Final):           {CD_0_surf_misc:.6f}
 
     Induced and Wave Drag:
     CDᵢ (Clean):           {CD_ind_clean:.6f}
@@ -266,6 +266,7 @@ while Running == True:
     Percentage of Fuel in wing: {percentage_fuel_in_wing}
     Fuel mass in wing: {fuel_mass_in_wing}        
     """)
+    
     #matching diagram
 
 
