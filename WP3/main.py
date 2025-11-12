@@ -101,7 +101,7 @@ i = 0
 while Running == True:
     i = i+1
 
-    tail_area_v, tail_area_h, tail_distance =  es.calculate_tail_surface_areas(S_wing, span, chord_MAC, chord_root, MTOW, fuel_mass_fraction, m_OE, m_wing, m_fus, m_t, m_eng, m_nac, m_fe)
+    tail_area_v, tail_area_h, tail_momentarm, tail_distance =  es.calculate_tail_surface_areas(S_wing, span, chord_MAC, chord_root, MTOW, fuel_mass_fraction, m_OE, m_wing, m_fus, m_t, m_eng, m_nac, m_fe)
     
 
 
@@ -152,8 +152,7 @@ while Running == True:
 
     sweep_false, taper, span, chord_root, chord_tip, chord_MAC, dihedral, sweep_LE_false = pd.calculate_geometric_parameters_wing(S_wing,AR, M)
     sweep_htail_false, htail_taper, htail_span, htail_chord_root, htail_chord_tip, htail_chord_MAC, htail_dihedral, sweep_LE_h_false = pd.calculate_geometric_parameters_wing(tail_area_h,3.5,M)
-    sweep_vtail_false, vtail_taper, vtail_span, vtail_chord_root, vtail_chord_tip, vtail_chord_MAC, vtail_dihedral, sweep_LE_v_false = pd.calculate_geometric_parameters_wing(2*tail_area_v,1.5,M)
-    vtail_span = vtail_span/2
+    sweep_vtail_false, vtail_taper, vtail_span, vtail_chord_root, vtail_chord_tip, vtail_chord_MAC, vtail_dihedral, sweep_LE_v_false = pd.calculate_geometric_parameters_wing(tail_area_v,1.5,M)
 
 
     cf, S_flap = hld.HLD(S_wing, sweep, span, chord_tip, chord_root)
