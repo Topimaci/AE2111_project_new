@@ -117,10 +117,10 @@ def nacelle_drag_coefficient(wing_area, density, velocity, dynamic_viscosity, le
     C_D_0_nacelle = FF*c_f_total* IF_c*S_wet_nacelle/wing_area
     return C_D_0_nacelle
 
-def C_D_landing_gear_whells(h_from_fuselage, width_tire_and_strut, height_strut, width_strut, height_gear, width_gear, wing_area):
+def C_D_landing_gear_whells(width_strut, height_strut, width_gear, height_gear, wing_area):
     ##assume closed wheels wells
-    C_D_s = 0.04955*math.exp(5.615*(width_strut*height_strut+width_gear*height_gear)/(width_tire_and_strut*h_from_fuselage))
-    C_D_landing_gear = C_D_s * (h_from_fuselage*width_tire_and_strut)/wing_area
+    C_D_s = 0.04955*math.exp(5.615*(width_strut*height_strut+2*width_gear*height_gear)/((2*width_gear+width_strut)*(height_strut+0.5*height_gear)))
+    C_D_landing_gear = C_D_s * ((2*width_gear+width_strut)*(height_strut+0.5*height_gear))/wing_area
     return C_D_landing_gear
     
 def flap_drag_coefficient(c_f_over_c, S_flap, wing_area, deflection_flap):
@@ -154,11 +154,6 @@ def wave_C_D(Mach, M_DD):
     C_D_wave = 0.002*(1+2.5*(M_DD-Mach)/0.05)**(-1)
     return C_D_wave
 
-
-
-def final_C_D_increase(C_D):
-    C_D_final = C_D *1.03
-    return C_D_final
 
 
 

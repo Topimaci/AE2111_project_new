@@ -175,8 +175,19 @@ while Running == True:
     CD_0_Nacelle = D2.nacelle_drag_coefficient(S_wing, density_cr, velocity_cr, visc, engine[5], engine[4], M)
     CD_0_surf = CD_0_Fus + CD_0_Wing + 1.06*(CD_0_Htail + CD_0_Vtail) + CD_0_Nacelle
                                 ### 1.06 = IFc
-    ## Have to decide which ones count to fwhich configuration, also CD_wheelwell times 3 or only 1 or what??
-    #CD_Wheelwell = D2.C_D_landing_gear_whells(fuselage_height, width_tire_and_strut, height_strut, width_strut, height_gear, width_gear, S_wing)
+    ## assumed values for now
+    width_tire_main = 0.145
+    width_strut_main =
+    height_tire_main = 0.56
+    height_strut_main =
+
+    width_tire_nose = 0.17
+    width_strut_nose =
+    height_tire_nose =0.56
+    height_strut_nose =
+
+    CD_Wheelwell_main = D2.C_D_landing_gear_whells(width_strut_main, height_strut_main, width_tire_main, height_tire_main, S_wing)
+    CD_Wheelwell_nose = D2.C_D_landing_gear_whells(width_strut_nose, height_strut_nose, width_tire_nose, height_tire_nose, S_wing)
     CD_flap = D2.flap_drag_coefficient(cf/chord_MAC,S_flap,S_wing, 40)
 
     CD_0_misc = CD_flap
@@ -189,7 +200,7 @@ while Running == True:
     CD_0_final = CD_0_surf+CD_0_misc+0.03*(CD_0_surf+CD_0_misc)
 
     CD_total_clean = CD_0_surf*1.03+CD_ind_clean+CD_wave
-    CD_total_landing = CD_0_final + CD_ind_Landing
+    CD_total_landing = CD_0_final + CD_ind_Landing + 2*CD_Wheelwell_main + CD_Wheelwell_nose + CD_flap
     print("Cdtotalclen" , CD_total_clean)
     print(f"""
     ==================== DRAG COMPONENT SUMMARY ====================
