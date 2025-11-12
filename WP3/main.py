@@ -49,7 +49,7 @@ number_fueltanks = 3
 
 
 q = c2w.pas_to_psi(0.5 * 0.2872 * fv.v_cr ** 2)
-sweep = 11.852
+sweep = 14  ###changed away from 11.852
 
 taper = ma.taper
 t_c = ma.thickness_to_chord
@@ -180,7 +180,7 @@ while Running == True:
     CD_ind_clean, e_clean, AR_new_clean = D2.induced_drag(AR, sweep_half, C_L_des, 0, 1.3, span, 10000000000000) ########find reference wignlet
     CD_ind_Landing, e, AR_new = D2.induced_drag(AR, sweep_half, 2.59, 40, 1.3, span, 100000000000000000000000)
                                                         ### 2.59 assumed from WP2
-    CD_wave = D2.wave_C_D(M, 0.70)
+    CD_wave = D2.wave_C_D(M, 0.73)
 
     CD_0_final = CD_0_surf+CD_0_misc+0.03*(CD_0_surf+CD_0_misc)
 
