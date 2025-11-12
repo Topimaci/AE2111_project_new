@@ -342,6 +342,7 @@ while Running == True:
         "VTail MAC [m]": vtail_chord_MAC,
         "VTail Dihedral [deg]": vtail_dihedral,
         "VTail LE Sweep [deg]": sweep_LE_v_false,
+        "Engine type": engine[0],
     })
 
     print(f"""
