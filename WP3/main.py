@@ -198,10 +198,10 @@ while Running == True:
                                                         ### 2.59 assumed from WP2
     CD_wave = D2.wave_C_D(M, 0.682)
     CD_0_clean = CD_0_surf + CD_wave
-    CD_0_surf_misc = (CD_0_surf+CD_0_misc)*1.03
+    CD_0_surf_misc = CD_0_surf+CD_0_misc
 
-    CD_total_clean = CD_0_surf*1.03+CD_ind_clean+CD_wave
-    CD_total_landing = CD_0_surf_misc + CD_ind_Landing + 2*CD_Wheelwell_main + CD_Wheelwell_nose + CD_flap
+    CD_total_clean = (CD_0_clean+CD_ind_clean+CD_wave) * 1.03
+    CD_total_landing = (CD_0_surf_misc + CD_ind_Landing + 2*CD_Wheelwell_main + CD_Wheelwell_nose + CD_flap) * 1.03
     print("Cdtotalclen" , CD_total_clean)
     print(f"""
     ==================== DRAG COMPONENT SUMMARY ====================
