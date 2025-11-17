@@ -1,20 +1,19 @@
 import numpy as np
 import scipy as sp
 
-#Torque distribution module for WP4, first integral of the distributed torque function
 
-#Testing scipy integrationmethod
+def load_distribution(): #q(x)
+    d_1 = distance to shear center
 
-def f(x):
-    return np.sqrt(1-(x/40)**2)
+    # Placeholder function for loading distribution data)
 
-estimatef, errorf = sp.integrate.quad(f, 0, 40)
+def torsion_moment(): #t(x)
+    # Placeholder function for torsion moment calculations
 
-def g(x):
-    res = 20 if x < 5 else 0
-    return res
+def distance_to_flexural_neutral_axis():: #d(x)
+    # Placeholder function for distance to flexural neutral axis calculations
 
-estimateg, errorg = sp.integrate.quad(g, 0, 10)
+def applied_loads():
+    d_2 = distance to shear center
+    # Placeholder function for applied loads calculations
 
-print("Integral of f from 0 to 40 is:", estimatef, "with error estimate:", errorf)
-print("Integral of g from 0 to 10 is:", estimateg, "with error estimate:", errorg)
