@@ -1,0 +1,1 @@
+print("test WP4 init")
