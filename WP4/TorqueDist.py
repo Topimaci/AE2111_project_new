@@ -1,8 +1,6 @@
 import numpy as np
-import scipy as sp
 import matplotlib.pyplot as plt
-from XFLR import y_span, chord, Ai, Cl, ICd, Cm
-
+from XFLR import y_span, chord, Ai, Cl, ICd, Cm # Importing data from XFLR in .txt form and computing aerodynamic line load
 
 from scipy import integrate, interpolate
 
@@ -11,23 +9,6 @@ from scipy import integrate, interpolate
 V_inf = 10.0  # Freestream velocity in m/s
 rho   = 1.225 # Air density in kg/m^3
 aoa_deg = 0.0   # Angle of attack in degrees
-
-# Importing data from XFLR in .txt form and computing aerodynamic line load
-
-filename = 'angleofattack0.txt'
-
-
-def load_xflr_data(filename: str):
-    data = np.loadtxt(filename, skiprows=21, max_rows=38)
-
-    y_span = data[:, 0]
-    chord  = data[:, 1]
-    Ai     = data[:, 2]
-    Cl     = data[:, 3]
-    ICd    = data[:, 5]
-    Cm     = data[:, 7]
-
-    return y_span, chord, Ai, Cl, ICd, Cm
 
 
 def compute_lift_line_load(chord: np.ndarray,
@@ -61,8 +42,6 @@ def compute_normal_force_distribution(L_prime: np.ndarray,
     aoa_rad = np.radians(aoa_deg)
     N_prime = L_prime * np.cos(aoa_rad) + D_prime * np.sin(aoa_rad)
     return N_prime # Normal force distribution N'(y) = q(x)
-
-
     
 
 # torque distribution along the blade due to external loads or lifts etc, known as t(x)
@@ -101,6 +80,15 @@ def build_q_d_t_functions(y_span: np.ndarray,
         kind="cubic",
         fill_value="extrapolate"
     )
+
+    ### Variable d(x), from leading edge to mid wingbox
+
+    ratio_frontspar = 0.3     # ratio of chord where front spar is located
+    ratio_rearspar = 0.7      # ratio of chord where rear spar is located
+
+    d_centroid = (ratio_frontspar + (ratio_frontspar + ratio_rearspar) / 2.0) 
+    
+
 
     d_false = np.full_like(x_sorted, d0)
     d_func = interpolate.interp1d(
