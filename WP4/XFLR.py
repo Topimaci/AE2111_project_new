@@ -15,9 +15,14 @@ Cl     = data[:, 3]
 ICd    = data[:, 5]
 Cm     = data[:, 7]
 
+
+"""
+
 #check
 print("y positions:", y_span[:])
 print("Chord lengths:", chord[:])
 print("Lift coefficients:", Cl[:])
 print("Induced drag:", ICd[:])
 print("Quarter-chord moment:", Cm[:])
+
+"""
