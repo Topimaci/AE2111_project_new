@@ -9,10 +9,12 @@ max_tip_rotat_rad = m.radians(max_tip_rotat_deg)      # in radians
 E = 71 * 10 ** 9    # Young's modulus
 G = 27 * 10 ** 9    # Shear modulus
 
+M_x =   # Import Moment function of M(y)
+T =     # Import torque distribution function
+
 y = sp.symbols("y")
 
-spar_list = [lambda y: 0.4 * y + 0.1, 0.5, 1] # functions should be replaced, this is just an example, 0.5 is how much of the wing span the spar takes
-                                                # 1 is how much of the chord it takes, measured from left side
+spar_list = [lambda y: 0.4 * y + 0.1, 0.5, 1] # functions should be replaced, this is just an example, 0.5 is how much of the wing span the spar takes, 1 is how much of the chord it takes, measured from left side
 
 
 def stiffness_distribution(h_fs, h_rs, c_upper, c_lower, t, A_string, num_string_top, num_string_bottom, spar_list):
@@ -57,7 +59,13 @@ def stiffness_distribution(h_fs, h_rs, c_upper, c_lower, t, A_string, num_string
         I_total = I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
     return I_total, J
 
+I_xx, J = stiffness_distribution()
+d2v_dy2 = - M_x / (E * I_xx)
+dth_dy = T / (G * J)
 
+estimate_dv, error_dv = sp.integrate.quad(d2v_dy2, 0, b)
+estimate_v, error_v = sp.integrate.quad(estimate_dv, 0, b)
+estimate_th, error_th = sp.integrate.quad(dth_dy, 0, b)
 
 
     
