@@ -1,6 +1,7 @@
 import math as m
 import sympy as sp
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
 b = 19.585    # hard coded for now, should probably be pulled from somewhere in the code later on
@@ -83,5 +84,3 @@ estimate_dv, error_dv = sp.integrate.quad(d2v_dy2, 0, b)
 estimate_v, error_v = sp.integrate.quad(estimate_dv, 0, b)
 estimate_th, error_th = sp.integrate.quad(dth_dy, 0, b)
 
-
-    
