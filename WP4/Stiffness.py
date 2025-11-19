@@ -6,7 +6,8 @@ b = 19.585    # hard coded for now, should probably be pulled from somewhere in 
 max_displ = 0.15 * b
 max_tip_rotat_deg = 10   # in degrees
 max_tip_rotat_rad = m.radians(max_tip_rotat_deg)      # in radians
-G = 10 # REPLACE real value of G
+E = 71 * 10 ** 9    # Young's modulus
+G = 27 * 10 ** 9    # Shear modulus
 
 y = sp.symbols("y")
 
