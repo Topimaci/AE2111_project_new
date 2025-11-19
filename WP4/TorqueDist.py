@@ -60,14 +60,31 @@ def compute_normal_force_distribution(L_prime: np.ndarray,
     N_prime = L_prime * np.cos(aoa_rad) + D_prime * np.sin(aoa_rad)
     return N_prime # Normal force distribution N'(y) = q(x)
 
-def functions_q_and_d(y_span: np.ndarray,
+
+    
+
+# torque distribution along the blade due to external loads or lifts etc, known as t(x)
+def compute_section_moment_density(chord: np.ndarray,
+                                   Cm: np.ndarray,
+                                   V_inf: float,
+                                   rho: float = 1.225) -> np.ndarray:
+    """
+    M'(y) = Cm(y) * q_inf * c(y)^2 
+    """
+    q_inf = 0.5 * rho * V_inf**2
+    M_prime = Cm * q_inf * chord**2
+    return M_prime
+
+def build_q_d_t_functions(y_span: np.ndarray,
                       N_prime: np.ndarray,
+                      M_prime: np.ndarray,
                       d0: float = 0.7):   #  m, distance from blade root to shear force center / calculation point. <---  CHANGE THIS VALUE, THIS IS A DUMMY VALUE
 
     x = np.abs(y_span)
     idx = np.argsort(x)
     x_sorted = x[idx]
     q_sorted = N_prime[idx]   # q(x) = N'(y)
+    M_sorted = M_prime[idx]  # M'(y)
 
     # 5. Interpolation of q(x) and d(x)
     q_func = interpolate.interp1d(
@@ -85,40 +102,87 @@ def functions_q_and_d(y_span: np.ndarray,
         fill_value="extrapolate"
     )
 
-    return q_func, d_func, x_sorted
+    t_func = interpolate.interp1d(
+        x_sorted,
+        M_sorted,
+        kind="cubic",
+        fill_value="extrapolate"
+    )
+
+    return x_sorted, q_func, d_func, t_func
+
+
 
 
 # Torque density distribution w(x), where w(x) = q(x) * d(x)
 def torque_density_distribution(x: np.ndarray,
                                 q_func,
-                                d_func) -> np.ndarray:
+                                d_func,
+                                t_func) -> np.ndarray:
     """
-    w(x) = q(x) * d(x)
+    w(x) = q(x) * d(x) + t(x)
     """
-    w_x = q_func(x) * d_func(x)
+    w_x = q_func(x) * d_func(x) + t_func(x)
     return w_x
-    
-
-# torque distribution along the blade due to external loads or lifts etc, known as t(x)
-def distributed_torque()
 
 
 
-# Torque to be integrated along the blade: w_T = w(x) + t(x)
 
+
+### Main to be completed, still test code ###
 if __name__ == "__main__":
-    # 1. Data 
+    # 1. Data
     y_span, chord, Ai, Cl, ICd, Cm = load_xflr_data(filename)
+
+    # Check ruwe input
+    print("y_span[:5] =", y_span[:5])
+    print("chord[:5]  =", chord[:5])
+    print("Cl[:5]     =", Cl[:5])
+    print("Cm[:5]     =", Cm[:5])
 
     # 2. Lift and drag line loads
     L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
     D_prime = compute_drag_line_load(chord, ICd, V_inf, rho)
 
-    # 3. N'(x) = q(x)
+    print("L_prime[:5] =", L_prime[:5])
+    print("D_prime[:5] =", D_prime[:5])
+
+    # 3. Normale belasting N'(y)
     N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
+    print("N_prime[:5] =", N_prime[:5])
 
-    # 4. q(x) and d(x) functions
-    q_func, d_func, x_sorted = functions_q_and_d(y_span, N_prime, d0=0.7)
+    # 4. Section moment density M'(y) uit Cm
+    M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
+    print("M_prime[:5] =", M_prime[:5])
 
-    # 5. Torque density distribution w(x)
+    # 5. q(x), d(x) en t(x) functies
+    x_sorted, q_func, d_func, t_func = build_q_d_t_functions(
+        y_span, N_prime, M_prime, d0=0.7
+    )
+    print("x_sorted[:5] =", x_sorted[:5])
+    print("q(x_sorted[:5]) =", q_func(x_sorted[:5]))
+    print("d(x_sorted[:5]) =", d_func(x_sorted[:5]))
+    print("t(x_sorted[:5]) =", t_func(x_sorted[:5]))
 
+    # 6. Torque-density w_T(x) op een grid
+    L_span = x_sorted[-1]
+    x_grid = np.linspace(0.0, L_span, 400)
+    w_T = torque_density_distribution(x_grid, q_func, d_func, t_func=t_func)
+    print("w_T[:5] =", w_T[:5])
+
+    # 7. Integreren naar torsiediagram T(x): T(x) = -∫_x^L w_T(ξ) dξ
+    x_rev = x_grid[::-1]
+    w_rev = w_T[::-1]
+
+    T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
+    T = -T_rev[::-1]
+    print("T[:5] =", T[:5])
+
+    # 8. Plot
+    plt.figure()
+    plt.plot(x_grid, T)
+    plt.xlabel("Spanwise position x [m]")
+    plt.ylabel("Torque T(x) [Nm]")
+    plt.grid(True)
+    plt.title("Torque diagram with q·d and Cm contribution")
+    plt.show()
