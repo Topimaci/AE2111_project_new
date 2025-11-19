@@ -80,7 +80,7 @@ def build_q_d_t_functions(y_span: np.ndarray,
                       M_prime: np.ndarray,
                       d0: float = 0.7):   #  m, distance from blade root to shear force center / calculation point. <---  CHANGE THIS VALUE, THIS IS A DUMMY VALUE
 
-     mask = y_span >= 0.0
+    mask = y_span >= 0.0
     y_half = y_span[mask]
     N_half = N_prime[mask]
     M_half = M_prime[mask]   # q(x) = N'(y)
