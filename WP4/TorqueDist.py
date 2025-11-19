@@ -16,7 +16,7 @@ filename = 'angleofattack0.txt'
 
 
 def load_xflr_data(filename: str):
-    data = np.loadtxt(filename, skiprows=21)
+    data = np.loadtxt(filename, skiprows=21, max_rows=38)
 
     y_span = data[:, 0]
     chord  = data[:, 1]
@@ -80,11 +80,17 @@ def build_q_d_t_functions(y_span: np.ndarray,
                       M_prime: np.ndarray,
                       d0: float = 0.7):   #  m, distance from blade root to shear force center / calculation point. <---  CHANGE THIS VALUE, THIS IS A DUMMY VALUE
 
-    x = np.abs(y_span)
+     mask = y_span >= 0.0
+    y_half = y_span[mask]
+    N_half = N_prime[mask]
+    M_half = M_prime[mask]   # q(x) = N'(y)
+
+    x = y_half
     idx = np.argsort(x)
     x_sorted = x[idx]
-    q_sorted = N_prime[idx]   # q(x) = N'(y)
-    M_sorted = M_prime[idx]  # M'(y)
+
+    q_sorted = N_half[idx]   # q(x) = N'(y)
+    M_sorted = M_half[idx]   # M'(y) from Cm
 
     # 5. Interpolation of q(x) and d(x)
     q_func = interpolate.interp1d(
