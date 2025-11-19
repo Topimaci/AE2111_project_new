@@ -1,14 +1,17 @@
 import math as m
 import sympy as sp
+import numpy as np
 
 b = 19.585    # hard coded for now, should probably be pulled from somewhere in the code later on
 max_displ = 0.15 * b
 max_tip_rotat_deg = 10   # in degrees
 max_tip_rotat_rad = m.radians(max_tip_rotat_deg)      # in radians
+G = 10 # REPLACE real value of G
 
 y = sp.symbols("y")
 
-spar_list = [(lambda y: 0.4 * y + 0.1, 0.5)] # functions should be replaced, this is just an example
+spar_list = [lambda y: 0.4 * y + 0.1, 0.5, 1] # functions should be replaced, this is just an example, 0.5 is how much of the wing span the spar takes
+                                                # 1 is how much of the chord it takes, measured from left side
 
 
 def stiffness_distribution(h_fs, h_rs, c_upper, c_lower, t, A_string, num_string_top, num_string_bottom, spar_list):
@@ -37,6 +40,14 @@ def stiffness_distribution(h_fs, h_rs, c_upper, c_lower, t, A_string, num_string
                 (0, True)
             )
         I_total = I_step + I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
+        a = spar_list[2]
+        w = c_upper - a 
+        lefthand_matrix = np.array([[(2*w+2*a), -w, -2*a*w*G*t], [-w, 4*b, - 2*w**2*G*t], [2*a*w, 2 * w**2, 0]])
+        righthand_matrix = np.array([0, 0, 1])
+        solution = np.linalg.solve(lefthand_matrix, righthand_matrix)
+        q1, q2, dtheta_dy = solution
+        J = 1 / (G * dtheta_dy)
+
     else:
         I_total = I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
     return I_total
