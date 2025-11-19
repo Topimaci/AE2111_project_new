@@ -127,8 +127,6 @@ def torque_density_distribution(x: np.ndarray,
 
 ### Main to be completed, still test code ###
 if __name__ == "__main__":
-    # 1. Data
-    y_span, chord, Ai, Cl, ICd, Cm = load_xflr_data(filename)
 
     # Check ruwe input
     print("y_span[:5] =", y_span[:5])
@@ -162,7 +160,7 @@ if __name__ == "__main__":
 
     # 6. Torque-density w_T(x) op een grid
     L_span = x_sorted[-1]
-    x_grid = np.linspace(0.0, L_span, 400)
+    x_grid = np.linspace(0, L_span, 400)
     w_T = torque_density_distribution(x_grid, q_func, d_func, t_func=t_func)
     print("w_T[:5] =", w_T[:5])
 
