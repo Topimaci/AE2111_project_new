@@ -27,10 +27,31 @@ N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
 M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
 y, q_func, d_func, t_func = build_q_d_t_functions(y_span, N_prime, M_prime)
 
-print(q_func)
+
+# Create y-grid only over the half-span
+y_vals = np.linspace(0, b_half, 500)
+
+# Evaluate q(y)
+q_vals = q_func(y_vals)
+
+# Plot
+plt.figure(figsize=(8,4))
+plt.plot(y_vals, q_vals)
+plt.xlabel("Spanwise position y [m]")
+plt.ylabel("q(y)")
+plt.title("q(y) Over Half Span")
+plt.grid(True)
+plt.show()
+
+
+
+
+
 # Integrating load line -> shear load line S(y)
 
 #S, error_S = sp.integrate.quad(q_func, 0, b_half)
+
+#print(S)
 
 # Integrating S(y) -> M(y)      negative sign???
 #M, error_M = sp.integrate.quad(S, 0, b_half)
