@@ -50,7 +50,7 @@ def stiffness_distribution(h_fs, h_rs, c_upper, c_lower, t, A_string, num_string
 
     else:
         I_total = I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
-    return I_total
+    return I_total, J
 
 
 
