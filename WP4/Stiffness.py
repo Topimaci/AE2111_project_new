@@ -8,7 +8,7 @@ max_tip_rotat_rad = m.radians(max_tip_rotat_deg)      # in radians
 
 y = sp.symbols("y")
 
-spar_list = [(0.4, 0.5)]
+spar_list = [(lambda y: 0.4 * y + 0.1, 0.5)] # functions should be replaced, this is just an example
 
 
 def stiffness_distribution(h_fs, h_rs, c_upper, c_lower, t, A_string, num_string_top, num_string_bottom, spar_list):
@@ -20,16 +20,26 @@ def stiffness_distribution(h_fs, h_rs, c_upper, c_lower, t, A_string, num_string
     I_string_top = (A_string * (t - x_c)**2) * num_string_top
     I_string_bottom = (A_string * (((h_fs - x_c) + (h_rs - x_c))/2) ** 2) * num_string_bottom
     
-    Step = 0
-    I_spar = 1/12 * spar_list[0] ** 3 * t
-    for I_spar 
+    I_step = 0
 
-# Loop through all contributions and add as Piecewise terms
-for I_extra, y_crit in step_list:
-    I_step += sp.Piecewise(
-        (I_extra, y < y_crit),
-        (0, True)
-    )
-    I_spar = sp.Piecewise((I_spar1, y<0.5), (0, True))
-    
+    for h_spar_func, y_crit in spar_list:
+
+        # h_spar is a sympy expression of y
+        h_spar_y = h_spar_func(y)
+
+        # compute I_spar(y)
+        I_spar_y = 1/12 * h_spar_y**3 * t
+
+        # add step contribution
+        I_step += sp.Piecewise(
+            (I_spar_y, y < y_crit),
+            (0, True)
+        )
+
+    I_total = I_step + I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
+    return I_total
+
+
+
+
     
