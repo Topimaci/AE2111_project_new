@@ -26,14 +26,8 @@ def stiffness_distribution(h_fs, h_rs, c_upper, c_lower, t, A_string, num_string
 
     # J Polar Moment of Inertia Calculations
 
-    h1_func = spar_list[0][0]
-    h1_y = h1_func(y)
-
-    h2_func = spar_list[-1][0]
-    h2_y = h2_func(y)
-
-    A = (h1_y + h2_y) / 2 * c_upper
-    circ = 1/ t * (h1_y + c_upper + h2_y + c_lower)
+    A = (h_fs + h_rs) / 2 * c_upper
+    circ = 1/ t * (h_fs + c_upper + h_rs + c_lower)
     J = 4 * A ** 2 / circ
        
     if spar_list != []:
