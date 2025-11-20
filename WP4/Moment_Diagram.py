@@ -36,36 +36,49 @@ y_vals = np.linspace(0, b_half, 500)
 # Evaluate q(y)
 q_vals = q_func(y_vals)
 
+# --- SHEAR FORCE S(y) ---
+# Integrate q(y) from tip -> root
+S_vals_tip_to_root = cumulative_trapezoid(q_vals[::-1], y_vals[::-1], initial=0)
+
+# Flip so that y increases from root → tip
+S_vals = S_vals_tip_to_root[::-1]
+
+# --- BENDING MOMENT M(y) ---
+# Integrate S(y) from tip -> root
+M_vals_tip_to_root = cumulative_trapezoid(S_vals[::-1], y_vals[::-1], initial=0)
+
+# Flip back
+M_vals = M_vals_tip_to_root[::-1]
+
+
+# ---------- PLOTS ----------
+
+plt.figure(figsize=(10,10))
+
 # q(y)
-q_vals = q_func(y_vals)
-
-# Integrating load line -> shear load line S(y)
-#shear integration (tip → root)
-S_vals_raw = cumulative_trapezoid(q_vals[::-1], y_vals[::-1], initial=0)
-S_vals = S_vals_raw[::-1]
-
-
-# Plot load and shear diagram
-plt.figure(figsize=(10,6))
-
-# --- q(y) ---
-plt.subplot(2,1,1)
+plt.subplot(3,1,1)
 plt.plot(y_vals, q_vals)
 plt.xlabel("Spanwise position y [m]")
 plt.ylabel("q(y) [N/m]")
 plt.title("Distributed Load q(y)")
 plt.grid(True)
 
-# --- S(y) ---
-plt.subplot(2,1,2)
+# S(y)
+plt.subplot(3,1,2)
 plt.plot(y_vals, S_vals)
 plt.xlabel("Spanwise position y [m]")
-plt.ylabel("Shear force S(y)")
-plt.title("Correct Shear Force Diagram (One Wing Half)")
+plt.ylabel("Shear Force S(y) [N]")
+plt.title("Shear Force Diagram")
+plt.grid(True)
+
+# M(y)
+plt.subplot(3,1,3)
+plt.plot(y_vals, M_vals)
+plt.xlabel("Spanwise position y [m]")
+plt.ylabel("Bending Moment M(y) [Nm]")
+plt.title("Bending Moment Diagram")
 plt.grid(True)
 
 plt.tight_layout()
 plt.show()
-
-
 
