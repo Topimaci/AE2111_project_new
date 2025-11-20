@@ -5,6 +5,8 @@ from XFLR import y_span, chord, Ai, Cl, ICd, Cm
 
 
 from scipy import integrate, interpolate
+from scipy.integrate import cumulative_trapezoid
+
 
 
 from TorqueDist import compute_lift_line_load
@@ -34,26 +36,36 @@ y_vals = np.linspace(0, b_half, 500)
 # Evaluate q(y)
 q_vals = q_func(y_vals)
 
-# Plot
-plt.figure(figsize=(8,4))
+# q(y)
+q_vals = q_func(y_vals)
+
+# Integrating load line -> shear load line S(y)
+#shear integration (tip → root)
+S_vals_raw = cumulative_trapezoid(q_vals[::-1], y_vals[::-1], initial=0)
+S_vals = S_vals_raw[::-1]
+
+
+# Plot load and shear diagram
+plt.figure(figsize=(10,6))
+
+# --- q(y) ---
+plt.subplot(2,1,1)
 plt.plot(y_vals, q_vals)
 plt.xlabel("Spanwise position y [m]")
-plt.ylabel("q(y)")
-plt.title("q(y) Over Half Span")
+plt.ylabel("q(y) [N/m]")
+plt.title("Distributed Load q(y)")
 plt.grid(True)
+
+# --- S(y) ---
+plt.subplot(2,1,2)
+plt.plot(y_vals, S_vals)
+plt.xlabel("Spanwise position y [m]")
+plt.ylabel("Shear force S(y)")
+plt.title("Correct Shear Force Diagram (One Wing Half)")
+plt.grid(True)
+
+plt.tight_layout()
 plt.show()
 
 
 
-
-
-# Integrating load line -> shear load line S(y)
-
-#S, error_S = sp.integrate.quad(q_func, 0, b_half)
-
-#print(S)
-
-# Integrating S(y) -> M(y)      negative sign???
-#M, error_M = sp.integrate.quad(S, 0, b_half)
-
-#print(S)
