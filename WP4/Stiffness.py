@@ -208,6 +208,7 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
     return I_total, J
 
 
+#______THIS IS WHERE WE CALL THE FUNCTION, ALL OF THE VALUES MUST BE REPLACED WITH THE CORRECT ONES
 I_xx, J = stiffness_distribution(0.4, 0.3, 1, 1.2, 0.05, 0.2, spar_list)
 
 d2v_dy2 = -M_y / (E * I_xx)
