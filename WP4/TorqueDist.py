@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from XFLR import y_span, chord, Ai, Cl, ICd, Cm # Importing data from XFLR in .txt form and computing aerodynamic line load,
 import math as m
-
+import math as m
 from scipy import integrate, interpolate
 
 # Variables
@@ -57,6 +57,7 @@ def compute_section_moment_density(chord: np.ndarray,
     M_prime = Cm * q_inf * chord**2
     return M_prime
 
+
 def build_q_d_t_functions(y_span: np.ndarray,
                       N_prime: np.ndarray,
                       M_prime: np.ndarray,
@@ -107,6 +108,18 @@ def build_q_d_t_functions(y_span: np.ndarray,
     )
 
     return x_sorted, q_func, d_func, t_func
+
+def distance_dx_calc(chord, Cl, Cm):
+    # distance = 0.45*c − 0.25*c = 0.20*c
+    # 0.45 comes from middle of spars, 20% and 70% needs to be checked (0.45c from the LE)
+    # 0.25 comes from assumption that lift acts as a point force on the 0.25 c from the LE
+    #d_extra = Cm/Cl
+    dx = 0.45*chord - 0.25*chord 
+    sweep_deg = 10.654 #from WP3 sweep at quarter chord
+    sweep_rad = m.radians(sweep_deg)
+    dreal = dx / m.cos(sweep_rad)
+    return dreal
+
 
 
 
