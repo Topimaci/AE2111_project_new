@@ -7,9 +7,6 @@ from scipy.interpolate import interp1d
 
 ##______Spar length based on airfoil and y-position________________________________________________________
 Airfoil_coordinates = []
-spar_location_fraction1 = 0.1  # Spar location as a fraction of chord length, front spar
-spar_location_fraction2 = 0.6  # Spar location as a fraction of chord length, rear spar
-
 
 ## Read airfoil coordinates from file
 with open("WP4/NACA64714 a=0.0.dat", "r") as file:
@@ -87,7 +84,7 @@ def spar_length_fraction(box_coordinates, spar_location_fraction):
     return fraction
 
 ## Final spar length calculation function
-def spar_length(spar_location_fraction, y_coordinate, root_chord, tip_chord, span):
+def spar_length(spar_location_fraction, y_coordinate, root_chord, tip_chord, span, spar_location_fraction1, spar_location_fraction2):
     spar1_coor1, spar1_coor2, spar1_coor3, spar1_coor4 = spar_position(Airfoil_coordinates, spar_location_fraction1) ## Front spar, top right, top left, bottom left, bottom right
     spar2_coor1, spar2_coor2, spar2_coor3, spar2_coor4 = spar_position(Airfoil_coordinates, spar_location_fraction2) ## Rear spar, top right, top left, bottom left, bottom right
     y_at_top_stringer = top_stringer_y_coord(spar1_coor1, spar1_coor2, spar2_coor1, spar2_coor2, spar_location_fraction1)
@@ -125,7 +122,7 @@ def spar_length(spar_location_fraction, y_coordinate, root_chord, tip_chord, spa
 
     return spar_length
 
-print(spar_length(0, 0.101, 2.874, 1.043, 19.585)) ## Spar_location_fraction, y_coordinate, root_chord, tip_chord, span
+## print(spar_length(0, 0.101, 2.874, 1.043, 19.585)) ## Spar_location_fraction, y_coordinate, root_chord, tip_chord, span
 
 
 
@@ -145,9 +142,9 @@ M_root = 5e6  # N*m
 M_y = M_root * (1 - y / b)**2
 T_root = 2e5  # N*m, realistic torsion for business jet wingbox
 T = T_root * (1 - y / b)**2
-y_breaks = #stringer breaks as np.array([...])
-stringer_top_num = #nummber of stringer on these intervals np.array([...])
-stringer_bottom_num = #same thing
+y_breaks = np.array([0.0, 5.0, 10.0, 15.0]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
+stringer_top_num = np.array([4, 4, 3, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([4, 3, 3, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 
 #Linear interpolation of the stringers
@@ -208,7 +205,8 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
     return I_total, J
 
 
-I_xx, J = stiffness_distribution(0.4, 0.3, 1, 1.2, 0.05, 0.2, spar_list)
+#______THIS IS WHERE WE CALL THE FUNCTION, ALL OF THE VALUES MUST BE REPLACED WITH THE CORRECT ONES
+I_xx, J = stiffness_distribution(0.4, 0.3, 1, 1.2, 0.05, 0.2, 0.1, spar_list)
 
 d2v_dy2 = -M_y / (E * I_xx)
 dth_dy  =  T   / (G * J)
@@ -234,3 +232,56 @@ print(estimate_th, error_th)
 print(m.degrees(estimate_th))
 print("I_xx:", I_xx)
 print("J:", J)
+
+##______Output results________________________________________________________
+## Get the box coordinates for spar length calculations
+def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord, tip_chord, b, t, A_string, spar_list, steps):
+    spar1_coor1, spar1_coor2, spar1_coor3, spar1_coor4 = spar_position(Airfoil_coordinates, spar_location_fraction1) ## Front spar, top right, top left, bottom left, bottom right
+    spar2_coor1, spar2_coor2, spar2_coor3, spar2_coor4 = spar_position(Airfoil_coordinates, spar_location_fraction2) ## Rear spar, top right, top left, bottom left, bottom right
+    y_at_top_stringer = top_stringer_y_coord(spar1_coor1, spar1_coor2, spar2_coor1, spar2_coor2, spar_location_fraction1)
+    y1_at_bot_stringer, y2_at_bot_stringer = bot_stringer_y_coords(spar1_coor3, spar1_coor4, spar2_coor3, spar2_coor4, spar_location_fraction1, spar_location_fraction2)
+    box_coordinates = [[spar_location_fraction2, y_at_top_stringer], [spar_location_fraction1, y_at_top_stringer],
+                    [spar_location_fraction1, y1_at_bot_stringer], [spar_location_fraction2, y2_at_bot_stringer]] ## [top right, top left, bottom left, bottom right]
+
+    deflectionY = []
+    deflectionZ = []
+    twistY = []
+    twist_deg = []
+
+    for i in range(0, steps):
+        front_spar_length = spar_length(spar_location_fraction1, i * (b/2)/steps, 2.874, 1.043, b, spar_location_fraction1, spar_location_fraction2)
+        rear_spar_length = spar_length(spar_location_fraction2, i * (b/2)/steps, 2.874, 1.043, b, spar_location_fraction1, spar_location_fraction2)
+        h_fs = front_spar_length
+        h_rs = rear_spar_length
+
+        a = (tip_chord - root_chord)/(b/2)
+        chord_length_at_y = root_chord + a * i * (b/2)/100
+        c_upper = abs(box_coordinates[0][0] - box_coordinates[1][0]) * chord_length_at_y
+        c_lower = m.sqrt((box_coordinates[2][0] - box_coordinates[3][0])**2 + (box_coordinates[2][1] - box_coordinates[3][1])**2) * chord_length_at_y
+
+        I_xx, J = stiffness_distribution(i, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list)
+        d2v_dy2 = - M_y / (E * I_xx)
+        dth_dy = T / (G * J)
+
+        # First integration
+        estimate_dv, error_dv = integrate.quad(f_d2v, 0, b)
+        # Nested integration for displacement
+        def slope(Y):
+            return integrate.quad(f_d2v, 0, Y)[0]
+        # Deflection
+        estimate_v, error_v = integrate.quad(slope, 0, b)
+        # Twist
+        estimate_th, error_th = integrate.quad(f_th, 0, b)
+
+        deflectionY.append(i*b/2/steps)
+        twistY.append(i*b/2/steps)
+        deflectionZ.append(estimate_v)
+        twist_deg.append(m.degrees(estimate_th))
+    
+    plt.plot(deflectionY, deflectionZ)
+    plt.xlabel("Spanwise position (m)")
+    plt.ylabel("Deflection (m)")
+    plt.show()
+
+
+diagram_plotter(0.1, 0.6, 2.874, 1.043, b, 0.003, 0.0001, spar_list, 10)
