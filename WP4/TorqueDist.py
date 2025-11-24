@@ -115,9 +115,9 @@ def distance_dx_calc(chord, Cl, Cm):
     # 0.25 comes from assumption that lift acts as a point force on the 0.25 c from the LE
     #d_extra = Cm/Cl
     dx = 0.45*chord - 0.25*chord 
-    sweep_deg = 10.654 #from WP3 sweep at quarter chord
+    sweep_deg = 10.43 #from WP3 sweep at quarter chord
     sweep_rad = m.radians(sweep_deg)
-    dreal = dx / m.cos(sweep_rad)
+    dreal = dx * m.cos(sweep_rad)
     return dreal
 
 
