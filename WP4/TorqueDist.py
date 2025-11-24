@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from XFLR import y_span, chord, Ai, Cl, ICd, Cm # Importing data from XFLR in .txt form and computing aerodynamic line load
-
+from matplotlib.widgets import RadioButtons
 from scipy import integrate, interpolate
 
 # Variables
@@ -56,11 +56,10 @@ def compute_section_moment_density(chord: np.ndarray,
     M_prime = Cm * q_inf * chord**2
     return M_prime
 
-
 def build_q_d_t_functions(y_span: np.ndarray,
                       N_prime: np.ndarray,
                       M_prime: np.ndarray,
-                      d0: float = 0.7):   #  m, distance from blade root to shear force center / calculation point. <---  CHANGE THIS VALUE, THIS IS A DUMMY VALUE
+                      d0: float = 0.7):   #  m, distance from load to flexural axis / calculation point. <---  CHANGE THIS VALUE, THIS IS A DUMMY VALUE
 
     mask = y_span >= 0.0
     y_half = y_span[mask]
@@ -108,13 +107,6 @@ def build_q_d_t_functions(y_span: np.ndarray,
 
     return x_sorted, q_func, d_func, t_func
 
-def distance_dx_calc(chord, y_span):
-    # distance = 0.45*c − 0.25*c = 0.20*c
-    # 0.45 comes from middle of spars, 20% and 70% needs to be checked (0.45c from the LE)
-    # 0.25 comes from assumption that lift acts as a point force on the 0.25 c from the LE
-    dx = 0.2*chord
-    return dx
-
 
 
 
@@ -157,79 +149,94 @@ def add_point_forces_and_torques(x_grid: np.ndarray,
     return T_total
 
 
-### Main to be completed, still test code ###
+
 if __name__ == "__main__":
 
-    # Check ruwe input
+    # === your existing computations ===
     print("y_span[:5] =", y_span[:5])
     print("chord[:5]  =", chord[:5])
     print("Cl[:5]     =", Cl[:5])
     print("Cm[:5]     =", Cm[:5])
 
-    # 2. Lift and drag line loads
     L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
     D_prime = compute_drag_line_load(chord, ICd, V_inf, rho)
-
-    print("L_prime[:5] =", L_prime[:5])
-    print("D_prime[:5] =", D_prime[:5])
-
-    # 3. Normale belasting N'(y)
     N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
-    print("N_prime[:5] =", N_prime[:5])
-
-    # 4. Section moment density M'(y) uit Cm
     M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
-    print("M_prime[:5] =", M_prime[:5])
 
-    # 5. q(x), d(x) en t(x) functies
     x_sorted, q_func, d_func, t_func = build_q_d_t_functions(
         y_span, N_prime, M_prime, d0=0.7
     )
-    print("x_sorted[:5] =", x_sorted[:5])
-    print("q(x_sorted[:5]) =", q_func(x_sorted[:5]))
-    print("d(x_sorted[:5]) =", d_func(x_sorted[:5]))
-    print("t(x_sorted[:5]) =", t_func(x_sorted[:5]))
 
-    # 6. Torque-density w_T(x) op een grid
     L_span = x_sorted[-1]
     x_grid = np.linspace(0, L_span, 400)
     w_T = torque_density_distribution(x_grid, q_func, d_func, t_func=t_func)
-    print("w_T[:5] =", w_T[:5])
 
-    # 7. Integreren naar torsiediagram T(x): T(x) = -∫_x^L w_T(ξ) dξ
     x_rev = x_grid[::-1]
     w_rev = w_T[::-1]
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
     T_dist = -T_rev[::-1]
-    print("T[:5] =", T_dist[:5])
 
     point_forces = [
-        {'x': 5.0, 'P': 1200.0, 'd': 0.5},  # Example point force
+        {'x': 5.0, 'P': 1200.0, 'd': 0.5},
         {'x': 8.0, 'P': -400.0, 'd': 0.4}
-
     ]
 
     point_torques = [
-        {'x': 6.0, 'T': -500.0},  # Example point torque
+        {'x': 6.0, 'T': -500.0},
         {'x': 9.0, 'T': 300.0}
-    
     ]
 
     T_total = add_point_forces_and_torques(
-        x_grid, T_dist, 
-        point_forces=point_forces, 
+        x_grid, T_dist,
+        point_forces=point_forces,
         point_torques=point_torques
     )
 
-    # 8. Plot
+    # === INTERACTIVE UI WITH RADIO BUTTONS ===
 
-    plt.figure()
-    plt.plot(x_grid, T_dist, label="Distributed loads only")
-    plt.plot(x_grid, T_total, label="With point forces/torques")
-    plt.xlabel("Spanwise position x [m]")
-    plt.ylabel("Torque T(x) [Nm]")
-    plt.grid(True)
-    plt.legend()
-    plt.title("Torque diagram with aero, weight and point loads")
+    # 1) Make figure + axis, leave room for the radio buttons on the left
+    fig, ax = plt.subplots()
+    plt.subplots_adjust(left=0.3)
+
+    # 2) Initial plot: show the torque diagram
+    def plot_torque():
+        ax.clear()
+        ax.plot(x_grid, T_dist, label="Distributed loads only")
+        ax.plot(x_grid, T_total, label="With point forces/torques")
+        ax.set_xlabel("Spanwise position x [m]")
+        ax.set_ylabel("Torque T(x) [Nm]")
+        ax.set_title("Torque diagram")
+        ax.grid(True)
+        ax.legend()
+
+    def plot_line_loads():
+        ax.clear()
+        ax.plot(y_span, L_prime, label="Lift line load L'(y)")
+        ax.plot(y_span, D_prime, label="Drag line load D'(y)")
+        ax.set_xlabel("Spanwise position y [m]")
+        ax.set_ylabel("Line load [N/m]")
+        ax.set_title("Aerodynamic line loads")
+        ax.grid(True)
+        ax.legend()
+
+    # Start with the torque view
+    plot_torque()
+
+    # 3) Radio buttons on the left
+    ax_radio = plt.axes([0.05, 0.4, 0.2, 0.15])  # [left, bottom, width, height]
+    labels = ["Torque", "Line loads"]
+    radio = RadioButtons(ax_radio, labels)
+
+    # 4) Callback: what happens when you click a radio button
+    def change_plot(label):
+        if label == "Torque":
+            plot_torque()
+        elif label == "Line loads":
+            plot_line_loads()
+        fig.canvas.draw_idle()
+
+    radio.on_clicked(change_plot)
+
+    # 5) Show the UI
     plt.show()
 
