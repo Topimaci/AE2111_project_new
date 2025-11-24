@@ -33,7 +33,8 @@ M_wing = 932.9 # mass of the wing in kg
 
 
 
-# --- determining q_func ---
+# --- determining loading functions ---
+# --- Lift ---
 L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
 D_prime = compute_drag_line_load(chord, ICd, V_inf, rho)
 N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
@@ -46,7 +47,12 @@ y_vals = np.linspace(0, b_half, 500)
 # Evaluate q(y)
 q_vals = q_func(y_vals)
 
-# --- SHEAR FORCE S(y) ---
+# --- Wing weight --- 
+
+
+
+
+# --- SHEAR FORCE S(y) --- 
 # Integrate q(y) from tip -> root
 S_vals_tip_to_root = cumulative_trapezoid(q_vals[::-1], y_vals[::-1], initial=0)
 
