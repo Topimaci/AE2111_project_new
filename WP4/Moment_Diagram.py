@@ -15,20 +15,30 @@ from TorqueDist import compute_normal_force_distribution
 from TorqueDist import compute_drag_line_load
 from TorqueDist import compute_section_moment_density
 
-#Variables
+# --- Variables ---
+#Wing
 b_half = 9.7925 #half of the wing span in m
-V_inf = 10.0  # Freestream velocity in m/s
-rho   = 1.225 # Air density in kg/m^3
+b = 19.585 #Span of the wing in m
+C_r = 2.874 # Root cord in m
+C_t = 1.04326 # Tip cord in m
 aoa_deg = 0.0   # Angle of attack in degrees
 
+#conditions
+g = 9.81 # Gravitational constant m/s^2
+V_inf = 10.0  # Freestream velocity in m/s
+rho   = 1.225 # Air density in kg/m^3
 
-#determining q_func
+#Mass
+M_wing = 932.9 # mass of the wing in kg
+
+
+
+# --- determining q_func ---
 L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
 D_prime = compute_drag_line_load(chord, ICd, V_inf, rho)
 N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
 M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
 y, q_func, d_func, t_func = build_q_d_t_functions(y_span, N_prime, M_prime)
-
 
 # Create y-grid only over the half-span
 y_vals = np.linspace(0, b_half, 500)
