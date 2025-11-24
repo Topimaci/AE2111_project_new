@@ -121,8 +121,32 @@ def torque_density_distribution(x: np.ndarray,
     w_x = q_func(x) * d_func(x) + t_func(x)
     return w_x
 
+# Extra forces on the wing, e.g. fuel weight, engine weight, etc. can be added here as additional torque densities if needed.
+def add_point_forces_and_torques(x_grid: np.ndarray,
+                                 T_dist: np.ndarray,
+                                 point_forces=None,
+                                 point_torques=None):
+    """
+    Add point forces and torques to the torque distribution.
+    point_forces: list of tuples (position, magnitude)
+    point_torques: list of tuples (position, magnitude)
+    """ 
+    T_total = T_dist.copy()
 
+    if point_forces is not None:
+        for pf in point_forces:
+            xP = pf['x']
+            P = pf['P']
+            d = pf['d']
+            T_total += P * d * (x_grid <= xP)
 
+    if point_torques is not None:
+        for pt in point_torques:
+            xT = pt['x']
+            T_mag = pt['T']
+            T_total += T_mag * (x_grid <= xT)
+
+    return T_total
 
 
 ### Main to be completed, still test code ###
@@ -167,16 +191,37 @@ if __name__ == "__main__":
     # 7. Integreren naar torsiediagram T(x): T(x) = -∫_x^L w_T(ξ) dξ
     x_rev = x_grid[::-1]
     w_rev = w_T[::-1]
-
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
-    T = -T_rev[::-1]
-    print("T[:5] =", T[:5])
+    T_dist = -T_rev[::-1]
+    print("T[:5] =", T_dist[:5])
+
+    point_forces = [
+        {'x': 5.0, 'P': 1200.0, 'd': 0.5},  # Example point force
+        {'x': 8.0, 'P': -400.0, 'd': 0.4}
+
+    ]
+
+    point_torques = [
+        {'x': 6.0, 'T': -500.0},  # Example point torque
+        {'x': 9.0, 'T': 300.0}
+    
+    ]
+
+    T_total = add_point_forces_and_torques(
+        x_grid, T_dist, 
+        point_forces=point_forces, 
+        point_torques=point_torques
+    )
 
     # 8. Plot
+
     plt.figure()
-    plt.plot(x_grid, T)
+    plt.plot(x_grid, T_dist, label="Distributed loads only")
+    plt.plot(x_grid, T_total, label="With point forces/torques")
     plt.xlabel("Spanwise position x [m]")
     plt.ylabel("Torque T(x) [Nm]")
     plt.grid(True)
-    plt.title("Torque diagram with q·d and Cm contribution")
+    plt.legend()
+    plt.title("Torque diagram with aero, weight and point loads")
     plt.show()
+
