@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from XFLR import y_span, chord, Ai, Cl, ICd, Cm # Importing data from XFLR in .txt form and computing aerodynamic line load
+from XFLR import y_span, chord, Ai, Cl, ICd, Cm # Importing data from XFLR in .txt form and computing aerodynamic line load,
+import math as m
 import math as m
 from matplotlib.widgets import RadioButtons
 from scipy import integrate, interpolate
@@ -190,6 +191,7 @@ if __name__ == "__main__":
     T_dist = -T_rev[::-1]
 
     point_forces = [
+<<<<<<< HEAD
         {'x': 5.0, 'P': 1200.0, 'd': 0.5},
         {'x': 8.0, 'P': -400.0, 'd': 0.4}
     ]
@@ -197,6 +199,16 @@ if __name__ == "__main__":
     point_torques = [
         {'x': 6.0, 'T': -500.0},
         {'x': 9.0, 'T': 300.0}
+=======
+        {'x': 1.84, 'P': 126.8*9.81, 'd': 0.473},  # Landing gear
+
+    ]
+
+    point_torques = [
+        {'x': 1.84, 'T': -point_forces[0]['P']*point_forces[0]['d']},  # torque due to landing gear weight
+        {'x': 1.84, 'T': 0.5 * rho * V_inf**2*0.04905*(0.56/2)**2*m.pi*0.785}  # torque due to landing gear drag
+    
+>>>>>>> e263645e088f86e33297c45c7b469d370aee6037
     ]
 
     T_total = add_point_forces_and_torques(
