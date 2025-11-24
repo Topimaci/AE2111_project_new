@@ -219,6 +219,8 @@ if __name__ == "__main__":
         {'x': 1.84, 'T': 0.5 * rho * V_inf**2*0.04905*(0.56/2)**2*m.pi*0.785}  # torque due to landing gear drag
     
     ]
+    print(point_torques)
+
 
     T_total = add_point_forces_and_torques(
         x_grid, T_dist, 
