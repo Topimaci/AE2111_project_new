@@ -140,7 +140,7 @@ y = sp.symbols("y")
 #_______TO BE REPLACED LATER__________________________________________
 M_root = 5e6  # N*m
 M_y = M_root * (1 - y / b)**2
-T_root = 2e5  # N*m, realistic torsion for business jet wingbox
+T_root = 6e5  # N*m, realistic torsion for business jet wingbox
 T = T_root * (1 - y / b)**2
 y_breaks = np.array([2, 4, 6, 8]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
 stringer_top_num = np.array([5, 4, 3, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
