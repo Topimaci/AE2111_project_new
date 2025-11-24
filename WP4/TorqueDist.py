@@ -163,6 +163,10 @@ def add_point_forces_and_torques(x_grid: np.ndarray,
             T_mag = pt['T']
             T_total += T_mag * (x_grid <= xT)
 
+    safety_zone = (x_grid >= 0.0) & (x_grid <= 0.78)
+    T_total[safety_zone] *= 2.8
+
+
     return T_total
 
 
