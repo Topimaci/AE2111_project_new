@@ -1,28 +1,44 @@
 import numpy as np
 import warnings
 
-# Load all numeric data after 20 header lines (suppress warnings about missing columns)
+# === AoA = 0° ===
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", category=UserWarning)
-    data = np.genfromtxt("angleofattack0.txt", skip_header=21, skip_footer=60, invalid_raise=False)
+    data0 = np.genfromtxt(
+        "angleofattack0.txt",
+        skip_header=21,
+        skip_footer=60,
+        invalid_raise=False
+    )
 
-# In the XFLR file there are many columns that aren't of interest, for this reason only those needed are extracted from the data matrix found above. Keeping the data matrix allows 
-# extracting other values if they are ever needed. first value ":" means all values in column (all rows), while second means "column number" (column position in the XFLR txt file).
-y_span = data[:, 0]
-chord  = data[:, 1]
-Ai     = data[:, 2]
-Cl     = data[:, 3]
-ICd    = data[:, 5]
-Cm     = data[:, 7]
+y_span0 = data0[:, 0]
+chord0  = data0[:, 1]
+Ai0     = data0[:, 2]
+Cl0     = data0[:, 3]
+ICd0    = data0[:, 5]
+Cm0     = data0[:, 7]
 
+# (optional aliases if some other old code still expects these names)
+y_span = y_span0
+chord  = chord0
+Ai     = Ai0
+Cl     = Cl0
+ICd    = ICd0
+Cm     = Cm0
 
-"""
+# === AoA = 10° ===
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", category=UserWarning)
+    data10 = np.genfromtxt(
+        "angleofattack10.txt",
+        skip_header=21,
+        skip_footer=60,
+        invalid_raise=False
+    )
 
-#check
-print("y positions:", y_span[:])
-print("Chord lengths:", chord[:])
-print("Lift coefficients:", Cl[:])
-print("Induced drag:", ICd[:])
-print("Quarter-chord moment:", Cm[:])
-
-"""
+y_span10 = data10[:, 0]
+chord10  = data10[:, 1]
+Ai10     = data10[:, 2]
+Cl10     = data10[:, 3]
+ICd10    = data10[:, 5]
+Cm10     = data10[:, 7]

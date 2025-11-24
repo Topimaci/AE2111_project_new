@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from XFLR import y_span, chord, Ai, Cl, ICd, Cm # Importing data from XFLR in .txt form and computing aerodynamic line load,
+from XFLR import (
+    y_span0, chord0, Ai0, Cl0, ICd0, Cm0,
+    y_span10, chord10, Ai10, Cl10, ICd10, Cm10
+)
 import math as m
 import math as m
 from matplotlib.widgets import RadioButtons
@@ -163,52 +166,44 @@ def add_point_forces_and_torques(x_grid: np.ndarray,
     return T_total
 
 
-
-if __name__ == "__main__":
-
-    # === your existing computations ===
-    print("y_span[:5] =", y_span[:5])
-    print("chord[:5]  =", chord[:5])
-    print("Cl[:5]     =", Cl[:5])
-    print("Cm[:5]     =", Cm[:5])
-
+def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
+    """
+    Reken alles uit (L', D', N', T(x), etc.) voor één set XFLR-data.
+    """
+    # 1. Lift & drag
     L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
     D_prime = compute_drag_line_load(chord, ICd, V_inf, rho)
-    N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
+
+    # 2. Normal force
+    N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg_case)
+
+    # 3. Section moment density
     M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
 
+    # 4. q(x), d(x), t(x)
     x_sorted, q_func, d_func, t_func = build_q_d_t_functions(
         y_span, N_prime, M_prime, d0=0.7
     )
 
+    # 5. Torque density w_T(x)
     L_span = x_sorted[-1]
     x_grid = np.linspace(0, L_span, 400)
     w_T = torque_density_distribution(x_grid, q_func, d_func, t_func=t_func)
 
+    # 6. Torsie-diagram T(x)
     x_rev = x_grid[::-1]
     w_rev = w_T[::-1]
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
     T_dist = -T_rev[::-1]
 
+    # (optioneel) point loads hier verwerken:
     point_forces = [
-<<<<<<< HEAD
         {'x': 5.0, 'P': 1200.0, 'd': 0.5},
         {'x': 8.0, 'P': -400.0, 'd': 0.4}
     ]
-
     point_torques = [
         {'x': 6.0, 'T': -500.0},
         {'x': 9.0, 'T': 300.0}
-=======
-        {'x': 1.84, 'P': 126.8*9.81, 'd': 0.473},  # Landing gear
-
-    ]
-
-    point_torques = [
-        {'x': 1.84, 'T': -point_forces[0]['P']*point_forces[0]['d']},  # torque due to landing gear weight
-        {'x': 1.84, 'T': 0.5 * rho * V_inf**2*0.04905*(0.56/2)**2*m.pi*0.785}  # torque due to landing gear drag
-    
->>>>>>> e263645e088f86e33297c45c7b469d370aee6037
     ]
 
     T_total = add_point_forces_and_torques(
@@ -217,51 +212,90 @@ if __name__ == "__main__":
         point_torques=point_torques
     )
 
-    # === INTERACTIVE UI WITH RADIO BUTTONS ===
+    return {
+        "y_span": y_span,
+        "L_prime": L_prime,
+        "D_prime": D_prime,
+        "x_grid": x_grid,
+        "T_dist": T_dist,
+        "T_total": T_total,
+    }
 
-    # 1) Make figure + axis, leave room for the radio buttons on the left
+
+if __name__ == "__main__":
+
+    # 1. Reken beide situaties uit
+    results = {
+        "AoA 0°":  compute_case(y_span0,  chord0,  Cl0,  ICd0,  Cm0,  0.0),
+        "AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0),
+    }
+    case_labels = list(results.keys())
+
+    # 2. UI state
+    current_case_label = case_labels[0]   # start met AoA 0°
+    current_plot_type = "Torque"          # of "Line loads"
+
     fig, ax = plt.subplots()
-    plt.subplots_adjust(left=0.3)
+    plt.subplots_adjust(left=0.35)  # ruimte voor twee radio panels
 
-    # 2) Initial plot: show the torque diagram
-    def plot_torque():
+    # 3. Plotfunctie gebruikt huidige case + plot-type
+    def update_plot():
         ax.clear()
-        ax.plot(x_grid, T_dist, label="Distributed loads only")
-        ax.plot(x_grid, T_total, label="With point forces/torques")
-        ax.set_xlabel("Spanwise position x [m]")
-        ax.set_ylabel("Torque T(x) [Nm]")
-        ax.set_title("Torque diagram")
-        ax.grid(True)
-        ax.legend()
+        res = results[current_case_label]
 
-    def plot_line_loads():
-        ax.clear()
-        ax.plot(y_span, L_prime, label="Lift line load L'(y)")
-        ax.plot(y_span, D_prime, label="Drag line load D'(y)")
-        ax.set_xlabel("Spanwise position y [m]")
-        ax.set_ylabel("Line load [N/m]")
-        ax.set_title("Aerodynamic line loads")
-        ax.grid(True)
-        ax.legend()
+        if current_plot_type == "Torque":
+            x_grid = res["x_grid"]
+            T_dist = res["T_dist"]
+            T_total = res["T_total"]
 
-    # Start with the torque view
-    plot_torque()
+            ax.plot(x_grid, T_dist, label="Distributed loads only")
+            ax.plot(x_grid, T_total, label="With point forces/torques")
+            ax.set_xlabel("Spanwise position x [m]")
+            ax.set_ylabel("Torque T(x) [Nm]")
+            ax.set_title(f"Torque diagram ({current_case_label})")
+            ax.grid(True)
+            ax.legend()
 
-    # 3) Radio buttons on the left
-    ax_radio = plt.axes([0.05, 0.4, 0.2, 0.15])  # [left, bottom, width, height]
-    labels = ["Torque", "Line loads"]
-    radio = RadioButtons(ax_radio, labels)
+        elif current_plot_type == "Line loads":
+            y_span  = res["y_span"]
+            L_prime = res["L_prime"]
+            D_prime = res["D_prime"]
 
-    # 4) Callback: what happens when you click a radio button
-    def change_plot(label):
-        if label == "Torque":
-            plot_torque()
-        elif label == "Line loads":
-            plot_line_loads()
+            ax.plot(y_span, L_prime, label="Lift line load L'(y)")
+            ax.plot(y_span, D_prime, label="Drag line load D'(y)")
+            ax.set_xlabel("Spanwise position y [m]")
+            ax.set_ylabel("Line load [N/m]")
+            ax.set_title(f"Aerodynamic line loads ({current_case_label})")
+            ax.grid(True)
+            ax.legend()
+
         fig.canvas.draw_idle()
 
-    radio.on_clicked(change_plot)
+    # eerste keer tekenen
+    update_plot()
 
-    # 5) Show the UI
+    # 4. Radio buttons voor plot-type
+    ax_radio_plot = plt.axes([0.05, 0.65, 0.25, 0.25])
+    plot_labels = ["Torque", "Line loads"]
+    radio_plot = RadioButtons(ax_radio_plot, plot_labels)
+
+    def on_plot_change(label):
+        global current_plot_type
+        current_plot_type = label
+        update_plot()
+
+    radio_plot.on_clicked(on_plot_change)
+
+    # 5. Radio buttons voor situatie (AoA 0 / AoA 10)
+    ax_radio_case = plt.axes([0.05, 0.25, 0.25, 0.35])
+    radio_case = RadioButtons(ax_radio_case, case_labels)
+
+    def on_case_change(label):
+        global current_case_label
+        current_case_label = label
+        update_plot()
+
+    radio_case.on_clicked(on_case_change)
+
+    # 6. Show UI
     plt.show()
-
