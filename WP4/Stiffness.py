@@ -121,7 +121,7 @@ def spar_length(spar_location_fraction, y_coordinate, root_chord, tip_chord, spa
 
     return spar_length
 
-print(spar_length(0, 0.101, 2.874, 1.043, 19.585)) ## Spar_location_fraction, y_coordinate, root_chord, tip_chord, span
+print(spar_length(0, 0.101, 2.874, 1.043, 19.585, 0.1, 0.6)) ## Spar_location_fraction, y_coordinate, root_chord, tip_chord, span
 
 
 
@@ -133,12 +133,12 @@ max_tip_rotat_rad = m.radians(max_tip_rotat_deg)      # in radians
 E = 71 * 10 ** 9    # Young's modulus
 G = 27 * 10 ** 9    # Shear modulus
 
-M_x =   # Import Moment function of M(y)
-T =     # Import torque distribution function
+M_x = y**2 + 1  # Import Moment function of M(y)
+T = y + 2 * y**3    # Import torque distribution function
 
-y_breaks = #stringer breaks as np.array([...])
-stringer_top_num = #nummber of stringer on these intervals np.array([...])
-stringer_bottom_num = #same thing
+y_breaks = np.array([0.3, 0.4]) #stringer breaks as np.array([...])
+stringer_top_num = np.array([1, 1]) #nummber of stringer on these intervals np.array([...])
+stringer_bottom_num = np.array([1, 1])  #same thing
 
 #Linear interpolation of the stringers
 string_top_interp = interp1d(y_breaks, stringer_top_num, kind="linear",
@@ -198,6 +198,7 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
         J = 4 * A ** 2 / circ
     return I_total, J
 
+'''
 I_xx, J = stiffness_distribution()
 d2v_dy2 = - M_x / (E * I_xx)
 dth_dy = T / (G * J)
@@ -205,11 +206,12 @@ dth_dy = T / (G * J)
 estimate_dv, error_dv = sp.integrate.quad(d2v_dy2, 0, b)
 estimate_v, error_v = sp.integrate.quad(estimate_dv, 0, b)
 estimate_th, error_th = sp.integrate.quad(dth_dy, 0, b)
+'''
 
 
 ##______Output results________________________________________________________
 ## Get the box coordinates for spar length calculations
-def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord, tip_chord, b, t, A_string, spar_list):
+def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord, tip_chord, b, t, A_string, spar_list, steps):
     spar1_coor1, spar1_coor2, spar1_coor3, spar1_coor4 = spar_position(Airfoil_coordinates, spar_location_fraction1) ## Front spar, top right, top left, bottom left, bottom right
     spar2_coor1, spar2_coor2, spar2_coor3, spar2_coor4 = spar_position(Airfoil_coordinates, spar_location_fraction2) ## Rear spar, top right, top left, bottom left, bottom right
     y_at_top_stringer = top_stringer_y_coord(spar1_coor1, spar1_coor2, spar2_coor1, spar2_coor2, spar_location_fraction1)
@@ -222,14 +224,14 @@ def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord
     twistY = []
     twist_deg = []
 
-    for i in range(0, 1/(b/2), 0.01):
-        front_spar_length = spar_length(spar_location_fraction1, i * (b/2), 2.874, 1.043, b)
-        rear_spar_length = spar_length(spar_location_fraction2, i * (b/2), 2.874, 1.043, b)
+    for i in range(0, steps):
+        front_spar_length = spar_length(spar_location_fraction1, i * (b/2)/100, 2.874, 1.043, b, spar_location_fraction1, spar_location_fraction2)
+        rear_spar_length = spar_length(spar_location_fraction2, i * (b/2)/100, 2.874, 1.043, b, spar_location_fraction1, spar_location_fraction2)
         h_fs = front_spar_length
         h_rs = rear_spar_length
 
         a = (tip_chord - root_chord)/(b/2)
-        chord_length_at_y = root_chord + a * i * (b/2)
+        chord_length_at_y = root_chord + a * i * (b/2)/100
         c_upper = abs(box_coordinates[0][0] - box_coordinates[1][0]) * chord_length_at_y
         c_lower = m.sqrt((box_coordinates[2][0] - box_coordinates[3][0])**2 + (box_coordinates[2][1] - box_coordinates[3][1])**2) * chord_length_at_y
 
@@ -252,4 +254,4 @@ def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord
     plt.show()
 
 
-diagram_plotter(0.1, 0.6, 2.874, 1.043, b, 0.003, 0.0001, spar_list)
+diagram_plotter(0.1, 0.6, 2.874, 1.043, b, 0.003, 0.0001, spar_list, 100)
