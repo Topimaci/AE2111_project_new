@@ -30,6 +30,8 @@ rho   = 1.225 # Air density in kg/m^3
 
 #Mass
 M_wing = 932.9 # mass of the wing in kg
+M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
+M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
 
 
 # --- Cord lengths ---------
@@ -42,6 +44,7 @@ def cordlength(tip_cord, root_cord, fraction_half_span)
 C_19 = cordlength(C_t, C_r, 0.19)
 C_24 = cordlength(C_t, C_r, 0.24)
 C_90 = cordlength(C_t, C_r, 0.9)
+
 
 # --- determining loading functions ----------------------------------------------------------------
 # --- Lift ---
@@ -66,6 +69,16 @@ def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_co
 
 
     return W_struc_func
+
+# --- Fuel weight: Tank 1 and Tank 2 ---------------------
+
+def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values)
+    
+    W_fuel_tank_1 = ((4*mass_fuel*grav_const)) #not finished
+
+    return W_fuel_tank_1 
+
+
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
