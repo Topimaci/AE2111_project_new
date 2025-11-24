@@ -18,8 +18,8 @@ aoa_deg = 0.0   # Angle of attack in degrees
 
 def compute_lift_line_load(chord: np.ndarray,
                            Cl: np.ndarray,
-                           V_inf: float = 10.0,
-                           rho: float = 1.225) -> np.ndarray:
+                           V_inf: float,
+                           rho: float) -> np.ndarray:
     """
     L'(y) = 0.5 * rho * V^2 * Cl(y) * c(y)
     """
@@ -29,8 +29,8 @@ def compute_lift_line_load(chord: np.ndarray,
 
 def compute_drag_line_load(chord: np.ndarray,
                            ICd: np.ndarray,
-                           V_inf: float = 10.0,
-                           rho: float = 1.225) -> np.ndarray:
+                           V_inf: float,
+                           rho: float) -> np.ndarray:
     """
     D'(y) = 0.5 * rho * V^2 * Cd(y) * c(y)
     """
@@ -53,7 +53,7 @@ def compute_normal_force_distribution(L_prime: np.ndarray,
 def compute_section_moment_density(chord: np.ndarray,
                                    Cm: np.ndarray,
                                    V_inf: float,
-                                   rho: float = 1.225) -> np.ndarray:
+                                   rho: float) -> np.ndarray:
     """
     M'(y) = Cm(y) * q_inf * c(y)^2 
     """
@@ -86,13 +86,6 @@ def build_q_d_t_functions(y_span: np.ndarray,
         fill_value="extrapolate"
     )
 
-    ### Variable d(x), from leading edge to mid wingbox
-
-    ratio_frontspar = 0.3     # ratio of chord where front spar is located
-    ratio_rearspar = 0.7      # ratio of chord where rear spar is located
-
-    d_centroid = (ratio_frontspar + (ratio_frontspar + ratio_rearspar) / 2.0) 
-    
 
 
     d_false = np.full_like(x_sorted, d0)
