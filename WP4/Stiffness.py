@@ -145,9 +145,9 @@ M_root = 5e6  # N*m
 M_y = M_root * (1 - y / b)**2
 T_root = 2e5  # N*m, realistic torsion for business jet wingbox
 T = T_root * (1 - y / b)**2
-y_breaks = #stringer breaks as np.array([...])
-stringer_top_num = #nummber of stringer on these intervals np.array([...])
-stringer_bottom_num = #same thing
+y_breaks = [] #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
+stringer_top_num = [] #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = [] #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 
 #Linear interpolation of the stringers
