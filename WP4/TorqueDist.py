@@ -168,7 +168,7 @@ def add_point_forces_and_torques(x_grid: np.ndarray,
 
 def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
     """
-    Reken alles uit (L', D', N', T(x), etc.) voor één set XFLR-data.
+    Calc (L', D', N', T(x), etc.).
     """
     # 1. Lift & drag
     L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
@@ -190,13 +190,13 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
     x_grid = np.linspace(0, L_span, 400)
     w_T = torque_density_distribution(x_grid, q_func, d_func, t_func=t_func)
 
-    # 6. Torsie-diagram T(x)
+    # 6. Torsion-diagram T(x)
     x_rev = x_grid[::-1]
     w_rev = w_T[::-1]
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
     T_dist = -T_rev[::-1]
 
-    # (optioneel) point loads hier verwerken:
+    #Point loads and torques:
     point_forces = [
         {'x': 5.0, 'P': 1200.0, 'd': 0.5},
         {'x': 8.0, 'P': -400.0, 'd': 0.4}
@@ -224,7 +224,7 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
 
 if __name__ == "__main__":
 
-    # 1. Reken beide situaties uit
+    # 1. Compute both cases
     results = {
         "AoA 0°":  compute_case(y_span0,  chord0,  Cl0,  ICd0,  Cm0,  0.0),
         "AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0),
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
     plt.subplots_adjust(left=0.35)  # ruimte voor twee radio panels
 
-    # 3. Plotfunctie gebruikt huidige case + plot-type
+    # 3. Plot update function
     def update_plot():
         ax.clear()
         res = results[current_case_label]
@@ -271,10 +271,10 @@ if __name__ == "__main__":
 
         fig.canvas.draw_idle()
 
-    # eerste keer tekenen
+    # Initial plot
     update_plot()
 
-    # 4. Radio buttons voor plot-type
+    # 4. Radio buttons voor plot type (Torque / Line loads)
     ax_radio_plot = plt.axes([0.05, 0.65, 0.25, 0.25])
     plot_labels = ["Torque", "Line loads"]
     radio_plot = RadioButtons(ax_radio_plot, plot_labels)
@@ -286,7 +286,7 @@ if __name__ == "__main__":
 
     radio_plot.on_clicked(on_plot_change)
 
-    # 5. Radio buttons voor situatie (AoA 0 / AoA 10)
+    # 5. Radio buttons voor case selection (AoA 0° / AoA 10°)
     ax_radio_case = plt.axes([0.05, 0.25, 0.25, 0.35])
     radio_case = RadioButtons(ax_radio_case, case_labels)
 
