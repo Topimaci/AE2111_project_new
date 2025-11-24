@@ -142,9 +142,9 @@ M_root = 5e6  # N*m
 M_y = M_root * (1 - y / b)**2
 T_root = 2e5  # N*m, realistic torsion for business jet wingbox
 T = T_root * (1 - y / b)**2
-y_breaks = np.array([1, 2]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([2, 1]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([2, 1])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
+y_breaks = np.array([2, 4, 6, 8]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
+stringer_top_num = np.array([5, 4, 3, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([5, 4, 3, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 
 #Linear interpolation of the stringers
@@ -244,13 +244,12 @@ def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord
     box_coordinates = [[spar_location_fraction2, y_at_top_stringer], [spar_location_fraction1, y_at_top_stringer],
                        [spar_location_fraction1, y1_at_bot_stringer], [spar_location_fraction2, y2_at_bot_stringer]]
 
-    deflectionY = []
-    deflectionZ = []
-    twistY = []
-    twist_deg = []
+    y_array = np.linspace(0, b/2, steps)
+    dv_dy2_array = np.zeros_like(y_array)
+    dtheta_dy_array = np.zeros_like(y_array)
 
-    for i in range(steps):
-        y_i = i * b / steps
+    # Compute d2v/dy2 and dtheta/dy numerically
+    for i, y_i in enumerate(y_array):
         front_spar_length = spar_length(spar_location_fraction1, y_i, root_chord, tip_chord, b, spar_location_fraction1, spar_location_fraction2)
         rear_spar_length = spar_length(spar_location_fraction2, y_i, root_chord, tip_chord, b, spar_location_fraction1, spar_location_fraction2)
         h_fs, h_rs = front_spar_length, rear_spar_length
@@ -260,28 +259,28 @@ def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord
         c_upper = abs(box_coordinates[0][0] - box_coordinates[1][0]) * chord_length_at_y
         c_lower = m.sqrt((box_coordinates[2][0] - box_coordinates[3][0])**2 + (box_coordinates[2][1] - box_coordinates[3][1])**2) * chord_length_at_y
 
-        I_xx, J = stiffness_distribution(y_i, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list)
+        I_xx_sym, J = stiffness_distribution(y_i, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list)
+        I_xx = float(I_xx_sym.subs(y, y_i))
 
-        # Lambdify at the current step
-        d2v_dy2 = - M_root * (1 - y / b)**2 / (E * I_xx)
-        dth_dy  = T_root * (1 - y / b)**2 / (G * J)
-        f_d2v = sp.lambdify(y, d2v_dy2, "numpy")
-        f_th  = sp.lambdify(y, dth_dy, "numpy")
+        dv_dy2_array[i] = - M_root * (1 - y_i / b)**2 / (E * I_xx)
+        dtheta_dy_array[i] = T_root * (1 - y_i / b)**2 / (G * J)
 
-        # Integrate up to current y_i
-        estimate_v, error_v = integrate.quad(f_d2v, 0, y_i)
-        estimate_th, error_th = integrate.quad(f_th, 0, y_i)
+    # Numerical integration using cumulative trapezoid
+    v_array = np.cumsum((dv_dy2_array[:-1] + dv_dy2_array[1:]) / 2 * np.diff(y_array))
+    theta_array = np.cumsum((dtheta_dy_array[:-1] + dtheta_dy_array[1:]) / 2 * np.diff(y_array))
 
-        deflectionY.append(y_i)
-        twistY.append(y_i)
-        deflectionZ.append(estimate_v)
-        twist_deg.append(m.degrees(estimate_th))
+    # Add zero at the root
+    v_array = np.insert(v_array, 0, 0)
+    theta_array = np.insert(theta_array, 0, 0)
 
-    plt.plot(deflectionY, deflectionZ, label="Deflection")
-    ##plt.plot(twistY, twist_deg, label="Twist (deg)")
+    plt.plot(y_array, v_array, label="Deflection (m)")
     plt.xlabel("Spanwise position (m)")
-    plt.ylabel("Deflection / Twist")
-    plt.legend()
+    plt.ylabel("Deflection")
+    plt.show()
+    plt.plot(y_array, np.degrees(theta_array), label="Twist (deg)")
+    plt.xlabel("Spanwise position (m)")
+    plt.ylabel("Twist")
     plt.show()
 
-diagram_plotter(0.1, 0.6, 2.874, 1.043, b, 0.003, 0.2, spar_list, 20)
+
+diagram_plotter(0.1, 0.6, 2.874, 1.043, b, 0.003, 0.2, spar_list, 30)
