@@ -32,6 +32,16 @@ rho   = 1.225 # Air density in kg/m^3
 M_wing = 932.9 # mass of the wing in kg
 
 
+# --- Cord lengths ---------
+def cordlength(tip_cord, root_cord, fraction_half_span)
+    
+    cord = fraction_half_span * (tip_cord - root_cord) + root_cord
+
+    return cord
+
+C_19 = cordlength(C_t, C_r, 0.19)
+C_24 = cordlength(C_t, C_r, 0.24)
+C_90 = cordlength(C_t, C_r, 0.9)
 
 # --- determining loading functions ----------------------------------------------------------------
 # --- Lift ---
@@ -52,7 +62,7 @@ q_vals = q_func(y_vals)
 #Wing weight distribution function
 def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_values)
     
-    W_struc_func = (2 * mass_wing * grav_const)/(wing_span(tip_cord + root_cord))(root_cord + ((2*(tip_cord - root_cord))/wing_span) * y_values)
+    W_struc_func = (2 * mass_wing * grav_const)/(wing_span(tip_cord + root_cord)) * (root_cord + ((2*(tip_cord - root_cord))/wing_span) * y_values)
 
 
     return W_struc_func
