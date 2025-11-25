@@ -74,11 +74,15 @@ def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_co
 
 def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values)
     
-    W_fuel_tank_1 = ((4*mass_fuel*grav_const)) #not finished
+    W_fuel_tank_1_func = ((4*mass_fuel*grav_const)/(0.19 * wing_span * (root_cord + cord_19))) * (root_cord + (((cord_19 - root_cord)/0.19*wing_span) * y_values)) 
+    # Function from 0% of the half wingspan to 19% of the half wingspan, not to be used outside of this range
+    return W_fuel_tank_1_func
 
-    return W_fuel_tank_1 
-
-
+def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_values)
+    
+    W_fuel_tank_2_func = ((4*mass_fuel*grav_const)/(0.66 * wing_span * (cord_24 + cord_90))) * (cord_24 + (((cord_90 - cord_24)/0.66*wing_span) * y_values)) 
+    # Function from 24% of the half wingspan to 90% of the half wingspan, not to be used outside of this range
+    return W_fuel_tank_2_func
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
