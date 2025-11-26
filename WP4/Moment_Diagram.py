@@ -63,7 +63,7 @@ q_vals = q_func(y_vals)
 # --- Wing weight --- 
 
 #Wing weight distribution function
-def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_values)
+def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_values):
     
     W_struc_func = (2 * mass_wing * grav_const)/(wing_span(tip_cord + root_cord)) * (root_cord + ((2*(tip_cord - root_cord))/wing_span) * y_values)
 
@@ -72,17 +72,51 @@ def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_co
 
 # --- Fuel weight: Tank 1 and Tank 2 ---------------------
 
-def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values)
+def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values):
     
     W_fuel_tank_1_func = ((4*mass_fuel*grav_const)/(0.19 * wing_span * (root_cord + cord_19))) * (root_cord + (((cord_19 - root_cord)/0.19*wing_span) * y_values)) 
     # Function from 0% of the half wingspan to 19% of the half wingspan, not to be used outside of this range
     return W_fuel_tank_1_func
 
-def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_values)
+def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_values):
     
     W_fuel_tank_2_func = ((4*mass_fuel*grav_const)/(0.66 * wing_span * (cord_24 + cord_90))) * (cord_24 + (((cord_90 - cord_24)/0.66*wing_span) * y_values)) 
     # Function from 24% of the half wingspan to 90% of the half wingspan, not to be used outside of this range
     return W_fuel_tank_2_func
+
+
+import numpy as np
+
+def wing_weight_distribution(...):
+    ...
+    return W_struc_func
+
+def Fuel_distribution_tank_1(...):
+    ...
+    return W_fuel_tank_1_func
+
+def Fuel_distribution_tank_2(...):
+    ...
+    return W_fuel_tank_2_func
+
+
+# y_values: array from 0 → half-span
+y = y_values
+
+# Empty array for combined loads
+combined_loads = np.zeros_like(y)
+
+# Structural load (full span)
+combined_loads += wing_weight_distribution(...)
+
+# Tank 1: only 0%–19% of half-span
+mask_t1 = (y >= 0) & (y <= 0.19 * wing_span/2)
+combined_loads[mask_t1] += Fuel_distribution_tank_1(...)[mask_t1]
+
+# Tank 2: only 24%–90% of half-span
+mask_t2 = (y >= 0.24 * wing_span/2) & (y <= 0.90 * wing_span/2)
+combined_loads[mask_t2] += Fuel_distribution_tank_2(...)[mask_t2]
+
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
