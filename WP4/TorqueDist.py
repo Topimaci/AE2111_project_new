@@ -8,6 +8,8 @@ import math as m
 import math as m
 from matplotlib.widgets import RadioButtons
 from scipy import integrate, interpolate
+import sympy as sp
+from numpy.polynomial import Polynomial
 
 # Variables
 
@@ -230,6 +232,7 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
     }
 
 
+
 if __name__ == "__main__":
 
     # 1. Reken beide situaties uit
@@ -239,6 +242,10 @@ if __name__ == "__main__":
     }
     case_labels = list(results.keys())
 
+    #return function
+
+    # Print the function
+    sp.pprint(torque_sym, use_unicode=True)
     # 2. UI state
     current_case_label = case_labels[0]   # start met AoA 0°
     current_plot_type = "Torque"          # of "Line loads"
