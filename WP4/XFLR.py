@@ -5,7 +5,7 @@ import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", category=UserWarning)
     data0 = np.genfromtxt(
-        "angleofattack0.txt",
+        "data/angleofattack0.txt",
         skip_header=21,
         skip_footer=60,
         invalid_raise=False
@@ -30,7 +30,7 @@ Cm     = Cm0
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", category=UserWarning)
     data10 = np.genfromtxt(
-        "angleofattack10.txt",
+        "data/angleofattack10.txt",
         skip_header=21,
         skip_footer=60,
         invalid_raise=False
