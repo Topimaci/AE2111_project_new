@@ -87,6 +87,40 @@ def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90,
     # Function from 24% of the half wingspan to 90% of the half wingspan, not to be used outside of this range
     return W_fuel_tank_2_func
 
+
+import numpy as np
+
+def wing_weight_distribution(...):
+    ...
+    return W_struc_func
+
+def Fuel_distribution_tank_1(...):
+    ...
+    return W_fuel_tank_1_func
+
+def Fuel_distribution_tank_2(...):
+    ...
+    return W_fuel_tank_2_func
+
+
+# y_values: array from 0 → half-span
+y = y_values
+
+# Empty array for combined loads
+combined_loads = np.zeros_like(y)
+
+# Structural load (full span)
+combined_loads += wing_weight_distribution(...)
+
+# Tank 1: only 0%–19% of half-span
+mask_t1 = (y >= 0) & (y <= 0.19 * wing_span/2)
+combined_loads[mask_t1] += Fuel_distribution_tank_1(...)[mask_t1]
+
+# Tank 2: only 24%–90% of half-span
+mask_t2 = (y >= 0.24 * wing_span/2) & (y <= 0.90 * wing_span/2)
+combined_loads[mask_t2] += Fuel_distribution_tank_2(...)[mask_t2]
+
+
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
 S_vals_tip_to_root = cumulative_trapezoid(q_vals[::-1], y_vals[::-1], initial=0)
