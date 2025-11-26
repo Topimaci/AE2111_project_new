@@ -37,7 +37,7 @@ M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
 
 
 # --- Cord lengths ---------
-def cordlength(tip_cord, root_cord, fraction_half_span)
+def cordlength(tip_cord, root_cord, fraction_half_span):
     
     cord = fraction_half_span * (tip_cord - root_cord) + root_cord
 
@@ -56,8 +56,10 @@ N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
 M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
 y, q_func, d_func, t_func = build_q_d_t_functions(y_span, N_prime, M_prime)
 
-y_vals = np.linspace(0, b_half, 500)
 
+
+
+"""
 #find curve of lift 
 def model(x, a, b, c, d):
     return a*x**3 + b*x**2 + c*x + d
@@ -67,7 +69,7 @@ params, cov = curve_fit(model, y_vals, L_prime)
 
 print("Cubic coefficients:", params)
 
-
+"""
 
 
 
@@ -102,20 +104,24 @@ def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90,
 combined_loads = np.zeros_like(y_vals)
 
 # --- Structural load over full span ---
-combined_loads += wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_vals)
+
+combined_loads -= wing_weight_distribution(M_wing, g, b, C_t, C_r, y_vals)
 
 # --- Tank 1 load (0% → 19%) ---
 y_t1 = y_vals[:i_19]                      # local y inside tank 1 region
-W_t1 = Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_t1)
-combined_loads[:i_19] += W_t1
+W_t1 = Fuel_distribution_tank_1(M_fuel_T1, g, b, C_r, C_19, y_t1)
+combined_loads[:i_19] -= W_t1
 
 # --- Tank 2 load (24% → 90%) ---
 # Shift y so Tank 2 formula sees y=0 at 24%
 y_t2_local = y_vals[i_24:i_90] - y_vals[i_24]
-W_t2 = Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_t2_local)
-combined_loads[i_24:i_90] += W_t2
+W_t2 = Fuel_distribution_tank_2(M_fuel_T2, g, b, C_24, C_90, y_t2_local)
+
+combined_loads[i_24:i_90] -= W_t2
 
 
+
+combined_loads[i_24:i_90] += L_prime
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
@@ -138,7 +144,7 @@ plt.figure(figsize=(10,10))
 
 # q(y)
 plt.subplot(3,1,1)
-plt.plot(y_vals, q_vals)
+plt.plot(y_vals, combined_loads)
 plt.xlabel("Spanwise position y [m]")
 plt.ylabel("q(y) [N/m]")
 plt.title("Distributed Load q(y)")
