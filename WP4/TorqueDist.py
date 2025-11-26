@@ -8,8 +8,6 @@ import math as m
 import math as m
 from matplotlib.widgets import RadioButtons
 from scipy import integrate, interpolate
-import sympy as sp
-from numpy.polynomial import Polynomial
 
 # Variables
 
