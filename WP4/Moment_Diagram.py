@@ -33,6 +33,9 @@ M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
 M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
 
+#Weigth (point force)
+W_main_gear = 1245.87 # Weight of a single main landing gear in N
+
 
 # --- Cord lengths ---------
 def cordlength(tip_cord, root_cord, fraction_half_span)
