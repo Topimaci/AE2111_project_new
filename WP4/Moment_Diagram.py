@@ -34,7 +34,7 @@ rho   = 1.225 # Air density in kg/m^3
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
 M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
-M_main_gear = 1245.87
+M_main_gear = 1245.87 #mass of landing gear (already accounted for there being two weight split half per wing (already halved))
 
 
 # --- Cord lengths ---------
@@ -122,7 +122,7 @@ combined_loads[i_24:i_90] -= W_t2
 
 # Spanwise segment for the gear
 y_gear = y_vals[i_19:i_24]                  # local y inside gear region
-gear_load_per_point = M_main_gear * g / len(y_gear)
+gear_load_per_point = (M_main_gear * g )/ len(y_gear)
 
 # Add to combined load
 combined_loads[i_19:i_24] -= gear_load_per_point
