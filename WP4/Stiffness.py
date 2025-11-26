@@ -135,6 +135,7 @@ E = 71 * 10 ** 9    # Young's modulus
 G = 27 * 10 ** 9    # Shear modulus
 
 y = sp.symbols("y")
+q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 
 #_______TO BE REPLACED LATER__________________________________________
@@ -142,9 +143,9 @@ M_root = 5e6  # N*m
 M_y = M_root * (1 - y / b)**2
 T_root = 6e5  # N*m, realistic torsion for business jet wingbox
 T = T_root * (1 - y / b)**2
-y_breaks = np.array([2, 4, 6, 8]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([5, 4, 3, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([5, 4, 3, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
+y_breaks = np.array([3, 5, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
+stringer_top_num = np.array([5, 4, 3]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([5, 4, 3])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 
 #Linear interpolation of the stringers
@@ -191,9 +192,17 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
         I_total = I_step + I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
         a = spar_list[2]
         w = c_upper - a 
-        lefthand_matrix = np.array([[(2*w+2*a), -w, -2*a*w*G*t], [-w, 4*w, - 2*w**2*G*t], [2*a*w, 2 * w**2, 0]])
-        righthand_matrix = np.array([0, 0, 1])
-        solution = np.linalg.solve(lefthand_matrix, righthand_matrix)
+        A_1 = a * w
+        A_2 = w * w
+        M = sp.Matrix([
+        [2*w+2*a, -w, -2*A_1*G*t],
+        [-w, 4*w, -2*A_2*G*t],
+        [2*A_1, 2*A_2, 0]])
+
+        rhs = sp.Matrix([1, 0, 0])
+
+        solution = M.LUsolve(rhs)
+
         q1, q2, dtheta_dy = solution
         J = 1 / (G * dtheta_dy)
 
