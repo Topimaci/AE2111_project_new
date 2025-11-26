@@ -55,7 +55,7 @@ L_prime = compute_lift_line_load(chord0, Cl, V_inf, rho)
 D_prime = compute_drag_line_load(chord0, ICd, V_inf, rho)
 N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
 M_prime = compute_section_moment_density(chord0, Cm, V_inf, rho)
-y, q_func, d_func, t_func = build_q_d_t_functions(y_span, N_prime, M_prime)
+y, q_func, d_func, t_func = build_q_d_t_functions(y_span, chord0, N_prime, M_prime, 10.43, 0.3, 0.7, 0.25)
 
 
 
