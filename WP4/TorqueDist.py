@@ -18,8 +18,8 @@ aoa_deg = 0.0   # Angle of attack in degrees
 
 def compute_lift_line_load(chord: np.ndarray,
                            Cl: np.ndarray,
-                           V_inf: float,
-                           rho: float) -> np.ndarray:
+                           V_inf: float = 10.0,
+                           rho: float = 1.225) -> np.ndarray:
     """
     L'(y) = 0.5 * rho * V^2 * Cl(y) * c(y)
     """
@@ -29,8 +29,8 @@ def compute_lift_line_load(chord: np.ndarray,
 
 def compute_drag_line_load(chord: np.ndarray,
                            ICd: np.ndarray,
-                           V_inf: float,
-                           rho: float) -> np.ndarray:
+                           V_inf: float = 10.0,
+                           rho: float = 1.225) -> np.ndarray:
     """
     D'(y) = 0.5 * rho * V^2 * Cd(y) * c(y)
     """
@@ -53,7 +53,7 @@ def compute_normal_force_distribution(L_prime: np.ndarray,
 def compute_section_moment_density(chord: np.ndarray,
                                    Cm: np.ndarray,
                                    V_inf: float,
-                                   rho: float) -> np.ndarray:
+                                   rho: float = 1.225) -> np.ndarray:
     """
     M'(y) = Cm(y) * q_inf * c(y)^2 
     """
@@ -61,27 +61,15 @@ def compute_section_moment_density(chord: np.ndarray,
     M_prime = Cm * q_inf * chord**2
     return M_prime
 
-def distance_dx_calc(chord, Cl, Cm):
-    # distance = 0.45*c − 0.25*c = 0.20*c
-    # 0.45 comes from middle of spars, 20% and 70% needs to be checked (0.45c from the LE)
-    # 0.25 comes from assumption that lift acts as a point force on the 0.25 c from the LE
-    #d_extra = Cm/Cl
-    dx = 0.45*chord - 0.25*chord 
-    sweep_deg = 10.43 #from WP3 sweep at quarter chord
-    sweep_rad = m.radians(sweep_deg)
-    dreal = dx * m.cos(sweep_rad)
-    return dreal
-
 def build_q_d_t_functions(y_span: np.ndarray,
                       N_prime: np.ndarray,
                       M_prime: np.ndarray,
-                      d_array: np.ndarray):   #  m, distance from load to flexural axis / calculation point. <---  CHANGE THIS VALUE, THIS IS A DUMMY VALUE
+                      d0: float = 0.7):   #  m, distance from load to flexural axis / calculation point. <---  CHANGE THIS VALUE, THIS IS A DUMMY VALUE
 
     mask = y_span >= 0.0
     y_half = y_span[mask]
     N_half = N_prime[mask]
     M_half = M_prime[mask]   # q(x) = N'(y)
-    d_half = d_array[mask]
 
     x = y_half
     idx = np.argsort(x)
@@ -89,7 +77,6 @@ def build_q_d_t_functions(y_span: np.ndarray,
 
     q_sorted = N_half[idx]   # q(x) = N'(y)
     M_sorted = M_half[idx]   # M'(y) from Cm
-    d_sorted = d_half[idx]
 
     # 5. Interpolation of q(x) and d(x)
     q_func = interpolate.interp1d(
@@ -99,10 +86,19 @@ def build_q_d_t_functions(y_span: np.ndarray,
         fill_value="extrapolate"
     )
 
+    ### Variable d(x), from leading edge to mid wingbox
 
+    ratio_frontspar = 0.3     # ratio of chord where front spar is located
+    ratio_rearspar = 0.7      # ratio of chord where rear spar is located
+
+    d_centroid = (ratio_frontspar + (ratio_frontspar + ratio_rearspar) / 2.0) 
+    
+
+
+    d_false = np.full_like(x_sorted, d0)
     d_func = interpolate.interp1d(
         x_sorted,
-        d_sorted,
+        d_false,
         kind="linear",
         fill_value="extrapolate"
     )
@@ -116,7 +112,16 @@ def build_q_d_t_functions(y_span: np.ndarray,
 
     return x_sorted, q_func, d_func, t_func
 
-
+def distance_dx_calc(chord, Cl, Cm):
+    # distance = 0.45*c − 0.25*c = 0.20*c
+    # 0.45 comes from middle of spars, 20% and 70% needs to be checked (0.45c from the LE)
+    # 0.25 comes from assumption that lift acts as a point force on the 0.25 c from the LE
+    #d_extra = Cm/Cl
+    dx = 0.45*chord - 0.25*chord 
+    sweep_deg = 10.43 #from WP3 sweep at quarter chord
+    sweep_rad = m.radians(sweep_deg)
+    dreal = dx * m.cos(sweep_rad)
+    return dreal
 
 
 
@@ -157,14 +162,17 @@ def add_point_forces_and_torques(x_grid: np.ndarray,
             xT = pt['x']
             T_mag = pt['T']
             T_total += T_mag * (x_grid <= xT)
-        safety_zone = (x_grid >= 0.0) & (x_grid <= 0.78)
-        T_total[safety_zone] *= 2.8
+
+    safety_zone = (x_grid >= 0.0) & (x_grid <= 0.78)
+    T_total[safety_zone] *= 2.8
+
+
     return T_total
 
 
 def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
     """
-    Calc (L', D', N', T(x), etc.).
+    Reken alles uit (L', D', N', T(x), etc.) voor één set XFLR-data.
     """
     # 1. Lift & drag
     L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
@@ -176,12 +184,9 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
     # 3. Section moment density
     M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
 
-    # Distance from load to flexural axis / calculation point
-    dreal = distance_dx_calc(chord, Cl, Cm)
-
     # 4. q(x), d(x), t(x)
     x_sorted, q_func, d_func, t_func = build_q_d_t_functions(
-        y_span, N_prime, M_prime, dreal
+        y_span, N_prime, M_prime, d0=0.7
     )
 
     # 5. Torque density w_T(x)
@@ -189,13 +194,13 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
     x_grid = np.linspace(0, L_span, 400)
     w_T = torque_density_distribution(x_grid, q_func, d_func, t_func=t_func)
 
-    # 6. Torsion-diagram T(x)
+    # 6. Torsie-diagram T(x)
     x_rev = x_grid[::-1]
     w_rev = w_T[::-1]
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
     T_dist = -T_rev[::-1]
 
-    #Point loads and torques:
+    # (optioneel) point loads hier verwerken:
     point_forces = [
         {'x': 1.84, 'P': 126.8*9.81, 'd': 0.473},  # Landing gear
 
@@ -227,7 +232,7 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
 
 if __name__ == "__main__":
 
-    # 1. Compute both cases
+    # 1. Reken beide situaties uit
     results = {
         "AoA 0°":  compute_case(y_span0,  chord0,  Cl0,  ICd0,  Cm0,  0.0),
         "AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0),
@@ -241,7 +246,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
     plt.subplots_adjust(left=0.35)  # ruimte voor twee radio panels
 
-    # 3. Plot update function
+    # 3. Plotfunctie gebruikt huidige case + plot-type
     def update_plot():
         ax.clear()
         res = results[current_case_label]
@@ -274,10 +279,10 @@ if __name__ == "__main__":
 
         fig.canvas.draw_idle()
 
-    # Initial plot
+    # eerste keer tekenen
     update_plot()
 
-    # 4. Radio buttons voor plot type (Torque / Line loads)
+    # 4. Radio buttons voor plot-type
     ax_radio_plot = plt.axes([0.05, 0.65, 0.25, 0.25])
     plot_labels = ["Torque", "Line loads"]
     radio_plot = RadioButtons(ax_radio_plot, plot_labels)
@@ -289,7 +294,7 @@ if __name__ == "__main__":
 
     radio_plot.on_clicked(on_plot_change)
 
-    # 5. Radio buttons voor case selection (AoA 0° / AoA 10°)
+    # 5. Radio buttons voor situatie (AoA 0 / AoA 10)
     ax_radio_case = plt.axes([0.05, 0.25, 0.25, 0.35])
     radio_case = RadioButtons(ax_radio_case, case_labels)
 
