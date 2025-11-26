@@ -3,6 +3,8 @@ import scipy as sp
 import matplotlib.pyplot as plt
 from XFLR import y_span, chord, Ai, Cl, ICd, Cm
 
+from scipy.optimize import curve_fit
+
 
 from scipy import integrate, interpolate
 from scipy.integrate import cumulative_trapezoid
@@ -32,10 +34,11 @@ rho   = 1.225 # Air density in kg/m^3
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
 M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
+M_main_gear = 1245.87 #mass of landing gear (already accounted for there being two weight split half per wing (already halved))
 
 
 # --- Cord lengths ---------
-def cordlength(tip_cord, root_cord, fraction_half_span)
+def cordlength(tip_cord, root_cord, fraction_half_span):
     
     cord = fraction_half_span * (tip_cord - root_cord) + root_cord
 
@@ -54,39 +57,81 @@ N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
 M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
 y, q_func, d_func, t_func = build_q_d_t_functions(y_span, N_prime, M_prime)
 
-# Create y-grid only over the half-span
-y_vals = np.linspace(0, b_half, 500)
 
-# Evaluate q(y)
+
+
+"""
+#find curve of lift 
+def model(x, a, b, c, d):
+    return a*x**3 + b*x**2 + c*x + d
+
+# Fit
+params, cov = curve_fit(model, y_vals, L_prime)
+
+print("Cubic coefficients:", params)
+
+"""
+
+
+
+
+# --- Create grid ---
+y_vals = np.linspace(0, b_half, 500)
+N = len(y_vals)
+
+# --- Index boundaries ---
+i_19 = int(0.19 * N)   # Tank 1:   0% → 19%
+i_24 = int(0.24 * N)   # Tank 2:  24% → 90%
+i_90 = int(0.90 * N)
+
+# --- q(y) ---
 q_vals = q_func(y_vals)
 
-# --- Wing weight --- 
+# --- Wing structure load ---
+def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_values):
+    return (2 * mass_wing * grav_const) / (wing_span * (tip_cord + root_cord)) * \
+           (root_cord + (2 * (tip_cord - root_cord) / wing_span) * y_values)
 
-#Wing weight distribution function
-def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_values)
-    
-    W_struc_func = (2 * mass_wing * grav_const)/(wing_span(tip_cord + root_cord)) * (root_cord + ((2*(tip_cord - root_cord))/wing_span) * y_values)
+# --- Fuel tanks ---
+def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values):
+    return (4 * mass_fuel * grav_const) / (0.19 * wing_span * (root_cord + cord_19)) * \
+           (root_cord + ((cord_19 - root_cord) / (0.19 * wing_span)) * y_values)
 
+def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_values):
+    return (4 * mass_fuel * grav_const) / (0.66 * wing_span * (cord_24 + cord_90)) * \
+           (cord_24 + ((cord_90 - cord_24) / (0.66 * wing_span)) * y_values)
 
-    return W_struc_func
+# --- Combined load array ---
+combined_loads = np.zeros_like(y_vals)
 
-# --- Fuel weight: Tank 1 and Tank 2 ---------------------
+# --- Structural load over full span ---
 
-def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values)
-    
-    W_fuel_tank_1_func = ((4*mass_fuel*grav_const)/(0.19 * wing_span * (root_cord + cord_19))) * (root_cord + (((cord_19 - root_cord)/0.19*wing_span) * y_values)) 
-    # Function from 0% of the half wingspan to 19% of the half wingspan, not to be used outside of this range
-    return W_fuel_tank_1_func
+combined_loads -= wing_weight_distribution(M_wing, g, b, C_t, C_r, y_vals)
 
-def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_values)
-    
-    W_fuel_tank_2_func = ((4*mass_fuel*grav_const)/(0.66 * wing_span * (cord_24 + cord_90))) * (cord_24 + (((cord_90 - cord_24)/0.66*wing_span) * y_values)) 
-    # Function from 24% of the half wingspan to 90% of the half wingspan, not to be used outside of this range
-    return W_fuel_tank_2_func
+# --- Tank 1 load (0% → 19%) ---
+y_t1 = y_vals[:i_19]                      # local y inside tank 1 region
+W_t1 = Fuel_distribution_tank_1(M_fuel_T1, g, b, C_r, C_19, y_t1)
+combined_loads[:i_19] -= W_t1
+
+# --- Tank 2 load (24% → 90%) ---
+# Shift y so Tank 2 formula sees y=0 at 24%
+y_t2_local = y_vals[i_24:i_90] - y_vals[i_24]
+W_t2 = Fuel_distribution_tank_2(M_fuel_T2, g, b, C_24, C_90, y_t2_local)
+
+combined_loads[i_24:i_90] -= W_t2
+
+# Spanwise segment for the gear
+y_gear = y_vals[i_19:i_24]                  # local y inside gear region
+gear_load_per_point = (M_main_gear * g )/ len(y_gear)
+
+# Add to combined load
+combined_loads[i_19:i_24] -= gear_load_per_point
+
+# combined_loads[i_24:i_90] +=  LIFT to be added
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
-S_vals_tip_to_root = cumulative_trapezoid(q_vals[::-1], y_vals[::-1], initial=0)
+S_vals_tip_to_root = cumulative_trapezoid(combined_loads[::-1], y_vals[::-1], initial=0)
 
 # Flip so that y increases from root → tip
 S_vals = S_vals_tip_to_root[::-1]
@@ -105,7 +150,7 @@ plt.figure(figsize=(10,10))
 
 # q(y)
 plt.subplot(3,1,1)
-plt.plot(y_vals, q_vals)
+plt.plot(y_vals, combined_loads)
 plt.xlabel("Spanwise position y [m]")
 plt.ylabel("q(y) [N/m]")
 plt.title("Distributed Load q(y)")
