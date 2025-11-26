@@ -11,7 +11,7 @@ from scipy import integrate, interpolate
 
 # Variables
 
-V_inf = 220  # Freestream velocity in m/s
+V_inf = 53  # Freestream velocity in m/s
 rho   = 1.225 # Air density in kg/m^3
 aoa_deg = 0.0   # Angle of attack in degrees
 
@@ -192,7 +192,7 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case, V_inf, rho):
 
     # 5. Torque density & torsion diagram:
     L_span = x_sorted[-1]
-    x_grid = np.linspace(0, L_span, 400)
+    x_grid = np.linspace(0, L_span, 500)
     w_T = torque_density_distribution(x_grid, q_func, d_func, t_func=t_func)
 
     x_rev = x_grid[::-1]
