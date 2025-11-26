@@ -262,6 +262,8 @@ if __name__ == "__main__":
             T_dist = res["T_dist"]
             T_total = res["T_total"]
 
+            print(x_grid)
+
             ax.plot(x_grid, T_dist, label="Distributed loads only")
             ax.plot(x_grid, T_total, label="With point forces/torques")
             ax.set_xlabel("Spanwise position x [m]")
