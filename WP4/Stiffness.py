@@ -140,9 +140,9 @@ q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 #_______TO BE REPLACED LATER__________________________________________
 M_root = 5e6  # N*m
-M_y = M_root * (1 - y / b)**2
+M_y = M_root * (1 - y / (b/2))**2
 T_root = 6e5  # N*m, realistic torsion for business jet wingbox
-T = T_root * (1 - y / b)**2
+T = T_root * (1 - y / (b/2))**2
 y_breaks = np.array([3, 5, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
 stringer_top_num = np.array([5, 4, 3]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
 stringer_bottom_num = np.array([5, 4, 3])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
@@ -154,9 +154,11 @@ string_top_interp = interp1d(y_breaks, stringer_top_num, kind="linear",
 string_bottom_interp = interp1d(y_breaks, stringer_bottom_num, kind="linear",
     fill_value="extrapolate")
 
-spar_list = [lambda y: -0.0128 * y + 0.4, 0.5 * b/2, 0.6] #0.5 is how much of the wing span the spar takes, 0.6 is how much of the chord it takes, measured from left side
+spar_list = [] #0.5 is how much of the wing span the spar takes, 0.6 is how much of the chord it takes, measured from left side
 
 def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list):
+    A = 0
+    circ = 0
     # I Moment of Inertia Calculations
     #neutral axis
     x_c = (h_rs ** 2 + h_fs ** 2 + h_fs * h_rs) / (3 * (h_rs + h_fs))
@@ -236,11 +238,13 @@ estimate_v, error_v = integrate.quad(slope, 0, b/2)
 # Twist
 estimate_th, error_th = integrate.quad(f_th, 0, b/2)
 
+'''
 print(estimate_v, error_v)
 print(estimate_th, error_th)
 print(m.degrees(estimate_th))
 print("I_xx:", I_xx)
 print("J:", J)
+'''
 
 
 ##______Output results________________________________________________________
@@ -267,12 +271,19 @@ def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord
         chord_length_at_y = root_chord + a * y_i
         c_upper = abs(box_coordinates[0][0] - box_coordinates[1][0]) * chord_length_at_y
         c_lower = m.sqrt((box_coordinates[2][0] - box_coordinates[3][0])**2 + (box_coordinates[2][1] - box_coordinates[3][1])**2) * chord_length_at_y
+        print(c_upper)
 
         I_xx_sym, J = stiffness_distribution(y_i, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list)
         I_xx = float(I_xx_sym.subs(y, y_i))
 
-        dv_dy2_array[i] = - M_root * (1 - y_i / b)**2 / (E * I_xx)
-        dtheta_dy_array[i] = T_root * (1 - y_i / b)**2 / (G * J)
+        # Make numeric functions from symbolic expressions
+        f_M = sp.lambdify(y, M_y, "numpy")
+        f_T = sp.lambdify(y, T, "numpy")
+
+        # Inside the loop over y_array
+        dv_dy2_array[i]   = - f_M(y_i) / (E * I_xx)
+        dtheta_dy_array[i] = f_T(y_i) / (G * J)
+    
 
     # Numerical integration using cumulative trapezoid
     v_array = np.cumsum((dv_dy2_array[:-1] + dv_dy2_array[1:]) / 2 * np.diff(y_array))
@@ -289,7 +300,8 @@ def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord
     plt.plot(y_array, np.degrees(theta_array), label="Twist (deg)")
     plt.xlabel("Spanwise position (m)")
     plt.ylabel("Twist")
+    plt.vlines(b/2, min(np.degrees(theta_array)), max(np.degrees(theta_array)), colors='r', linestyles='dashed', label='Wing Tip')
     plt.show()
 
 
-diagram_plotter(0.1, 0.6, 2.874, 1.043, b, 0.003, 0.2, spar_list, 30)
+diagram_plotter(0.1, 0.6, 2.874, 1.043, b, 0.003, 0.2, spar_list, 60)
