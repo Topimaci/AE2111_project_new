@@ -1,13 +1,16 @@
 import numpy as np
+import matplotlib
+matplotlib.use("Qt5Agg")    #so graph can be interactive in pycharm
 import matplotlib.pyplot as plt
 from XFLR import (
     y_span0, chord0, Ai0, Cl0, ICd0, Cm0,
     y_span10, chord10, Ai10, Cl10, ICd10, Cm10
 )
 import math as m
-import math as m
 from matplotlib.widgets import RadioButtons
 from scipy import integrate, interpolate
+from shear_centre_location import shear_center_non_dim
+
 
 # Variables
 
@@ -114,7 +117,7 @@ def distance_dx_calc(chord: np.ndarray,
     """
     chord = np.asarray(chord)
 
-    x_wb   = 0.5 * (ratio_frontspar + ratio_rearspar) * chord
+    x_wb   = shear_center_non_dim() * chord
     x_force = x_force_ratio * chord
 
     sweep_rad = np.deg2rad(sweep_deg)
@@ -176,7 +179,7 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case, V_inf, rho):
 
     L_total = total_from_line_load(y_span, L_prime)
     D_total = total_from_line_load(y_span, D_prime)
-    print(f"AoA={aoa_deg_case:>4.1f}°  Lift={L_total:,.1f} N   Drag={D_total:,.1f} N")
+    # print(f"AoA={aoa_deg_case:>4.1f}°  Lift={L_total:,.1f} N   Drag={D_total:,.1f} N")
 
     # 2. Normal force
     N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg_case)
@@ -230,7 +233,7 @@ def total_from_line_load(y, fprime):
     y_u, unique_idx = np.unique(y_s, return_index=True)
     f_u = f_s[unique_idx]
 
-    return np.trapz(f_u, y_u)  # N
+    return np.trapezoid(f_u, y_u)  # N
 
 
 if __name__ == "__main__":
@@ -262,7 +265,7 @@ if __name__ == "__main__":
             T_dist = res["T_dist"]
             T_total = res["T_total"]
 
-            print(x_grid)
+            # print(x_grid)
 
             ax.plot(x_grid, T_dist, label="Distributed loads only")
             ax.plot(x_grid, T_total, label="With point forces/torques")
@@ -291,7 +294,7 @@ if __name__ == "__main__":
     update_plot()
 
     # 4. Radio buttons voor plot-type
-    ax_radio_plot = plt.axes([0.05, 0.65, 0.25, 0.25])
+    ax_radio_plot = plt.axes((0.05, 0.65, 0.25, 0.25))
     plot_labels = ["Torque", "Line loads"]
     radio_plot = RadioButtons(ax_radio_plot, plot_labels)
 
@@ -303,7 +306,7 @@ if __name__ == "__main__":
     radio_plot.on_clicked(on_plot_change)
 
     # 5. Radio buttons voor situatie (AoA 0 / AoA 10)
-    ax_radio_case = plt.axes([0.05, 0.25, 0.25, 0.35])
+    ax_radio_case = plt.axes((0.05, 0.25, 0.25, 0.35))
     radio_case = RadioButtons(ax_radio_case, case_labels)
 
     def on_case_change(label):
