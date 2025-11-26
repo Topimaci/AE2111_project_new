@@ -247,8 +247,6 @@ if __name__ == "__main__":
 
     #return function
 
-    # Print the function
-    sp.pprint(torque_sym, use_unicode=True)
     # 2. UI state
     current_case_label = case_labels[0]   # start met AoA 0°
     current_plot_type = "Torque"          # of "Line loads"
