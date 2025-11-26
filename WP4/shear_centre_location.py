@@ -19,8 +19,8 @@ def inertia_moment_xx():
         y = (c_rear/2) + (c_rear/(2*a)) * s
         return t_web * y**2
 
-    integral_web, _ = quad(web_integrand, 0, a)
-    Ixx = (1/12) * t_front * c_front**3 + (1/12) * t_rear * c_rear**3 + 2 * integral_web
+    integral_web = quad(web_integrand, 0, a)
+    Ixx = (1/12) * t_front * c_front**3 + (1/12) * t_rear * c_rear**3 + 2 * integral_web[0]
     return Ixx
 
 
@@ -49,15 +49,15 @@ def shear_flow_const(v_y):
 def integrate_shear_flow_ob(v_y, Ixx, q_s):
     def integrand(s_a, v_y, Ixx, q_s):
         return (shear_flow_ob(v_y, Ixx, s_a) + q_s) * (x_rear - x_front)
-    result,_ = quad(integrand, 0, c_rear/2, args=(v_y, Ixx, q_s))
-    return result
+    result = quad(integrand, 0, c_rear/2, args=(v_y, Ixx, q_s))
+    return result[0]
 
 def integrate_shear_flow_ba(v_y, Ixx, q_s):
     def integrand(s_b, v_y, Ixx, q_s):
         moment_arm = c_front/2 * (x_rear - x_front)/a
         return (shear_flow_ba(v_y, Ixx, s_b) + q_s) * moment_arm
-    result,_ = quad(integrand, 0, a, args=(v_y, Ixx, q_s))
-    return result
+    result = quad(integrand, 0, a, args=(v_y, Ixx, q_s))
+    return result[0]
 
 # def integrate_shear_flow_ad(v_y, Ixx, q_s):
 #     def integrand(s_c, v_y, Ixx, q_s):
