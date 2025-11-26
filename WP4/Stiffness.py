@@ -153,7 +153,7 @@ string_top_interp = interp1d(y_breaks, stringer_top_num, kind="linear",
 string_bottom_interp = interp1d(y_breaks, stringer_bottom_num, kind="linear",
     fill_value="extrapolate")
 
-spar_list = [lambda y: -0.0128 * y + 0.4, 0.5 * b, 0.6] #0.5 is how much of the wing span the spar takes, 0.6 is how much of the chord it takes, measured from left side
+spar_list = [lambda y: -0.0128 * y + 0.4, 0.5 * b/2, 0.6] #0.5 is how much of the wing span the spar takes, 0.6 is how much of the chord it takes, measured from left side
 
 def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list):
     # I Moment of Inertia Calculations
@@ -191,7 +191,7 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
         I_total = I_step + I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
         a = spar_list[2]
         w = c_upper - a 
-        lefthand_matrix = np.array([[(2*w+2*a), -w, -2*a*w*G*t], [-w, 4*b, - 2*w**2*G*t], [2*a*w, 2 * w**2, 0]])
+        lefthand_matrix = np.array([[(2*w+2*a), -w, -2*a*w*G*t], [-w, 4*w, - 2*w**2*G*t], [2*a*w, 2 * w**2, 0]])
         righthand_matrix = np.array([0, 0, 1])
         solution = np.linalg.solve(lefthand_matrix, righthand_matrix)
         q1, q2, dtheta_dy = solution
@@ -222,10 +222,10 @@ def slope(Y):
     return integrate.quad(f_d2v, 0, Y)[0]
 
 # Deflection
-estimate_v, error_v = integrate.quad(slope, 0, b)
+estimate_v, error_v = integrate.quad(slope, 0, b/2)
 
 # Twist
-estimate_th, error_th = integrate.quad(f_th, 0, b)
+estimate_th, error_th = integrate.quad(f_th, 0, b/2)
 
 print(estimate_v, error_v)
 print(estimate_th, error_th)
