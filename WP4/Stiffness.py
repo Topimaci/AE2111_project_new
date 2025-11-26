@@ -154,11 +154,10 @@ string_top_interp = interp1d(y_breaks, stringer_top_num, kind="linear",
 string_bottom_interp = interp1d(y_breaks, stringer_bottom_num, kind="linear",
     fill_value="extrapolate")
 
-spar_list = [] #0.5 is how much of the wing span the spar takes, 0.6 is how much of the chord it takes, measured from left side
+spar_list = [lambda y: -0.0128 * y + 0.4, 0.3 * b/2, 0.1] #0.5 is how much of the wing span the spar takes, 0.6 is how much of the chord it takes, measured from left side
+#spar_list = [lambda y: 0, 0, 0]
 
 def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list):
-    A = 0
-    circ = 0
     # I Moment of Inertia Calculations
     #neutral axis
     x_c = (h_rs ** 2 + h_fs ** 2 + h_fs * h_rs) / (3 * (h_rs + h_fs))
@@ -192,7 +191,16 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
             i += 2  # move to next spar
         
         I_total = I_step + I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
-        a = spar_list[2]
+        '''
+        if not spar_list[1] == 0:
+            alpha = (((1 - spar_list[2]) * c_upper)/spar_list[1]) * y_pos * b/2
+            beta = (1 - spar_list[2]) * c_upper - alpha * spar_list[1]
+            a = c_upper - (alpha * y_pos * b/2 + beta)
+        else:
+            a = spar_list[2] * c_upper
+        '''
+        a = spar_list[2] * c_upper
+
         w = c_upper - a 
         A_1 = a * w
         A_2 = w * w
