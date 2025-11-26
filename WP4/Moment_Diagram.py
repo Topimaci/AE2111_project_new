@@ -34,6 +34,7 @@ rho   = 1.225 # Air density in kg/m^3
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
 M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
+M_main_gear = 1245.87 #mass main landing gear
 
 
 # --- Cord lengths ---------
