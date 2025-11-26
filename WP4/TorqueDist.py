@@ -11,14 +11,14 @@ from scipy import integrate, interpolate
 
 # Variables
 
-V_inf = 52.74  # Freestream velocity in m/s
+V_inf = 53  # Freestream velocity in m/s
 rho   = 1.225 # Air density in kg/m^3
 aoa_deg = 0.0   # Angle of attack in degrees
 
 
 def compute_lift_line_load(chord: np.ndarray,
                            Cl: np.ndarray,
-                           V_inf: float = 10.0,
+                           V_inf: float,
                            rho: float = 1.225) -> np.ndarray:
     """
     L'(y) = 0.5 * rho * V^2 * Cl(y) * c(y)
@@ -27,10 +27,10 @@ def compute_lift_line_load(chord: np.ndarray,
     L_prime = q_inf * chord * Cl
     return L_prime
 
-def compute_drag_line_load(chord: np.ndarray,
-                           ICd: np.ndarray,
-                           V_inf: float = 10.0,
-                           rho: float = 1.225) -> np.ndarray:
+def compute_drag_line_load(chord: np.ndarray, ICd: np.ndarray, V_inf: float, rho: float = 1.225) -> np.ndarray:
+    q_inf = 0.5 * rho * V_inf**2
+    return q_inf * chord * ICd
+
     """
     D'(y) = 0.5 * rho * V^2 * Cd(y) * c(y)
     """
@@ -62,66 +62,65 @@ def compute_section_moment_density(chord: np.ndarray,
     return M_prime
 
 def build_q_d_t_functions(y_span: np.ndarray,
-                      N_prime: np.ndarray,
-                      M_prime: np.ndarray,
-                      d0: float = 0.7):   #  m, distance from load to flexural axis / calculation point. <---  CHANGE THIS VALUE, THIS IS A DUMMY VALUE
+                          chord: np.ndarray,
+                          N_prime: np.ndarray,
+                          M_prime: np.ndarray,
+                          sweep_deg: float = 10.43,
+                          ratio_frontspar: float = 0.3,
+                          ratio_rearspar: float = 0.7,
+                          x_force_ratio: float = 0.25):
 
     mask = y_span >= 0.0
     y_half = y_span[mask]
     N_half = N_prime[mask]
-    M_half = M_prime[mask]   # q(x) = N'(y)
+    M_half = M_prime[mask]
+    c_half = chord[mask]
 
     x = y_half
     idx = np.argsort(x)
     x_sorted = x[idx]
 
-    q_sorted = N_half[idx]   # q(x) = N'(y)
-    M_sorted = M_half[idx]   # M'(y) from Cm
+    q_sorted = N_half[idx]
+    M_sorted = M_half[idx]
+    c_sorted = c_half[idx]
 
-    # 5. Interpolation of q(x) and d(x)
-    q_func = interpolate.interp1d(
-        x_sorted,
-        q_sorted,
-        kind="cubic",
-        fill_value="extrapolate"
+    q_func = interpolate.interp1d(x_sorted, q_sorted, kind="cubic",  fill_value="extrapolate")
+    t_func = interpolate.interp1d(x_sorted, M_sorted, kind="cubic",  fill_value="extrapolate")
+
+    # >>> hier komt jouw echte d(x)
+    dreal_sorted = distance_dx_calc(
+        c_sorted,
+        ratio_frontspar=ratio_frontspar,
+        ratio_rearspar=ratio_rearspar,
+        x_force_ratio=x_force_ratio,
+        sweep_deg=sweep_deg
     )
 
-    ### Variable d(x), from leading edge to mid wingbox
-
-    ratio_frontspar = 0.3     # ratio of chord where front spar is located
-    ratio_rearspar = 0.7      # ratio of chord where rear spar is located
-
-    d_centroid = (ratio_frontspar + (ratio_frontspar + ratio_rearspar) / 2.0) 
-    
-
-
-    d_false = np.full_like(x_sorted, d0)
-    d_func = interpolate.interp1d(
-        x_sorted,
-        d_false,
-        kind="linear",
-        fill_value="extrapolate"
-    )
-
-    t_func = interpolate.interp1d(
-        x_sorted,
-        M_sorted,
-        kind="cubic",
-        fill_value="extrapolate"
-    )
+    d_func = interpolate.interp1d(x_sorted, dreal_sorted, kind="linear", fill_value="extrapolate")
 
     return x_sorted, q_func, d_func, t_func
 
-def distance_dx_calc(chord, Cl, Cm):
-    # distance = 0.45*c − 0.25*c = 0.20*c
-    # 0.45 comes from middle of spars, 20% and 70% needs to be checked (0.45c from the LE)
-    # 0.25 comes from assumption that lift acts as a point force on the 0.25 c from the LE
-    #d_extra = Cm/Cl
-    dx = 0.45*chord - 0.25*chord 
-    sweep_deg = 10.43 #from WP3 sweep at quarter chord
-    sweep_rad = m.radians(sweep_deg)
-    dreal = dx * m.cos(sweep_rad)
+
+
+def distance_dx_calc(chord: np.ndarray,
+                     ratio_frontspar: float = 0.3,
+                     ratio_rearspar: float = 0.7,
+                     x_force_ratio: float = 0.25,
+                     sweep_deg: float = 10.43) -> np.ndarray:
+    """
+    dreal(x) = (x_wingbox - x_force) * cos(sweep)
+    x_wingbox = average position of front and rear spar
+    x_force   = position of aerodynamic force (25% chord)
+    """
+    chord = np.asarray(chord)
+
+    x_wb   = 0.5 * (ratio_frontspar + ratio_rearspar) * chord
+    x_force = x_force_ratio * chord
+
+    sweep_rad = np.deg2rad(sweep_deg)
+    dreal = (x_wb - x_force) * np.cos(sweep_rad)
     return dreal
+
 
 
 
@@ -170,13 +169,14 @@ def add_point_forces_and_torques(x_grid: np.ndarray,
     return T_total
 
 
-def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
-    """
-    Reken alles uit (L', D', N', T(x), etc.) voor één set XFLR-data.
-    """
+def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case, V_inf, rho):
     # 1. Lift & drag
     L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
     D_prime = compute_drag_line_load(chord, ICd, V_inf, rho)
+
+    L_total = total_from_line_load(y_span, L_prime)
+    D_total = total_from_line_load(y_span, D_prime)
+    print(f"AoA={aoa_deg_case:>4.1f}°  Lift={L_total:,.1f} N   Drag={D_total:,.1f} N")
 
     # 2. Normal force
     N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg_case)
@@ -186,39 +186,26 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
 
     # 4. q(x), d(x), t(x)
     x_sorted, q_func, d_func, t_func = build_q_d_t_functions(
-        y_span, N_prime, M_prime, d0=0.7
+        y_span=y_span, chord=chord, N_prime=N_prime, M_prime=M_prime,
+        sweep_deg=10.43, ratio_frontspar=0.3, ratio_rearspar=0.7, x_force_ratio=0.25
     )
 
-    # 5. Torque density w_T(x)
+    # 5. Torque density & torsion diagram:
     L_span = x_sorted[-1]
-    x_grid = np.linspace(0, L_span, 400)
+    x_grid = np.linspace(0, L_span, 500)
     w_T = torque_density_distribution(x_grid, q_func, d_func, t_func=t_func)
 
-    # 6. Torsie-diagram T(x)
     x_rev = x_grid[::-1]
     w_rev = w_T[::-1]
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
     T_dist = -T_rev[::-1]
 
-    # (optioneel) point loads hier verwerken:
-    point_forces = [
-        {'x': 1.84, 'P': 126.8*9.81, 'd': 0.473},  # Landing gear
-
-    ]
-
-    point_torques = [
-        #{'x': 1.84, 'T': -point_forces[0]['P']*point_forces[0]['d']},  # torque due to landing gear weight
-        {'x': 1.84, 'T': 0.5 * rho * V_inf**2*0.04905*(0.56/2)**2*m.pi*0.785}  # torque due to landing gear drag
+    # point loads...
+    point_forces = [{'x': 1.84, 'P': 126.8*9.81, 'd': 0.473}]
+    point_torques = [{'x': 1.84, 'T': 0.5 * rho * V_inf**2*0.04905*(0.56/2)**2*m.pi*0.785}]
     
-    ]
-    print(point_torques)
 
-
-    T_total = add_point_forces_and_torques(
-        x_grid, T_dist,
-        point_forces=point_forces,
-        point_torques=point_torques
-    )
+    T_total = add_point_forces_and_torques(x_grid, T_dist, point_forces, point_torques)
 
     return {
         "y_span": y_span,
@@ -227,17 +214,36 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
         "x_grid": x_grid,
         "T_dist": T_dist,
         "T_total": T_total,
+        "L_total": L_total,
+        "D_total": D_total,
     }
+
+
+
+
+def total_from_line_load(y, fprime):
+    y = np.asarray(y); fprime = np.asarray(fprime)
+    idx = np.argsort(y)
+    y_s = y[idx]; f_s = fprime[idx]
+
+    # voorkom issues bij dubbele y-waarden (bv. 0.0)
+    y_u, unique_idx = np.unique(y_s, return_index=True)
+    f_u = f_s[unique_idx]
+
+    return np.trapz(f_u, y_u)  # N
 
 
 if __name__ == "__main__":
 
     # 1. Reken beide situaties uit
     results = {
-        "AoA 0°":  compute_case(y_span0,  chord0,  Cl0,  ICd0,  Cm0,  0.0),
-        "AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0),
-    }
+        "AoA 0°":  compute_case(y_span0,  chord0,  Cl0,  ICd0,  Cm0,  0.0,  V_inf, rho),
+        "AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0, V_inf, rho),
+        }
+    
     case_labels = list(results.keys())
+
+    #return function
 
     # 2. UI state
     current_case_label = case_labels[0]   # start met AoA 0°
