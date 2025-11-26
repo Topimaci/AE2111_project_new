@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
-from XFLR import y_span, chord, Ai, Cl, ICd, Cm
+from XFLR import y_span, chord0, Ai, Cl, ICd, Cm
 
 from scipy.optimize import curve_fit
 
@@ -51,10 +51,10 @@ C_90 = cordlength(C_t, C_r, 0.9)
 
 # --- determining loading functions ----------------------------------------------------------------
 # --- Lift ---
-L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
-D_prime = compute_drag_line_load(chord, ICd, V_inf, rho)
+L_prime = compute_lift_line_load(chord0, Cl, V_inf, rho)
+D_prime = compute_drag_line_load(chord0, ICd, V_inf, rho)
 N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
-M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
+M_prime = compute_section_moment_density(chord0, Cm, V_inf, rho)
 y, q_func, d_func, t_func = build_q_d_t_functions(y_span, N_prime, M_prime)
 
 
