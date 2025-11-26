@@ -135,6 +135,7 @@ E = 71 * 10 ** 9    # Young's modulus
 G = 27 * 10 ** 9    # Shear modulus
 
 y = sp.symbols("y")
+q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 
 #_______TO BE REPLACED LATER__________________________________________
@@ -191,25 +192,19 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
         I_total = I_step + I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
         a = spar_list[2]
         w = c_upper - a 
-        A1 = a * w
-        A2 = w * w
+        A_1 = a * w
+        A_2 = w * w
+        M = sp.Matrix([
+        [2*w+2*a, -w, -2*A_1*G*t],
+        [-w, 4*w, -2*A_2*G*t],
+        [2*A_1, 2*A_2, 0]])
 
-        # Matrix rows (matching unknowns [q1, q2, dθ/dy])
-        row1 = [2.0 * A1, 2.0 * A2, 0.0]
+        rhs = sp.Matrix([1, 0, 0])
 
-        row2_q1 = (2.0 * w + a) / (2.0 * A1 * G * t)
-        row2_q2 = - w / (2.0 * A1 * G * t)
-        row2 = [row2_q1, row2_q2, -1.0]
+        solution = M.LUsolve(rhs)
 
-        row3_q1 = - w / (2.0 * A2 * G * t)
-        row3_q2 = (3.0 * w) / (2.0 * A2 * G * t)
-        row3 = [row3_q1, row3_q2, -1.0]
-
-        M = np.array([row1, row2, row3], dtype=float)
-        rhs = np.array([T, 0.0, 0.0], dtype=float)
-
-        q1, q2, dthdy = np.linalg.solve(M, rhs)
-        J = T / (G * dthdy)   # J = T/(G * dθ/dy)
+        q1, q2, dtheta_dy = solution
+        J = 1 / (G * dtheta_dy)
 
     else:
         I_total = I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
