@@ -279,7 +279,6 @@ def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord
         chord_length_at_y = root_chord + a * y_i
         c_upper = abs(box_coordinates[0][0] - box_coordinates[1][0]) * chord_length_at_y
         c_lower = m.sqrt((box_coordinates[2][0] - box_coordinates[3][0])**2 + (box_coordinates[2][1] - box_coordinates[3][1])**2) * chord_length_at_y
-        print(c_upper)
 
         I_xx_sym, J = stiffness_distribution(y_i, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list)
         I_xx = float(I_xx_sym.subs(y, y_i))
