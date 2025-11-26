@@ -38,7 +38,7 @@ W_main_gear = 1245.87 # Weight of a single main landing gear in N
 
 
 # --- Cord lengths ---------
-def cordlength(tip_cord, root_cord, fraction_half_span)
+def cordlength(tip_cord, root_cord, fraction_half_span):
     
     cord = fraction_half_span * (tip_cord - root_cord) + root_cord
 
@@ -66,7 +66,7 @@ q_vals = q_func(y_vals)
 # --- Wing weight --- 
 
 #Wing weight distribution function
-def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_values)
+def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_values):
     
     W_struc_func = (2 * mass_wing * grav_const)/(wing_span(tip_cord + root_cord)) * (root_cord + ((2*(tip_cord - root_cord))/wing_span) * y_values)
 
@@ -75,13 +75,13 @@ def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_co
 
 # --- Fuel weight: Tank 1 and Tank 2 ---------------------
 
-def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values)
+def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values):
     
     W_fuel_tank_1_func = ((4*mass_fuel*grav_const)/(0.19 * wing_span * (root_cord + cord_19))) * (root_cord + (((cord_19 - root_cord)/0.19*wing_span) * y_values)) 
     # Function from 0% of the half wingspan to 19% of the half wingspan, not to be used outside of this range
     return W_fuel_tank_1_func
 
-def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_values)
+def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_values):
     
     W_fuel_tank_2_func = ((4*mass_fuel*grav_const)/(0.66 * wing_span * (cord_24 + cord_90))) * (cord_24 + (((cord_90 - cord_24)/0.66*wing_span) * y_values)) 
     # Function from 24% of the half wingspan to 90% of the half wingspan, not to be used outside of this range
