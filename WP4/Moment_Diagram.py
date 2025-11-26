@@ -34,7 +34,7 @@ rho   = 1.225 # Air density in kg/m^3
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
 M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
-M_main_gear = 1245.87 #mass main landing gear
+M_main_gear = 1245.87
 
 
 # --- Cord lengths ---------
@@ -120,13 +120,18 @@ W_t2 = Fuel_distribution_tank_2(M_fuel_T2, g, b, C_24, C_90, y_t2_local)
 
 combined_loads[i_24:i_90] -= W_t2
 
+# Spanwise segment for the gear
+y_gear = y_vals[i_19:i_24]                  # local y inside gear region
+gear_load_per_point = M_main_gear * g / len(y_gear)
 
+# Add to combined load
+combined_loads[i_19:i_24] -= gear_load_per_point
 
-combined_loads[i_24:i_90] += L_prime
+# combined_loads[i_24:i_90] +=  LIFT to be added
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
-S_vals_tip_to_root = cumulative_trapezoid(q_vals[::-1], y_vals[::-1], initial=0)
+S_vals_tip_to_root = cumulative_trapezoid(combined_loads[::-1], y_vals[::-1], initial=0)
 
 # Flip so that y increases from root → tip
 S_vals = S_vals_tip_to_root[::-1]
