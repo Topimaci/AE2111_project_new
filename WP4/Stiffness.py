@@ -193,7 +193,7 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
         w = c_upper - a 
         A_1 = a * w 
         A_2 = w ** 2
-        lefthand_matrix = np.array([2*w+2*a, - w, -2*A_1*G*t], [-w, 4*w, -2*A_2*G*t], [2*A_1, 2*A_2, 0])
+        lefthand_matrix = np.array([[2*w+2*a, - w, -2*A_1*G*t], [-w, 4*w, -2*A_2*G*t], [2*A_1, 2*A_2, 0]])
         righthand_matrix = np.array([0, 0, 1])
         solution = np.linalg.solve(lefthand_matrix, righthand_matrix)
         q1, q2, dtheta_dy = solution
