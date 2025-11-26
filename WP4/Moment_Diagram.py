@@ -34,7 +34,7 @@ rho   = 1.225 # Air density in kg/m^3
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
 M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
-M_main_gear = 1245.87 #mass of landing gear (already accounted for there being two weight split half per wing (already halved))
+W_main_gear = 1245.87 #weight of landing gear (already accounted for there being two weight split half per wing (already halved))
 
 
 # --- Cord lengths ---------
@@ -111,23 +111,23 @@ combined_loads -= wing_weight_distribution(M_wing, g, b, C_t, C_r, y_vals)
 # --- Tank 1 load (0% → 19%) ---
 y_t1 = y_vals[:i_19]                      # local y inside tank 1 region
 W_t1 = Fuel_distribution_tank_1(M_fuel_T1, g, b, C_r, C_19, y_t1)
-combined_loads[:i_19] -= W_t1
+#combined_loads[:i_19] -= W_t1
 
 # --- Tank 2 load (24% → 90%) ---
 # Shift y so Tank 2 formula sees y=0 at 24%
 y_t2_local = y_vals[i_24:i_90] - y_vals[i_24]
 W_t2 = Fuel_distribution_tank_2(M_fuel_T2, g, b, C_24, C_90, y_t2_local)
 
-combined_loads[i_24:i_90] -= W_t2
+#combined_loads[i_24:i_90] -= W_t2
 
 # Spanwise segment for the gear
 y_gear = y_vals[i_19:i_24]                  # local y inside gear region
-gear_load_per_point = (M_main_gear * g )/ len(y_gear)
+gear_load_per_point = (W_main_gear )/ len(y_gear)
 
 # Add to combined load
 combined_loads[i_19:i_24] -= gear_load_per_point
 
-# combined_loads[i_24:i_90] +=  LIFT to be added
+#combined_loads[i_24:i_90] +=  L_prime
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
