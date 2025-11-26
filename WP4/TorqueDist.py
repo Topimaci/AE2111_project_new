@@ -61,15 +61,27 @@ def compute_section_moment_density(chord: np.ndarray,
     M_prime = Cm * q_inf * chord**2
     return M_prime
 
+def distance_dx_calc(chord, Cl, Cm):
+    # distance = 0.45*c − 0.25*c = 0.20*c
+    # 0.45 comes from middle of spars, 20% and 70% needs to be checked (0.45c from the LE)
+    # 0.25 comes from assumption that lift acts as a point force on the 0.25 c from the LE
+    #d_extra = Cm/Cl
+    dx = 0.45*chord - 0.25*chord 
+    sweep_deg = 10.43 #from WP3 sweep at quarter chord
+    sweep_rad = m.radians(sweep_deg)
+    dreal = dx * m.cos(sweep_rad)
+    return dreal
+
 def build_q_d_t_functions(y_span: np.ndarray,
                       N_prime: np.ndarray,
                       M_prime: np.ndarray,
-                      d0: float = 0.7):   #  m, distance from load to flexural axis / calculation point. <---  CHANGE THIS VALUE, THIS IS A DUMMY VALUE
+                      d_array: np.ndarray):   #  m, distance from load to flexural axis / calculation point. <---  CHANGE THIS VALUE, THIS IS A DUMMY VALUE
 
     mask = y_span >= 0.0
     y_half = y_span[mask]
     N_half = N_prime[mask]
     M_half = M_prime[mask]   # q(x) = N'(y)
+    d_half = d_array[mask]
 
     x = y_half
     idx = np.argsort(x)
@@ -77,6 +89,7 @@ def build_q_d_t_functions(y_span: np.ndarray,
 
     q_sorted = N_half[idx]   # q(x) = N'(y)
     M_sorted = M_half[idx]   # M'(y) from Cm
+    d_sorted = d_half[idx]
 
     # 5. Interpolation of q(x) and d(x)
     q_func = interpolate.interp1d(
@@ -87,11 +100,9 @@ def build_q_d_t_functions(y_span: np.ndarray,
     )
 
 
-
-    d_false = np.full_like(x_sorted, d0)
     d_func = interpolate.interp1d(
         x_sorted,
-        d_false,
+        d_sorted,
         kind="linear",
         fill_value="extrapolate"
     )
@@ -105,16 +116,7 @@ def build_q_d_t_functions(y_span: np.ndarray,
 
     return x_sorted, q_func, d_func, t_func
 
-def distance_dx_calc(chord, Cl, Cm):
-    # distance = 0.45*c − 0.25*c = 0.20*c
-    # 0.45 comes from middle of spars, 20% and 70% needs to be checked (0.45c from the LE)
-    # 0.25 comes from assumption that lift acts as a point force on the 0.25 c from the LE
-    #d_extra = Cm/Cl
-    dx = 0.45*chord - 0.25*chord 
-    sweep_deg = 10.43 #from WP3 sweep at quarter chord
-    sweep_rad = m.radians(sweep_deg)
-    dreal = dx * m.cos(sweep_rad)
-    return dreal
+
 
 
 
@@ -155,11 +157,8 @@ def add_point_forces_and_torques(x_grid: np.ndarray,
             xT = pt['x']
             T_mag = pt['T']
             T_total += T_mag * (x_grid <= xT)
-
-    safety_zone = (x_grid >= 0.0) & (x_grid <= 0.78)
-    T_total[safety_zone] *= 2.8
-
-
+        safety_zone = (x_grid >= 0.0) & (x_grid <= 0.78)
+        T_total[safety_zone] *= 2.8
     return T_total
 
 
@@ -177,9 +176,12 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case):
     # 3. Section moment density
     M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
 
+    # Distance from load to flexural axis / calculation point
+    dreal = distance_dx_calc(chord, Cl, Cm)
+
     # 4. q(x), d(x), t(x)
     x_sorted, q_func, d_func, t_func = build_q_d_t_functions(
-        y_span, N_prime, M_prime, d0=0.7
+        y_span, N_prime, M_prime, dreal
     )
 
     # 5. Torque density w_T(x)
