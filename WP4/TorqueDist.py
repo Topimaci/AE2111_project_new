@@ -87,7 +87,7 @@ def build_q_d_t_functions(y_span: np.ndarray,
     q_func = interpolate.interp1d(x_sorted, q_sorted, kind="cubic",  fill_value="extrapolate")
     t_func = interpolate.interp1d(x_sorted, M_sorted, kind="cubic",  fill_value="extrapolate")
 
-    # >>> hier komt jouw echte d(x)
+    
     dreal_sorted = distance_dx_calc(
         c_sorted,
         ratio_frontspar=ratio_frontspar,
