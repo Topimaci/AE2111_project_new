@@ -31,9 +31,6 @@ def compute_lift_line_load(chord: np.ndarray,
     return L_prime
 
 def compute_drag_line_load(chord: np.ndarray, ICd: np.ndarray, V_inf: float, rho: float = 1.225) -> np.ndarray:
-    q_inf = 0.5 * rho * V_inf**2
-    return q_inf * chord * ICd
-
     """
     D'(y) = 0.5 * rho * V^2 * Cd(y) * c(y)
     """
