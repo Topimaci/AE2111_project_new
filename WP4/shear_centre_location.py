@@ -15,7 +15,6 @@ t_front = 10
 t_rear  = 10
 t_web   = 10
 
-
 #input to check if code is correct
 #chord = 1
 # x_front = 0
@@ -29,6 +28,7 @@ t_web   = 10
 
 
 # Diagonal web length
+
 a = math.sqrt((x_rear - x_front)**2 + ((c_front - c_rear)/2)**2)
 
 #Second moment of area of the section about x-axis is given by
