@@ -38,62 +38,62 @@ def inertia_moment_xx():
         return t_web * y**2
 
     integral_web = quad(web_integrand, 0, a)
-    Ixx = (1/12) * t_front * c_front**3 + (1/12) * t_rear * c_rear**3 + 2 * integral_web[0]
-    return Ixx
+    i_xx = (1/12) * t_front * c_front**3 + (1/12) * t_rear * c_rear**3 + 2 * integral_web[0]
+    return i_xx
 
 #We now obtain the q_b shear flow distribution by 'cutting' the beam section at the mid-point O of the wall CB. Thus, since y=s_a we have
-def shear_flow_ob(v_y, Ixx, s_a):
-    return -v_y / Ixx * t_rear * s_a**2 / 2
+def shear_flow_ob(v_y, i_xx, s_a):
+    return -v_y / i_xx * t_rear * s_a**2 / 2
 
 #For the wall BA where y = c_rear/2 + c_rear * s_b / (2a)
-def shear_flow_ba(v_y, Ixx, s_b):
-    return -v_y / Ixx * (t_web * c_rear * (s_b/2 + s_b**2 / (4*a)) + 0.125 * t_rear * c_rear**2)
+def shear_flow_ba(v_y, i_xx, s_b):
+    return -v_y / i_xx * (t_web * c_rear * (s_b/2 + s_b**2 / (4*a)) + 0.125 * t_rear * c_rear**2)
 
 #In the wall AD, y = c_front/2 - s_c so that
-def shear_flow_ad(v_y, Ixx, s_c):
-    return -v_y / Ixx * (t_front * (c_front * s_c /2 - s_c**2 / 2) + (3/4 * t_web * c_rear * a + 0.125 * t_rear * c_rear**2))
+def shear_flow_ad(v_y, i_xx, s_c):
+    return -v_y / i_xx * (t_front * (c_front * s_c /2 - s_c**2 / 2) + (3/4 * t_web * c_rear * a + 0.125 * t_rear * c_rear**2))
 
 
 def shear_flow_const(v_y):
-    Ixx = inertia_moment_xx()
+    ixx = inertia_moment_xx()
 
     line_integral = c_front / t_front + 2 * a / t_web + c_rear / t_rear
 
     #integral along OB
-    def integrand_ob(s_a, v_y, Ixx):
-        q_b = shear_flow_ob(v_y, Ixx, s_a)
+    def integrand_ob(s_a, vy, i_xx):
+        q_b = shear_flow_ob(vy, i_xx, s_a)
         return q_b / t_rear
 
-    integral_ob = quad(integrand_ob, 0, c_rear / 2, args=(v_y, Ixx))[0]
+    integral_ob = quad(integrand_ob, 0, c_rear / 2, args=(v_y, ixx))[0]
 
     #integral along BA
-    def integrand_ba(s_b, v_y, Ixx):
-        q_b = shear_flow_ba(v_y, Ixx, s_b)
+    def integrand_ba(s_b, vy, i_xx):
+        q_b = shear_flow_ba(vy, i_xx, s_b)
         return q_b / t_web
 
-    integral_ba = quad(integrand_ba, 0, a, args=(v_y, Ixx))[0]
+    integral_ba = quad(integrand_ba, 0, a, args=(v_y, ixx))[0]
 
     #integral along AD
-    def integrand_ad(s_c, v_y, Ixx):
-        q_b = shear_flow_ad(v_y, Ixx, s_c)
+    def integrand_ad(s_c, vy, i_xx):
+        q_b = shear_flow_ad(vy, i_xx, s_c)
         return q_b / t_front
 
-    integral_ad = quad(integrand_ad, 0, c_front / 2, args=(v_y, Ixx))[0]
+    integral_ad = quad(integrand_ad, 0, c_front / 2, args=(v_y, ixx))[0]
 
     return -2 / line_integral * (integral_ad + integral_ba + integral_ob)
 
-def integrate_shear_flow_ob(v_y, Ixx, q_s):
-    def integrand(s_a, v_y, Ixx, q_s):
+def integrate_shear_flow_ob(v_y, i_xx, q_s):
+    def integrand(s_a, vy, ixx, qs):
         moment_arm = x_rear - x_front
-        return (shear_flow_ob(v_y, Ixx, s_a) + q_s) * moment_arm
-    result = quad(integrand, 0, c_rear/2, args=(v_y, Ixx, q_s))
+        return (shear_flow_ob(vy, ixx, s_a) + qs) * moment_arm
+    result = quad(integrand, 0, c_rear/2, args=(v_y, i_xx, q_s))
     return result[0]
 
-def integrate_shear_flow_ba(v_y, Ixx, q_s):
-    def integrand(s_b, v_y, Ixx, q_s):
+def integrate_shear_flow_ba(v_y, i_xx, q_s):
+    def integrand(s_b, vy, ixx, qs):
         moment_arm = c_front/2 * (x_rear - x_front)/a
-        return (shear_flow_ba(v_y, Ixx, s_b) + q_s) * moment_arm
-    result = quad(integrand, 0, a, args=(v_y, Ixx, q_s))
+        return (shear_flow_ba(vy, ixx, s_b) + qs) * moment_arm
+    result = quad(integrand, 0, a, args=(v_y, i_xx, q_s))
     return result[0]
 
 # def integrate_shear_flow_ad(v_y, Ixx, q_s):
@@ -104,11 +104,11 @@ def integrate_shear_flow_ba(v_y, Ixx, q_s):
 
 
 def shear_center_non_dim(v_y=1.0):
-    Ixx = inertia_moment_xx()
+    i_xx = inertia_moment_xx()
     q_s0 = shear_flow_const(v_y)
 
-    M_ob = integrate_shear_flow_ob(v_y, Ixx, q_s0)
-    M_ba = integrate_shear_flow_ba(v_y, Ixx, q_s0)
+    m_ob = integrate_shear_flow_ob(v_y, i_xx, q_s0)
+    m_ba = integrate_shear_flow_ba(v_y, i_xx, q_s0)
 
-    ksi = 2 * (M_ob + M_ba) / v_y
+    ksi = 2 * (m_ob + m_ba) / v_y
     return (ksi + x_front) / chord
