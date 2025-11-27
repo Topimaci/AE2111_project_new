@@ -6,14 +6,14 @@ from scipy.integrate import quad
 #horizontal axis is symmetry axis
 
 chord   = 1000
-x_front = 0.33 * chord
-x_rear  = 0.75 * chord
+x_front = 0.2 * chord
+x_rear  = 0.7 * chord
 c_front = 0.1205 * chord
 c_rear  = 0.0783 * chord
 
 t_front = 10
 t_rear  = 10
-t_web   = 10
+t_skin   = 10
 
 #input to check if code is correct
 #chord = 1
@@ -35,7 +35,7 @@ a = math.sqrt((x_rear - x_front)**2 + ((c_front - c_rear)/2)**2)
 def inertia_moment_xx():
     def web_integrand(s):
         y = (c_rear/2) + (c_rear/(2*a)) * s
-        return t_web * y**2
+        return t_skin * y**2
 
     integral_web = quad(web_integrand, 0, a)
     i_xx = (1/12) * t_front * c_front**3 + (1/12) * t_rear * c_rear**3 + 2 * integral_web[0]
@@ -47,17 +47,17 @@ def shear_flow_ob(v_y, i_xx, s_a):
 
 #For the wall BA where y = c_rear/2 + c_rear * s_b / (2a)
 def shear_flow_ba(v_y, i_xx, s_b):
-    return -v_y / i_xx * (t_web * c_rear * (s_b/2 + s_b**2 / (4*a)) + 0.125 * t_rear * c_rear**2)
+    return -v_y / i_xx * (t_skin * c_rear * (s_b / 2 + s_b ** 2 / (4 * a)) + 0.125 * t_rear * c_rear ** 2)
 
 #In the wall AD, y = c_front/2 - s_c so that
 def shear_flow_ad(v_y, i_xx, s_c):
-    return -v_y / i_xx * (t_front * (c_front * s_c /2 - s_c**2 / 2) + (3/4 * t_web * c_rear * a + 0.125 * t_rear * c_rear**2))
+    return -v_y / i_xx * (t_front * (c_front * s_c /2 - s_c**2 / 2) + (3 / 4 * t_skin * c_rear * a + 0.125 * t_rear * c_rear ** 2))
 
 
 def shear_flow_const(v_y):
     ixx = inertia_moment_xx()
 
-    line_integral = c_front / t_front + 2 * a / t_web + c_rear / t_rear
+    line_integral = c_front / t_front + 2 * a / t_skin + c_rear / t_rear
 
     #integral along OB
     def integrand_ob(s_a, vy, i_xx):
@@ -69,7 +69,7 @@ def shear_flow_const(v_y):
     #integral along BA
     def integrand_ba(s_b, vy, i_xx):
         q_b = shear_flow_ba(vy, i_xx, s_b)
-        return q_b / t_web
+        return q_b / t_skin
 
     integral_ba = quad(integrand_ba, 0, a, args=(v_y, ixx))[0]
 
@@ -112,3 +112,5 @@ def shear_center_non_dim(v_y=1.0):
 
     ksi = 2 * (m_ob + m_ba) / v_y
     return (ksi + x_front) / chord
+
+
