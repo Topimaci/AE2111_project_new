@@ -30,7 +30,7 @@ Cm     = Cm0
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", category=UserWarning)
     data10 = np.genfromtxt(
-        "data/angleofattack10.txt",
+        "WP4/data/angleofattack10.txt",
         skip_header=21,
         skip_footer=60,
         invalid_raise=False

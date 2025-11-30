@@ -2,6 +2,7 @@ import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
 from XFLR import y_span, chord0, Ai, Cl, ICd, Cm
+from XFLR import y_span10, chord10, Ai10, Cl10, ICd10, Cm10
 
 from scipy.optimize import curve_fit
 
@@ -16,6 +17,7 @@ from TorqueDist import build_q_d_t_functions
 from TorqueDist import compute_normal_force_distribution
 from TorqueDist import compute_drag_line_load
 from TorqueDist import compute_section_moment_density
+
 
 # --- Variables ---
 #Wing
@@ -37,6 +39,7 @@ M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
 W_main_gear = 1245.87 #weight of landing gear (already accounted for there being two weight split half per wing (already halved))
 
 
+
 # --- Cord lengths ---------
 def cordlength(tip_cord, root_cord, fraction_half_span):
     
@@ -49,8 +52,9 @@ C_24 = cordlength(C_t, C_r, 0.24)
 C_90 = cordlength(C_t, C_r, 0.9)
 
 
+
 # --- determining loading functions ----------------------------------------------------------------
-# --- Lift ---
+
 
 L_prime = compute_lift_line_load(chord0, Cl, V_inf, rho)
 D_prime = compute_drag_line_load(chord0, ICd, V_inf, rho)
@@ -58,24 +62,64 @@ N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
 M_prime = compute_section_moment_density(chord0, Cm, V_inf, rho)
 y, q_func, d_func, t_func = build_q_d_t_functions(y_span, chord0, N_prime, M_prime, 10.43, 0.3, 0.7, 0.25)
 
+n = len(Cl)
+y_tip = y_span[n//2:]        # last half of spanwise locations
+Cl_tip = Cl[n//2:]           # corresponding Cl
+chord_tip = chord0[n//2:]     # corresponding chord lengths
 
-L_prime_pos = L_prime[19:]
-y_span_pos = y_span[19:]
+""" To produce NVM for AOA 10 degrees, uncomment THIS!
+# --- FOR AOA 10!!!!---- 
+L_prime = compute_lift_line_load(chord10, Cl10, V_inf, rho)
+D_prime = compute_drag_line_load(chord10, ICd10, V_inf, rho)
+N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg=10.0)
+M_prime = compute_section_moment_density(chord10, Cm10, V_inf, rho)
+y, q_func, d_func, t_func = build_q_d_t_functions(y_span10, chord10, N_prime, M_prime, 10.43, 0.3, 0.7, 0.25)
+#ALSO for AOA 10!!! 
+n = len(Cl10)
+y_tip = y_span10[n//2:]        # last half of spanwise locations
+Cl_tip = Cl10[n//2:]           # corresponding Cl
+chord_tip = chord10[n//2:]     # corresponding chord lengths
+"""
 
-L_interp = interp1d(y_span_pos, L_prime_pos, kind='cubic')
+# --- Interpolating to 500 points ---
+n_points = 500
+y_interp = np.linspace(y_tip.min(), y_tip.max(), n_points)
+Cl_interp = np.interp(y_interp, y_tip, Cl_tip)
+chord_interp = np.interp(y_interp, y_tip, chord_tip)
 
-L_prime_500 = L_interp(np.linspace(y_span_pos[0], y_span_pos[-1], 500))
+# --- Lift line load function I just copied Caia's---
+def compute_lift_line_load(chord: np.ndarray,
+                           Cl: np.ndarray,
+                           V_inf: float,
+                           rho: float = 1.225) -> np.ndarray:
+    """
+    Computes spanwise lift per unit length:
+        L'(y) = 0.5 * rho * V^2 * Cl(y) * c(y)
+    """
+    q_inf = 0.5 * rho * V_inf**2
+    return q_inf * chord * Cl
 
+# --- Compute L'(y) for the tip half ---
+V_inf = 50  # freestream velocity [m/s]
+L_prime = compute_lift_line_load(chord_interp, Cl_interp, V_inf)
 
+"""# --- Plotting the lift distribution to check if sensical---
+plt.plot(y_interp, L_prime)
+plt.xlabel("Spanwise position y [m]")
+plt.ylabel("Lift per unit span L' [N/m]")
+plt.title("Spanwise Lift Distribution (Tip Half)")
+plt.grid(True)
+plt.show()
+"""
 
 # --- Create grid ---
 y_vals = np.linspace(0, b_half, 500)
-N = len(y_vals)
+N = len(y_vals) # we choose this to be 500
 
 # --- Index boundaries ---
-i_19 = int(0.19 * N)   # Tank 1:   0% → 19%
+i_19 = int(0.19 * N)   # Tank 1:   0% → 19%, what this does it returns an index position for what 19% would be.
 i_24 = int(0.24 * N)   # Tank 2:  24% → 90%
-i_90 = int(0.90 * N)
+i_90 = int(0.90 * N) 
 
 # --- q(y) ---
 q_vals = q_func(y_vals)
@@ -120,7 +164,8 @@ gear_load_per_point = (W_main_gear )/ 0.4896
 # Add to combined load
 combined_loads[i_19:i_24] -= gear_load_per_point
 
-combined_loads[i_24:i_90] +=  L_prime_500
+
+combined_loads[:] += L_prime
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
