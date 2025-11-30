@@ -5,7 +5,7 @@ import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", category=UserWarning)
     data0 = np.genfromtxt(
-        "data/angleofattack0.txt",
+        "WP4/data/angleofattack0.txt",
         skip_header=21,
         skip_footer=60,
         invalid_raise=False
