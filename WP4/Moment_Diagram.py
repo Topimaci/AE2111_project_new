@@ -67,7 +67,7 @@ y_tip = y_span[n//2:]        # last half of spanwise locations
 Cl_tip = Cl[n//2:]           # corresponding Cl
 chord_tip = chord0[n//2:]     # corresponding chord lengths
 
-""" To produce NVM for AOA 10 degrees, uncomment THIS!
+#"""To produce NVM for AOA 10 degrees, uncomment THIS!
 # --- FOR AOA 10!!!!---- 
 L_prime = compute_lift_line_load(chord10, Cl10, V_inf, rho)
 D_prime = compute_drag_line_load(chord10, ICd10, V_inf, rho)
@@ -79,7 +79,7 @@ n = len(Cl10)
 y_tip = y_span10[n//2:]        # last half of spanwise locations
 Cl_tip = Cl10[n//2:]           # corresponding Cl
 chord_tip = chord10[n//2:]     # corresponding chord lengths
-"""
+#"""
 
 # --- Interpolating to 500 points ---
 n_points = 500
