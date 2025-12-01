@@ -15,9 +15,9 @@ from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 
 # Variables
 
-V_inf = 53  # Freestream velocity in m/s
-rho   = 1.225 # Air density in kg/m^3
-aoa_deg = 0  # Angle of attack in degrees
+V_inf = 200.736  # Freestream velocity in m/s
+rho   = 0.3662 # Air density in kg/m^3
+aoa_deg = 0.0   # Angle of attack in degrees
 
 
 def compute_lift_line_load(chord: np.ndarray,
