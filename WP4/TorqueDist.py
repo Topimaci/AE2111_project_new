@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("Qt5Agg")    #so graph can be interactive in pycharm
 import matplotlib.pyplot as plt
+from matplotlib.widgets import RadioButtons, Slider
 from XFLR import (
     y_span0, chord0, Ai0, Cl0, ICd0, Cm0,
     y_span10, chord10, Ai10, Cl10, ICd10, Cm10
@@ -17,7 +18,7 @@ from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 
 V_inf = 200.736  # Freestream velocity in m/s
 rho   = 0.3662 # Air density in kg/m^3
-aoa_deg = 0.0   # Angle of attack in degrees
+aoa_deg = 1.75   # Angle of attack in degrees
 
 
 def compute_lift_line_load(chord: np.ndarray,
@@ -286,65 +287,54 @@ def total_from_line_load(y, fprime):
 
 if __name__ == "__main__":
 
-    # 1. Reken beide situaties uit
-    results = {
-        f"AoA {aoa_deg}":  compute_case(y_span0,  chord0,  Cl0, Cl10, aoa_deg,  ICd0, ICd10, Cm0, Cm10, V_inf, rho)
-       # ,"AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0, V_inf, rho),
-        }
-
-    case_labels = list(results.keys())
-
-    #return function
-
-    # 2. UI state
-    current_case_label = case_labels[0]   # start met AoA 0°
-    current_plot_type = "Torque"          # of "Line loads"
+    current_plot_type = "Torque"
 
     fig, ax = plt.subplots()
-    plt.subplots_adjust(left=0.35)  # ruimte voor twee radio panels
+    plt.subplots_adjust(left=0.35, bottom=0.15)
 
-    # 3. Plotfunctie gebruikt huidige case + plot-type
-    def update_plot():
+    # --- Slider: AoA ---
+    ax_aoa = plt.axes((0.35, 0.05, 0.6, 0.03))
+    aoa_slider = Slider(ax_aoa, "AoA [deg]", 0.0, 10.0, valinit=aoa_deg, valstep=0.05)
+
+    def update_plot(_=None):
         ax.clear()
-        res = results[current_case_label]
+        aoa_now = aoa_slider.val
+
+        res = compute_case(
+            y_span0, chord0,
+            Cl0, Cl10,
+            aoa_now,
+            ICd0, ICd10,
+            Cm0, Cm10,
+            V_inf, rho
+        )
 
         if current_plot_type == "Torque":
-            x_grid = res["x_grid"]
-            T_dist = res["T_dist"]
-            T_total = res["T_total"]
-
-            # print(x_grid)
-
-            ax.plot(x_grid, T_dist, label="Distributed loads only")
-            ax.plot(x_grid, T_total, label="With point forces/torques")
+            ax.plot(res["x_grid"], res["T_dist"], label="Distributed loads only")
+            ax.plot(res["x_grid"], res["T_total"], label="With point forces/torques")
             ax.set_xlabel("Spanwise position x [m]")
             ax.set_ylabel("Torque T(x) [Nm]")
-            ax.set_title(f"Torque diagram ({current_case_label})")
-            ax.grid(True)
-            ax.legend()
-
-        elif current_plot_type == "Line loads":
-            y_span  = res["y_span"]
-            L_prime = res["L_prime"]
-            D_prime = res["D_prime"]
-
-            ax.plot(y_span, L_prime, label="Lift line load L'(y)")
-            ax.plot(y_span, D_prime, label="Drag line load D'(y)")
+            ax.set_title(f"Torque diagram (AoA = {aoa_now:.2f}°)")
+        else:
+            ax.plot(res["y_span"], res["L_prime"], label="Lift line load L'(y)")
+            ax.plot(res["y_span"], res["D_prime"], label="Drag line load D'(y)")
             ax.set_xlabel("Spanwise position y [m]")
             ax.set_ylabel("Line load [N/m]")
-            ax.set_title(f"Aerodynamic line loads ({current_case_label})")
-            ax.grid(True)
-            ax.legend()
+            ax.set_title(f"Aerodynamic line loads (AoA = {aoa_now:.2f}°)")
 
+        ax.grid(True)
+        ax.legend()
         fig.canvas.draw_idle()
 
-    # eerste keer tekenen
-    update_plot()
+    # Slider updates
+    aoa_slider.on_changed(update_plot)
 
-    # 4. Radio buttons voor plot-type
+    # --- Radio buttons: plot type ---
     ax_radio_plot = plt.axes((0.05, 0.65, 0.25, 0.25))
-    plot_labels = ["Torque", "Line loads"]
-    radio_plot = RadioButtons(ax_radio_plot, plot_labels)
+    radio_plot = RadioButtons(ax_radio_plot, ["Torque", "Line loads"])
+
+    def on_plot_change(label):
+        nonlocal_plot_type = label  # avoid "global" mess? not possible in this scope
 
     def on_plot_change(label):
         global current_plot_type
@@ -353,16 +343,8 @@ if __name__ == "__main__":
 
     radio_plot.on_clicked(on_plot_change)
 
-    # 5. Radio buttons voor situatie (AoA 0 / AoA 10)
-    ax_radio_case = plt.axes((0.05, 0.25, 0.25, 0.35))
-    radio_case = RadioButtons(ax_radio_case, case_labels)
+    # initial draw
+    update_plot()
 
-    def on_case_change(label):
-        global current_case_label
-        current_case_label = label
-        update_plot()
-
-    radio_case.on_clicked(on_case_change)
-
-    # 6. Show UI
     plt.show()
+
