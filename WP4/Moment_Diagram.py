@@ -25,8 +25,8 @@ aoa_deg =0.0   # Angle of attack in degrees
 
 #conditions
 g = 9.81 # Gravitational constant m/s^2
-V_inf = 50.0  # Freestream velocity in m/s
-rho   = 1.225 # Air density in kg/m^3
+V_inf = 200.736  # Freestream velocity in m/s
+rho   = 0.3662 # Air density in kg/m^3
 
 #Mass
 M_wing = 932.9 # mass of the wing in kg
@@ -59,7 +59,9 @@ y_tip = y_span[n//2:]        # last half of spanwise locations
 Cl0_tip = Cl0[n//2:] 
 Cl10_tip = Cl10[n//2:] 
 ICd0_tip = ICd[n//2:]  
-ICd10_tip = ICd10[n//2:]         # corresponding Cl
+ICd10_tip = ICd10[n//2:] 
+Cm0_tip = Cm0[n//2:]  
+Cm10_tip = Cm10[n//2:]          # corresponding Cl
 chord_tip = chord0[n//2:]     # corresponding chord lengths
 
 """To produce NVM for AOA 10 degrees, uncomment THIS!
@@ -83,6 +85,8 @@ Cl0_interp = np.interp(y_interp, y_tip, Cl0_tip)
 Cl10_interp = np.interp(y_interp, y_tip, Cl10_tip)
 ICd0_interp = np.interp(y_interp, y_tip, ICd0_tip)
 ICd10_interp = np.interp(y_interp, y_tip, ICd10_tip)
+Cm0_interp = np.interp(y_interp, y_tip, Cm0_tip)
+Cm10_interp = np.interp(y_interp, y_tip, Cm10_tip)
 chord_interp = np.interp(y_interp, y_tip, chord_tip)
 
 # --- Lift line load function I just copied Caia's---
@@ -147,7 +151,7 @@ def compute_section_moment_density(chord: np.ndarray,
 # --- Compute L'(y) for the tip half ---
   # freestream velocity [m/s]
 N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
-M_prime = compute_section_moment_density(chord0, Cm0, Cm10, aoa_deg, V_inf, rho)
+M_prime = compute_section_moment_density(chord_interp, Cm0_interp, Cm10_interp, aoa_deg, V_inf, rho)
 
 
 
@@ -213,7 +217,7 @@ def distance_dx_calc(chord: np.ndarray,
 
 
 
-y, q_func, d_func, t_func = build_q_d_t_functions(x_grid, chord0, N_prime, M_prime, 10.43, 0.3, 0.7, 0.25)
+y, q_func, d_func, t_func = build_q_d_t_functions(x_grid, chord_interp, N_prime, M_prime, 10.43, 0.3, 0.7, 0.25)
 
 """# --- Plotting the lift distribution to check if sensical---
 plt.plot(y_interp, L_prime)

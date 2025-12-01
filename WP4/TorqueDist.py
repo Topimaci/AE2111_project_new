@@ -15,9 +15,9 @@ from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 
 # Variables
 
-V_inf = 53  # Freestream velocity in m/s
-rho   = 1.225 # Air density in kg/m^3
-aoa_deg = 10  # Angle of attack in degrees
+V_inf = 200.736  # Freestream velocity in m/s
+rho   = 0.3662 # Air density in kg/m^3
+aoa_deg = 0.0   # Angle of attack in degrees
 
 
 def compute_lift_line_load(chord: np.ndarray,
@@ -230,13 +230,25 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
     T_dist = -T_rev[::-1]
 
-    # 6. Torque from weights
-    d_wing_load = distance_dx_calc_wing_load_distribution(chord=chord, x_force_ratio=0.45, sweep_deg=8.36)
-    #T_wing_load = combined_loads_weights_wing_fuel * d_wing_load
-   # T_wing_load_grid = np.interp(x_grid, y_span, T_wing_load)
-   # T_dist += T_wing_load_grid #adding torque due to weights
-    #Weight of the fuel and wing
 
+
+    # 6. Torque from weights
+    Nw = combined_loads_weights_wing_fuel.size
+    y_w = np.linspace(0.0, L_span, Nw)          # L_span = half-span in meters
+
+    w_on_grid = np.interp(x_grid, y_w, combined_loads_weights_wing_fuel)  # (500,)
+
+    chord_half = chord[y_span >= 0.0]
+    y_half = y_span[y_span >= 0.0]
+    chord_on_grid = np.interp(x_grid, y_half, chord_half)
+    d_weight_on_grid = distance_dx_calc_wing_load_distribution(
+        chord=chord_on_grid,
+        x_force_ratio=0.45,
+        sweep_deg=8.36
+    )
+    T_dist += w_on_grid * d_weight_on_grid
+
+    
 
     # point loads...
     point_forces = [{'x': 1.84, 'P': 126.8*9.81, 'd': 0.473}]
@@ -256,6 +268,7 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
         "D_total": D_total,
     }
 
+    
 
 
 
