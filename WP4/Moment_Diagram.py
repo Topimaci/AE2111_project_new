@@ -21,7 +21,7 @@ b_half = 9.7925 #half of the wing span in m
 b = 19.585 #Span of the wing in m
 C_r = 2.874 # Root cord in m
 C_t = 1.04326 # Tip cord in m
-aoa_deg =0.0   # Angle of attack in degrees
+aoa_deg = 0.0   # Angle of attack in degrees
 
 #conditions
 g = 9.81 # Gravitational constant m/s^2
@@ -250,12 +250,12 @@ def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_co
 def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values, aoa_deg):
     aoa_rad = np.radians(aoa_deg)
     return np.cos(aoa_rad)*(4 * mass_fuel * grav_const) / (0.19 * wing_span * (root_cord + cord_19)) * \
-           (root_cord + ((cord_19 - root_cord) / (0.19 * wing_span)) * y_values)
+           (root_cord + ((cord_19 - root_cord) / (0.095 * wing_span)) * y_values)
 
 def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_values, aoa_deg):
     aoa_rad = np.radians(aoa_deg)
     return np.cos(aoa_rad)*(4 * mass_fuel * grav_const) / (0.66 * wing_span * (cord_24 + cord_90)) * \
-           (cord_24 + ((cord_90 - cord_24) / (0.66 * wing_span)) * y_values)
+           (cord_24 + ((cord_90 - cord_24) / (0.33 * wing_span)) * y_values)
 
 
 
@@ -284,7 +284,7 @@ gear_load_per_point = W_main_gear / 0.097925 # distribut   ed the landing gear w
 
 
 
-#""" --- Adding the distributions --------------------------------------------------------------------------
+""" --- Adding the distributions --------------------------------------------------------------------------
 #----------------If AoA is 0 deg ------------------
 combined_loads[:] -= wing_weight_only                                        # struc Aoa=0
 combined_loads[:i_19] -= W_t1                                                # Tank 1 AoA=0
@@ -294,13 +294,13 @@ combined_loads[:] += N_prime                                                 #Li
 #"""
 
 
-"""----------------If AoA is 10 deg ------------------           # to use this add a # in front of this line
-combined_loads[:] += D_prime * np.sin(np.deg2rad(10))
-combined_loads[:] -= wing_weight_only * np.cos(np.deg2rad(10))               # struc Aoa=10
-combined_loads[:i_19] -= W_t1 * np.cos(np.deg2rad(10))                       # Tank 1 AoA=10
-combined_loads[i_24:i_90] -= W_t2 * np.cos(np.deg2rad(10))                   # Tank 2 AoA=10
-combined_loads[i_19:i_24] -= gear_load_per_point * np.cos(np.deg2rad(10))    #Landing gear AoA=10
-combined_loads[:] += L_prime * np.cos(np.deg2rad(10))                        #Lift AoA=10
+#"""----------------Combined loads ------------------           # to use this add a # in front of this line
+#combined_loads[:] += D_prime * np.sin(np.deg2rad(aoa_deg))                        # Drag
+combined_loads[:] -= wing_weight_only * np.cos(np.deg2rad(aoa_deg))               # struc 
+#combined_loads[:i_19] -= W_t1 * np.cos(np.deg2rad(aoa_deg))                       # Tank 1 
+#combined_loads[i_24:i_90] -= W_t2 * np.cos(np.deg2rad(aoa_deg))                   # Tank 2 
+#combined_loads[i_19:i_24] -= gear_load_per_point * np.cos(np.deg2rad(aoa_deg))    #Landing gear 
+#combined_loads[:] += L_prime * np.cos(np.deg2rad(aoa_deg))                        #Lift 
 #"""
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
