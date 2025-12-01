@@ -2,8 +2,9 @@ from TorqueDist import compute_case
 from XFLR import y_span0, chord0, Cl0, ICd0, Cm0, ICd10, Cm10, Cl10
 import numpy as np
 
-V_inf = 200.736
-rho = 0.3662
+V_inf = 58
+rho = 1.225
+aoa_deg = 0.0
 
 res0 = compute_case(y_span0, chord0, Cl0, Cl10, aoa_deg, ICd0 , ICd10, Cm0, Cm10, V_inf, rho)
 

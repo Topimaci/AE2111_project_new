@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
-from XFLR import y_span, chord0, Ai, Cl0, ICd, Cm
+from XFLR import y_span, chord0, Ai, Cl0, ICd, Cm0
 from XFLR import y_span10, chord10, Ai10, Cl10, ICd10, Cm10
 
 from scipy.optimize import curve_fit
@@ -10,13 +10,8 @@ from scipy.optimize import curve_fit
 from scipy import integrate, interpolate
 from scipy.integrate import cumulative_trapezoid
 from scipy.interpolate import interp1d
+from shear_centre_location import shear_center_non_dim
 
-
-from TorqueDist import compute_lift_line_load
-from TorqueDist import build_q_d_t_functions
-from TorqueDist import compute_normal_force_distribution
-from TorqueDist import compute_drag_line_load
-from TorqueDist import compute_section_moment_density
 from Integration import x_grid
 
 
@@ -57,16 +52,16 @@ C_90 = cordlength(C_t, C_r, 0.9)
 # --- determining loading functions ----------------------------------------------------------------
 
 
-L_prime = compute_lift_line_load(chord0, Cl0, V_inf, rho)
-D_prime = compute_drag_line_load(chord0, ICd, V_inf, rho)
-N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
-M_prime = compute_section_moment_density(chord0, Cm, V_inf, rho)
-y, q_func, d_func, t_func = build_q_d_t_functions(y_span, chord0, N_prime, M_prime, 10.43, 0.3, 0.7, 0.25)
+
 
 n = len(Cl0)
 y_tip = y_span[n//2:]        # last half of spanwise locations
 Cl0_tip = Cl0[n//2:] 
-Cl10_tip = Cl10[n//2:]          # corresponding Cl
+Cl10_tip = Cl10[n//2:] 
+ICd0_tip = ICd[n//2:]  
+ICd10_tip = ICd10[n//2:] 
+Cm0_tip = Cm0[n//2:]  
+Cm10_tip = Cm10[n//2:]          # corresponding Cl
 chord_tip = chord0[n//2:]     # corresponding chord lengths
 
 """To produce NVM for AOA 10 degrees, uncomment THIS!
@@ -88,6 +83,10 @@ n_points = 500
 y_interp = np.linspace(y_tip.min(), y_tip.max(), n_points)
 Cl0_interp = np.interp(y_interp, y_tip, Cl0_tip)
 Cl10_interp = np.interp(y_interp, y_tip, Cl10_tip)
+ICd0_interp = np.interp(y_interp, y_tip, ICd0_tip)
+ICd10_interp = np.interp(y_interp, y_tip, ICd10_tip)
+Cm0_interp = np.interp(y_interp, y_tip, Cm0_tip)
+Cm10_interp = np.interp(y_interp, y_tip, Cm10_tip)
 chord_interp = np.interp(y_interp, y_tip, chord_tip)
 
 # --- Lift line load function I just copied Caia's---
@@ -117,7 +116,7 @@ def compute_drag_line_load(chord: np.ndarray, ICd0: np.ndarray, ICd10: np.ndarra
     return D_prime
 
 L_prime = compute_lift_line_load(chord_interp, Cl0_interp, Cl10_interp, aoa_deg, V_inf)
-D_prime = compute_drag_line_load(chord_interp, ICd, ICd10, aoa_deg, V_inf )
+D_prime = compute_drag_line_load(chord_interp, ICd0_interp, ICd10_interp, aoa_deg, V_inf)
 
 
 def compute_normal_force_distribution(L_prime: np.ndarray,
@@ -130,9 +129,95 @@ def compute_normal_force_distribution(L_prime: np.ndarray,
     N_prime = L_prime * np.cos(aoa_rad) + D_prime * np.sin(aoa_rad)
     return N_prime
 
+def compute_section_moment_density(chord: np.ndarray,
+                                   Cm0: np.ndarray,
+                                   Cm10: np.ndarray,
+                                   aoa_deg: float,
+                                   V_inf: float,
+                                   rho: float = 1.225) -> np.ndarray:
+    """
+    M'(y) = Cm(y) * q_inf * c(y)^2 
+    """
+
+    Cm = (Cm10 - Cm0) / 10 * aoa_deg + Cm0
+
+    q_inf = 0.5 * rho * V_inf**2
+    M_prime = Cm * q_inf * chord**2
+    return M_prime
+
+
+
+
 # --- Compute L'(y) for the tip half ---
   # freestream velocity [m/s]
 N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
+M_prime = compute_section_moment_density(chord_interp, Cm0_interp, Cm10_interp, aoa_deg, V_inf, rho)
+
+
+
+def build_q_d_t_functions(y_span: np.ndarray,
+                          chord: np.ndarray,
+                          N_prime: np.ndarray,
+                          M_prime: np.ndarray,
+                          sweep_deg: float = 10.43,
+                          ratio_frontspar: float = 0.3,
+                          ratio_rearspar: float = 0.7,
+                          x_force_ratio: float = 0.25):
+
+    mask = y_span >= 0.0
+    y_half = y_span[mask]
+    N_half = N_prime[mask]
+    M_half = M_prime[mask]
+    c_half = chord[mask]
+
+    x = y_half
+    idx = np.argsort(x)
+    x_sorted = x[idx]
+
+    q_sorted = N_half[idx]
+    M_sorted = M_half[idx]
+    c_sorted = c_half[idx]
+
+    q_func = interpolate.interp1d(x_sorted, q_sorted, kind="cubic",  fill_value="extrapolate")
+    t_func = interpolate.interp1d(x_sorted, M_sorted, kind="cubic",  fill_value="extrapolate")
+
+    
+    dreal_sorted = distance_dx_calc(
+        c_sorted,
+        ratio_frontspar=ratio_frontspar,
+        ratio_rearspar=ratio_rearspar,
+        x_force_ratio=x_force_ratio,
+        sweep_deg=sweep_deg
+    )
+
+    d_func = interpolate.interp1d(x_sorted, dreal_sorted, kind="linear", fill_value="extrapolate")
+
+    return x_sorted, q_func, d_func, t_func
+
+def distance_dx_calc(chord: np.ndarray,
+                     ratio_frontspar: float = 0.3,
+                     ratio_rearspar: float = 0.7,
+                     x_force_ratio: float = 0.25,
+                     sweep_deg: float = 10.43) -> np.ndarray:
+    """
+    dreal(x) = (x_wingbox - x_force) * cos(sweep)
+    x_wingbox = average position of front and rear spar
+    x_force   = position of aerodynamic force (25% chord)
+    """
+    chord = np.asarray(chord)
+
+    x_wb   = shear_center_non_dim() * chord
+    x_force = x_force_ratio * chord
+
+    sweep_rad = np.deg2rad(sweep_deg)
+    dreal = (x_wb - x_force) * np.cos(sweep_rad)
+    return dreal
+
+
+
+
+
+y, q_func, d_func, t_func = build_q_d_t_functions(x_grid, chord_interp, N_prime, M_prime, 10.43, 0.3, 0.7, 0.25)
 
 """# --- Plotting the lift distribution to check if sensical---
 plt.plot(y_interp, L_prime)
@@ -156,18 +241,21 @@ i_90 = int(0.90 * N)
 q_vals = q_func(y_vals)
 
 # --- Wing structure load ---
-def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_values):
-    return (2 * mass_wing * grav_const) / (wing_span * (tip_cord + root_cord)) * \
+def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_values, aoa_deg):
+    aoa_rad = np.radians(aoa_deg)
+    return np.cos(aoa_rad)*(2 * mass_wing * grav_const) / (wing_span * (tip_cord + root_cord)) * \
            (root_cord + (2 * (tip_cord - root_cord) / wing_span) * y_values)
 
 # --- Fuel tanks ---
-def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values):
-    return (4 * mass_fuel * grav_const) / (0.19 * wing_span * (root_cord + cord_19)) * \
-           (root_cord + ((cord_19 - root_cord) / (0.19 * wing_span)) * y_values)
+def Fuel_distribution_tank_1(mass_fuel, grav_const, wing_span, root_cord, cord_19, y_values, aoa_deg):
+    aoa_rad = np.radians(aoa_deg)
+    return np.cos(aoa_rad)*(4 * mass_fuel * grav_const) / (0.19 * wing_span * (root_cord + cord_19)) * \
+           (root_cord + ((cord_19 - root_cord) / (0.095 * wing_span)) * y_values)
 
-def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_values):
-    return (4 * mass_fuel * grav_const) / (0.66 * wing_span * (cord_24 + cord_90)) * \
-           (cord_24 + ((cord_90 - cord_24) / (0.66 * wing_span)) * y_values)
+def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90, y_values, aoa_deg):
+    aoa_rad = np.radians(aoa_deg)
+    return np.cos(aoa_rad)*(4 * mass_fuel * grav_const) / (0.66 * wing_span * (cord_24 + cord_90)) * \
+           (cord_24 + ((cord_90 - cord_24) / (0.33 * wing_span)) * y_values)
 
 
 
@@ -176,27 +264,27 @@ combined_loads = np.zeros_like(y_vals)
 
 # --- Structural load over full span ---
 
-wing_weight_only = wing_weight_distribution(M_wing, g, b, C_t, C_r, y_vals)
+wing_weight_only = wing_weight_distribution(M_wing, g, b, C_t, C_r, y_vals, aoa_deg)
 
 
 # --- Tank 1 load (0% → 19%) ---
 y_t1 = y_vals[:i_19]                      # local y inside tank 1 region
-W_t1 = Fuel_distribution_tank_1(M_fuel_T1, g, b, C_r, C_19, y_t1)
+W_t1 = Fuel_distribution_tank_1(M_fuel_T1, g, b, C_r, C_19, y_t1, aoa_deg)
 
 # --- Tank 2 load (24% → 90%) ---
 # Shift y so Tank 2 formula sees y=0 at 24%
 y_t2_local = y_vals[i_24:i_90] - y_vals[i_24]
-W_t2 = Fuel_distribution_tank_2(M_fuel_T2, g, b, C_24, C_90, y_t2_local)
+W_t2 = Fuel_distribution_tank_2(M_fuel_T2, g, b, C_24, C_90, y_t2_local, aoa_deg)
 
 
 
 # Spanwise segment for the gear
 y_gear = y_vals[107]                  # local y inside gear region
-gear_load_per_point = W_main_gear / 0.097925 # distributed the landing gear weight over 10 cm
+gear_load_per_point = W_main_gear / 0.097925 # distribut   ed the landing gear weight over 10 cm
 
 
 
-#""" --- Adding the distributions --------------------------------------------------------------------------
+""" --- Adding the distributions --------------------------------------------------------------------------
 #----------------If AoA is 0 deg ------------------
 combined_loads[:] -= wing_weight_only                                        # struc Aoa=0
 combined_loads[:i_19] -= W_t1                                                # Tank 1 AoA=0
@@ -206,13 +294,13 @@ combined_loads[:] += N_prime                                                 #Li
 #"""
 
 
-"""----------------If AoA is 10 deg ------------------           # to use this add a # in front of this line
-combined_loads[:] += D_prime * np.sin(np.deg2rad(10))
-combined_loads[:] -= wing_weight_only * np.cos(np.deg2rad(10))               # struc Aoa=10
-combined_loads[:i_19] -= W_t1 * np.cos(np.deg2rad(10))                       # Tank 1 AoA=10
-combined_loads[i_24:i_90] -= W_t2 * np.cos(np.deg2rad(10))                   # Tank 2 AoA=10
-combined_loads[i_19:i_24] -= gear_load_per_point * np.cos(np.deg2rad(10))    #Landing gear AoA=10
-combined_loads[:] += L_prime * np.cos(np.deg2rad(10))                        #Lift AoA=10
+#"""----------------Combined loads ------------------           # to use this add a # in front of this line
+#combined_loads[:] += D_prime * np.sin(np.deg2rad(aoa_deg))                        # Drag
+combined_loads[:] -= wing_weight_only * np.cos(np.deg2rad(aoa_deg))               # struc 
+#combined_loads[:i_19] -= W_t1 * np.cos(np.deg2rad(aoa_deg))                       # Tank 1 
+#combined_loads[i_24:i_90] -= W_t2 * np.cos(np.deg2rad(aoa_deg))                   # Tank 2 
+#combined_loads[i_19:i_24] -= gear_load_per_point * np.cos(np.deg2rad(aoa_deg))    #Landing gear 
+#combined_loads[:] += L_prime * np.cos(np.deg2rad(aoa_deg))                        #Lift 
 #"""
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
