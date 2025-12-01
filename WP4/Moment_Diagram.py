@@ -143,7 +143,8 @@ combined_loads = np.zeros_like(y_vals)
 
 # --- Structural load over full span ---
 
-combined_loads -= wing_weight_distribution(M_wing, g, b, C_t, C_r, y_vals)
+wing_weight_only = wing_weight_distribution(M_wing, g, b, C_t, C_r, y_vals)
+combined_loads -= wing_weight_only
 
 # --- Tank 1 load (0% → 19%) ---
 y_t1 = y_vals[:i_19]                      # local y inside tank 1 region
