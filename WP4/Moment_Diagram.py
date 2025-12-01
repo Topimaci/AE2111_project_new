@@ -36,7 +36,7 @@ rho   = 1.225 # Air density in kg/m^3
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
 M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
-W_main_gear = 1245.87 #weight of landing gear (already accounted for there being two weight split half per wing (already halved))
+W_main_gear = 1245.87 #weight of landing gear (already accounted for there being two weight split half per wing (already halved)) in N
 
 
 
@@ -194,7 +194,7 @@ plt.ylabel("q(y) [N/m]")
 plt.title("Distributed Load q(y)")
 plt.grid(True)
 
-# S(y)
+# S(y)+
 plt.subplot(3,1,2)
 plt.plot(y_vals, S_vals)
 plt.xlabel("Spanwise position y [m]")
