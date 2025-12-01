@@ -1,6 +1,7 @@
 from TorqueDist import compute_case
 from XFLR import y_span0, chord0, Cl0, ICd0, Cm0
 
+
 V_inf = 53
 rho = 1.225
 
