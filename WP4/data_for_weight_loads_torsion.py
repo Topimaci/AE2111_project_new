@@ -191,26 +191,39 @@ fuel2_distribution=np.array([1779.15461008,1777.81636106,1776.47811204,1775.1398
 ,1344.22367881,1342.88542979,1341.54718077,1340.20893175,1338.87068273])
 
 
-station_edges = np.linspace(0, len(wing_weight_load_distribution), 20, dtype=int)
+# station_edges = np.linspace(0, len(wing_weight_load_distribution), 20, dtype=int)
+#
+# def safe_mean(arr, start, end):
+#     slice_arr = arr[start:end]
+#     return slice_arr.mean() if len(slice_arr) > 0 else 0
+#
+# wing_weight_load_distribution_19 = np.array([
+#     safe_mean(wing_weight_load_distribution, station_edges[i], station_edges[i+1])
+#     for i in range(19)
+# ])
+#
+# fuel1_distribution_19 = np.array([
+#     safe_mean(fuel1_distribution, station_edges[i], station_edges[i+1])
+#     for i in range(19)
+# ])
+#
+# fuel2_distribution_19 = np.array([
+#     safe_mean(fuel2_distribution, station_edges[i], station_edges[i+1])
+#     for i in range(19)
+# ])
+# combined_loads_weights_wing_fuel = -wing_weight_load_distribution_19 - fuel1_distribution_19 - fuel2_distribution_19
 
-def safe_mean(arr, start, end):
-    slice_arr = arr[start:end]
-    return slice_arr.mean() if len(slice_arr) > 0 else 0
+combined_loads_weights_wing_fuel = [
+    -wing_weight_load_distribution[i] - (fuel1_distribution[i] if i < len(fuel1_distribution) else 0)
+    for i in range(len(wing_weight_load_distribution))
+]
 
-wing_weight_load_distribution_19 = np.array([
-    safe_mean(wing_weight_load_distribution, station_edges[i], station_edges[i+1])
-    for i in range(19)
-])
+n = len(wing_weight_load_distribution)
+m = len(fuel2_distribution)
 
-fuel1_distribution_19 = np.array([
-    safe_mean(fuel1_distribution, station_edges[i], station_edges[i+1])
-    for i in range(19)
-])
+combined_loads_weights_wing_fuel = [
+    combined_loads_weights_wing_fuel[i] - (fuel2_distribution[i - (n - m)] if i >= n - m else 0)
+    for i in range(n)
+]
 
-fuel2_distribution_19 = np.array([
-    safe_mean(fuel2_distribution, station_edges[i], station_edges[i+1])
-    for i in range(19)
-])
-
-
-combined_loads_weights_wing_fuel = -wing_weight_load_distribution_19 - fuel1_distribution_19 - fuel2_distribution_19
+print(combined_loads_weights_wing_fuel)
