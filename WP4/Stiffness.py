@@ -5,6 +5,9 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from Integration import x_grid, T_total
+from Moment_Diagram import M_vals
+
+
 
 ##______Spar length based on airfoil and y-position________________________________________________________
 Airfoil_coordinates = []
@@ -226,9 +229,9 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
 
 
 #______THIS IS WHERE WE CALL THE FUNCTION, ALL OF THE VALUES MUST BE REPLACED WITH THE CORRECT ONES
-I_xx, J = stiffness_distribution(x_grid, 0.3, 1, 1.2, 0.05, 0.2, 0.1, spar_list)
+I_xx, J = stiffness_distribution(x_grid, 0.3, 1, 1.2, 0.05, 0.2, 0.1, spar_list, G)
 
-d2v_dy2 = -M_y / (E * I_xx)
+d2v_dy2 = -M_vals / (E * I_xx)
 dth_dy  =  T_total   / (G * J)
 
 f_d2v = sp.lambdify(y, d2v_dy2, "numpy")
