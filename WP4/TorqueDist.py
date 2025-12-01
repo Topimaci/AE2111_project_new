@@ -233,17 +233,21 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
 
 
     # 6. Torque from weights
-    mask = y_span >= 0.0
-    y_half = y_span[mask]
-    chord_half = chord[mask]
+    Nw = combined_loads_weights_wing_fuel.size
+    y_w = np.linspace(0.0, L_span, Nw)          # L_span = half-span in meters
 
-    y_w = np.linspace(y_half.min(), y_half.max(), combined_loads_weights_wing_fuel.size)  # TEMP fallback
-    w_weight_half = np.interp(y_half, y_w, combined_loads_weights_wing_fuel)
+    w_on_grid = np.interp(x_grid, y_w, combined_loads_weights_wing_fuel)  # (500,)
 
-    d_wing_load = distance_dx_calc_wing_load_distribution(chord=chord_half, x_force_ratio=0.45, sweep_deg=8.36)
-    T_wing_load = w_weight_half * d_wing_load
-    T_wing_load_grid = np.interp(x_grid, y_half, T_wing_load)
-    T_dist = T_dist + T_wing_load_grid 
+    chord_half = chord[y_span >= 0.0]
+    y_half = y_span[y_span >= 0.0]
+    chord_on_grid = np.interp(x_grid, y_half, chord_half)
+    d_weight_on_grid = distance_dx_calc_wing_load_distribution(
+        chord=chord_on_grid,
+        x_force_ratio=0.45,
+        sweep_deg=8.36
+    )
+    T_dist += w_on_grid * d_weight_on_grid
+
 
 
     # point loads...
