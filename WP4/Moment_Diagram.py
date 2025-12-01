@@ -161,8 +161,8 @@ W_t2 = Fuel_distribution_tank_2(M_fuel_T2, g, b, C_24, C_90, y_t2_local)
 
 
 # Spanwise segment for the gear
-y_gear = y_vals[i_19:i_24]                  # local y inside gear region
-gear_load_per_point = (W_main_gear )/ 0.4896
+y_gear = y_vals[107]                  # local y inside gear region
+gear_load_per_point = W_main_gear / 0.097925 # distributed the landing gear weight over 10 cm
 
 
 
@@ -171,7 +171,7 @@ gear_load_per_point = (W_main_gear )/ 0.4896
 combined_loads[:] -= wing_weight_only                                        # struc Aoa=0
 combined_loads[:i_19] -= W_t1                                                # Tank 1 AoA=0
 combined_loads[i_24:i_90] -= W_t2                                            # Tank 2 AoA=0
-combined_loads[i_19:i_24] -= gear_load_per_point                             #Landing gear AoA=0
+combined_loads[105:109] -= gear_load_per_point                             #Landing gear AoA=0
 combined_loads[:] += L_prime                                                 #Lift AoA=0
 #"""
 
