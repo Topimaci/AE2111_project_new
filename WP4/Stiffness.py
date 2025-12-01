@@ -4,6 +4,7 @@ import numpy as np
 import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+from Integration import x_grid, T_total
 
 ##______Spar length based on airfoil and y-position________________________________________________________
 Airfoil_coordinates = []
@@ -157,7 +158,7 @@ string_bottom_interp = interp1d(y_breaks, stringer_bottom_num, kind="linear",
 spar_list = [lambda y: -0.0128 * y + 0.4, 0.3 * b/2, 0.1] #0.5 is how much of the wing span the spar takes, 0.6 is how much of the chord it takes, measured from left side
 #spar_list = [lambda y: 0, 0, 0]
 
-def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list):
+def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list, G): #be careful, G is not an input, but still used in this function
     # I Moment of Inertia Calculations
     #neutral axis
     x_c = (h_rs ** 2 + h_fs ** 2 + h_fs * h_rs) / (3 * (h_rs + h_fs))
@@ -225,10 +226,10 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
 
 
 #______THIS IS WHERE WE CALL THE FUNCTION, ALL OF THE VALUES MUST BE REPLACED WITH THE CORRECT ONES
-I_xx, J = stiffness_distribution(0.4, 0.3, 1, 1.2, 0.05, 0.2, 0.1, spar_list)
+I_xx, J = stiffness_distribution(x_grid, 0.3, 1, 1.2, 0.05, 0.2, 0.1, spar_list)
 
 d2v_dy2 = -M_y / (E * I_xx)
-dth_dy  =  T   / (G * J)
+dth_dy  =  T_total   / (G * J)
 
 f_d2v = sp.lambdify(y, d2v_dy2, "numpy")
 f_th  = sp.lambdify(y, dth_dy,   "numpy")

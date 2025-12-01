@@ -10,3 +10,4 @@ x_grid  = res0["x_grid"]
 T_total = res0["T_total"]
 
 print(x_grid[:5], T_total[:5])
+
