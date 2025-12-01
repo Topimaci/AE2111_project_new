@@ -21,6 +21,23 @@ rho   = 0.3662 # Air density in kg/m^3
 aoa_deg = 1.75   # Angle of attack in degrees
 
 
+
+### code for load factor and determining critical alpha
+def critical_alpha(n, rho, v_situation, S_wing, W_situation):
+    CL = 2*n*W_situation/(rho*v_situation^2*S_wing)
+
+    ### from simulation
+    aoa_critical = (CL-0.327220)*10/(1.218686-0.327220)     
+
+    return aoa_critical    
+
+
+
+
+
+
+
+
 def compute_lift_line_load(chord: np.ndarray,
                            Cl0: np.ndarray,
                            Cl10: np.ndarray,
@@ -347,4 +364,11 @@ if __name__ == "__main__":
     update_plot()
 
     plt.show()
+
+
+
+
+
+
+
 
