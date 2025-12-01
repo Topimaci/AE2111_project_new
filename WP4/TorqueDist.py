@@ -17,7 +17,7 @@ from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 
 V_inf = 53  # Freestream velocity in m/s
 rho   = 1.225 # Air density in kg/m^3
-aoa_deg = 10  # Angle of attack in degrees
+aoa_deg = 0  # Angle of attack in degrees
 
 
 def compute_lift_line_load(chord: np.ndarray,
@@ -230,12 +230,20 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
     T_dist = -T_rev[::-1]
 
+
+
     # 6. Torque from weights
-    d_wing_load = distance_dx_calc_wing_load_distribution(chord=chord, x_force_ratio=0.45, sweep_deg=8.36)
-    T_wing_load = combined_loads_weights_wing_fuel * d_wing_load
-    T_wing_load_grid = np.interp(x_grid, y_span, T_wing_load)
-    T_dist += T_wing_load_grid #adding torque due to weights
-    #Weight of the fuel and wing
+    mask = y_span >= 0.0
+    y_half = y_span[mask]
+    chord_half = chord[mask]
+
+    y_w = np.linspace(y_half.min(), y_half.max(), combined_loads_weights_wing_fuel.size)  # TEMP fallback
+    w_weight_half = np.interp(y_half, y_w, combined_loads_weights_wing_fuel)
+
+    d_wing_load = distance_dx_calc_wing_load_distribution(chord=chord_half, x_force_ratio=0.45, sweep_deg=8.36)
+    T_wing_load = w_weight_half * d_wing_load
+    T_wing_load_grid = np.interp(x_grid, y_half, T_wing_load)
+    T_dist = T_dist + T_wing_load_grid 
 
 
     # point loads...
