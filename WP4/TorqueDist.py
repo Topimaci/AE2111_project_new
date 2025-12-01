@@ -10,7 +10,7 @@ import math as m
 from matplotlib.widgets import RadioButtons
 from scipy import integrate, interpolate
 from shear_centre_location import shear_center_non_dim
-from Moment_Diagram import W_t2, W_t1, wing_weight_only
+from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 
 
 # Variables
@@ -122,7 +122,23 @@ def distance_dx_calc(chord: np.ndarray,
     dreal = (x_wb - x_force) * np.cos(sweep_rad)
     return dreal
 
+def distance_dx_calc_wing_load_distribution(chord: np.ndarray,
+                     ratio_frontspar: float = 0.3,
+                     ratio_rearspar: float = 0.7,
+                     x_force_ratio: float = 0.45,
+                     sweep_deg: float = 8.36) -> np.ndarray:
+    """
+    dreal(x) = (SC - x_force) * cos(sweep)
+    x_force   = centroid of wing-box (45% chord)
+    """
+    chord = np.asarray(chord)
 
+    x_wb   = shear_center_non_dim() * chord
+    x_force = x_force_ratio * chord
+
+    sweep_rad = np.deg2rad(sweep_deg)
+    dreal = (x_wb - x_force) * np.cos(sweep_rad)
+    return dreal
 
 
 
@@ -201,6 +217,12 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case, V_inf, rho):
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
     T_dist = -T_rev[::-1]
 
+    # 6. Torque from weights
+    d_wing_load = distance_dx_calc_wing_load_distribution(chord=chord, x_force_ratio=0.45, sweep_deg=8.36)
+    T_wing_load = combined_loads_weights_wing_fuel * d_wing_load
+    T_wing_load_grid = np.interp(x_grid, y_span, T_wing_load)
+    T_dist += T_wing_load_grid #adding torque due to weights
+
     # point loads...
     point_forces = [{'x': 1.84, 'P': 126.8*9.81, 'd': 0.473}]
     point_torques = [{'x': 1.84, 'T': 0.5 * rho * V_inf**2*0.04905*(0.56/2)**2*m.pi*0.785}]
@@ -241,7 +263,7 @@ if __name__ == "__main__":
         "AoA 0°":  compute_case(y_span0,  chord0,  Cl0,  ICd0,  Cm0,  0.0,  V_inf, rho),
         "AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0, V_inf, rho),
         }
-    
+
     case_labels = list(results.keys())
 
     #return function
