@@ -16,7 +16,7 @@ from shear_centre_location import shear_center_non_dim
 
 V_inf = 53  # Freestream velocity in m/s
 rho   = 1.225 # Air density in kg/m^3
-aoa_deg = 3.0   # Angle of attack in degrees
+aoa_deg = 10  # Angle of attack in degrees
 
 
 def compute_lift_line_load(chord: np.ndarray,
@@ -36,10 +36,12 @@ def compute_lift_line_load(chord: np.ndarray,
     L_prime = q_inf * chord * Cl
     return L_prime
 
-def compute_drag_line_load(chord: np.ndarray, ICd: np.ndarray, V_inf: float, rho: float = 1.225) -> np.ndarray:
+def compute_drag_line_load(chord: np.ndarray, ICd0: np.ndarray, ICd10: np.ndarray, aoa_deg: float, V_inf: float, rho: float = 1.225) -> np.ndarray:
     """
     D'(y) = 0.5 * rho * V^2 * Cd(y) * c(y)
     """
+    ICd = (ICd10 - ICd0) / 10 * aoa_deg + ICd0
+
     q_inf = 0.5 * rho * V_inf**2
     D_prime = q_inf * chord * ICd
     return D_prime
@@ -57,12 +59,17 @@ def compute_normal_force_distribution(L_prime: np.ndarray,
 
 # torque distribution along the blade due to external loads or lifts etc, known as t(x)
 def compute_section_moment_density(chord: np.ndarray,
-                                   Cm: np.ndarray,
+                                   Cm0: np.ndarray,
+                                   Cm10: np.ndarray,
+                                   aoa_deg: float,
                                    V_inf: float,
                                    rho: float = 1.225) -> np.ndarray:
     """
     M'(y) = Cm(y) * q_inf * c(y)^2 
     """
+
+    Cm = (Cm10 - Cm0) / 10 * aoa_deg + Cm0
+
     q_inf = 0.5 * rho * V_inf**2
     M_prime = Cm * q_inf * chord**2
     return M_prime
@@ -176,20 +183,20 @@ def add_point_forces_and_torques(x_grid: np.ndarray,
     return T_total
 
 
-def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd, Cm, aoa_deg_case, V_inf, rho):
+def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_inf, rho):
     # 1. Lift & drag
     L_prime = compute_lift_line_load(chord, Cl0, Cl10, aoa_deg, V_inf, rho)
-    D_prime = compute_drag_line_load(chord, ICd, V_inf, rho)
+    D_prime = compute_drag_line_load(chord, ICd0, ICd10, aoa_deg, V_inf, rho)
 
     L_total = total_from_line_load(y_span, L_prime)
     D_total = total_from_line_load(y_span, D_prime)
     # print(f"AoA={aoa_deg_case:>4.1f}°  Lift={L_total:,.1f} N   Drag={D_total:,.1f} N")
 
     # 2. Normal force
-    N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg_case)
+    N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
 
     # 3. Section moment density
-    M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
+    M_prime = compute_section_moment_density(chord, Cm0, Cm10, aoa_deg, V_inf, rho)
 
     # 4. q(x), d(x), t(x)
     x_sorted, q_func, d_func, t_func = build_q_d_t_functions(
@@ -246,7 +253,7 @@ if __name__ == "__main__":
 
     # 1. Reken beide situaties uit
     results = {
-        "AoA 0°":  compute_case(y_span0,  chord0,  Cl0, Cl10, aoa_deg,  ICd0,  Cm0,  0.0,  V_inf, rho)
+        f"AoA {aoa_deg}":  compute_case(y_span0,  chord0,  Cl0, Cl10, aoa_deg,  ICd0, ICd10, Cm0, Cm10, V_inf, rho)
        # ,"AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0, V_inf, rho),
         }
     
