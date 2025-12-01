@@ -168,6 +168,11 @@ combined_loads[i_19:i_24] -= gear_load_per_point
 
 combined_loads[:] += L_prime
 
+#If AoA is 10 deg add this drag component
+
+combined_loads[:] += D_prime 
+
+
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
 S_vals_tip_to_root = cumulative_trapezoid(combined_loads[::-1], y_vals[::-1], initial=0)
