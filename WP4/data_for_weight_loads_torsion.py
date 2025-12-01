@@ -226,3 +226,4 @@ combined_loads_weights_wing_fuel = [
     for i in range(n)
 ]
 
+combined_loads_weights_wing_fuel = np.asarray(combined_loads_weights_wing_fuel, dtype=float)

@@ -248,7 +248,7 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
     )
     T_dist += w_on_grid * d_weight_on_grid
 
-
+    
 
     # point loads...
     point_forces = [{'x': 1.84, 'P': 126.8*9.81, 'd': 0.473}]
@@ -268,6 +268,7 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
         "D_total": D_total,
     }
 
+    
 
 
 
