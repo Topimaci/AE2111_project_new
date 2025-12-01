@@ -166,14 +166,14 @@ gear_load_per_point = (W_main_gear )/ 0.4896
 
 
 
-# --- Adding the distributions --------------------------------------------------------------------------
+#""" --- Adding the distributions --------------------------------------------------------------------------
 #----------------If AoA is 0 deg ------------------
 combined_loads[:] -= wing_weight_only                                        # struc Aoa=0
 combined_loads[:i_19] -= W_t1                                                # Tank 1 AoA=0
 combined_loads[i_24:i_90] -= W_t2                                            # Tank 2 AoA=0
 combined_loads[i_19:i_24] -= gear_load_per_point                             #Landing gear AoA=0
 combined_loads[:] += L_prime                                                 #Lift AoA=0
-
+#"""
 
 
 """----------------If AoA is 10 deg ------------------           # to use this add a # in front of this line
