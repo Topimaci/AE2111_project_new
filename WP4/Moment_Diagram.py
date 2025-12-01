@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
-from XFLR import y_span, chord0, Ai, Cl, ICd, Cm
+from XFLR import y_span, chord0, Ai, Cl0, ICd, Cm
 from XFLR import y_span10, chord10, Ai10, Cl10, ICd10, Cm10
 
 from scipy.optimize import curve_fit
@@ -57,15 +57,16 @@ C_90 = cordlength(C_t, C_r, 0.9)
 # --- determining loading functions ----------------------------------------------------------------
 
 
-L_prime = compute_lift_line_load(chord0, Cl, V_inf, rho)
+L_prime = compute_lift_line_load(chord0, Cl0, V_inf, rho)
 D_prime = compute_drag_line_load(chord0, ICd, V_inf, rho)
 N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
 M_prime = compute_section_moment_density(chord0, Cm, V_inf, rho)
 y, q_func, d_func, t_func = build_q_d_t_functions(y_span, chord0, N_prime, M_prime, 10.43, 0.3, 0.7, 0.25)
 
-n = len(Cl)
+n = len(Cl0)
 y_tip = y_span[n//2:]        # last half of spanwise locations
-Cl_tip = Cl[n//2:]           # corresponding Cl
+Cl0_tip = Cl0[n//2:] 
+Cl10_tip = Cl10[n//2:]          # corresponding Cl
 chord_tip = chord0[n//2:]     # corresponding chord lengths
 
 """To produce NVM for AOA 10 degrees, uncomment THIS!
@@ -85,24 +86,53 @@ chord_tip = chord10[n//2:]     # corresponding chord lengths
 # --- Interpolating to 500 points ---
 n_points = 500
 y_interp = np.linspace(y_tip.min(), y_tip.max(), n_points)
-Cl_interp = np.interp(y_interp, y_tip, Cl_tip)
+Cl0_interp = np.interp(y_interp, y_tip, Cl0_tip)
+Cl10_interp = np.interp(y_interp, y_tip, Cl10_tip)
 chord_interp = np.interp(y_interp, y_tip, chord_tip)
 
 # --- Lift line load function I just copied Caia's---
 def compute_lift_line_load(chord: np.ndarray,
-                           Cl: np.ndarray,
+                           Cl0: np.ndarray,
+                           Cl10: np.ndarray,
+                           aoa_deg: float, 
                            V_inf: float,
                            rho: float = 1.225) -> np.ndarray:
     """
     Computes spanwise lift per unit length:
         L'(y) = 0.5 * rho * V^2 * Cl(y) * c(y)
     """
+    Cl = (Cl10 - Cl0) / 10 * aoa_deg + Cl0
+
     q_inf = 0.5 * rho * V_inf**2
     return q_inf * chord * Cl
 
+def compute_drag_line_load(chord: np.ndarray, ICd0: np.ndarray, ICd10: np.ndarray, aoa_deg: float, V_inf: float, rho: float = 1.225) -> np.ndarray:
+    """
+    D'(y) = 0.5 * rho * V^2 * Cd(y) * c(y)
+    """
+    ICd = (ICd10 - ICd0) / 10 * aoa_deg + ICd0
+
+    q_inf = 0.5 * rho * V_inf**2
+    D_prime = q_inf * chord * ICd
+    return D_prime
+
+L_prime = compute_lift_line_load(chord_interp, Cl0_interp, Cl10_interp, aoa_deg, V_inf)
+D_prime = compute_drag_line_load(chord_interp, ICd, ICd10, aoa_deg, V_inf )
+
+
+def compute_normal_force_distribution(L_prime: np.ndarray,
+                                      D_prime: np.ndarray,
+                                      aoa_deg: float) -> np.ndarray:
+    """
+    N'(y) = L'(y) * cos(aoa) + D'(y) * sin(aoa)
+    """
+    aoa_rad = np.radians(aoa_deg)
+    N_prime = L_prime * np.cos(aoa_rad) + D_prime * np.sin(aoa_rad)
+    return N_prime
+
 # --- Compute L'(y) for the tip half ---
   # freestream velocity [m/s]
-L_prime = compute_lift_line_load(chord_interp, Cl_interp, V_inf)
+N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
 
 """# --- Plotting the lift distribution to check if sensical---
 plt.plot(y_interp, L_prime)
@@ -172,7 +202,7 @@ combined_loads[:] -= wing_weight_only                                        # s
 combined_loads[:i_19] -= W_t1                                                # Tank 1 AoA=0
 combined_loads[i_24:i_90] -= W_t2                                            # Tank 2 AoA=0
 combined_loads[105:109] -= gear_load_per_point                             #Landing gear AoA=0
-combined_loads[:] += L_prime                                                 #Lift AoA=0
+combined_loads[:] += N_prime                                                 #Lift AoA=0
 #"""
 
 
