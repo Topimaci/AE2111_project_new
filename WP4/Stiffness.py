@@ -143,13 +143,9 @@ q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 
 #_______TO BE REPLACED LATER__________________________________________
-M_root = 5e6  # N*m
-M_y = M_root * (1 - y / (b/2))**2
-T_root = 6e5  # N*m, realistic torsion for business jet wingbox
-T = T_root * (1 - y / (b/2))**2
 y_breaks = np.array([3, 5, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([5, 4, 3]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([5, 4, 3])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
+stringer_top_num = np.array([2, 0, 0]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([2, 0, 0])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 
 #Linear interpolation of the stringers
@@ -158,8 +154,9 @@ string_top_interp = interp1d(y_breaks, stringer_top_num, kind="linear",
 string_bottom_interp = interp1d(y_breaks, stringer_bottom_num, kind="linear",
     fill_value="extrapolate")
 
-spar_list = [lambda y: -0.0128 * y + 0.4, 0.3 * b/2, 0.1] #0.5 is how much of the wing span the spar takes, 0.6 is how much of the chord it takes, measured from left side
+#spar_list = [lambda y: -0.0128 * y + 0.4, 0.3 * b/2, 0.1] #0.5 is how much of the wing span the spar takes, 0.6 is how much of the chord it takes, measured from left side
 #spar_list = [lambda y: 0, 0, 0]
+spar_list = []
 
 def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list, G): #be careful, G is not an input, but still used in this function
     # I Moment of Inertia Calculations
@@ -186,12 +183,10 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
             h_spar_func = spar_list[i]
             y_crit = spar_list[i + 1]
 
-            h_spar_y = h_spar_func(y)
-            I_spar_y = 1 / 12 * h_spar_y ** 3 * t
+            h_spar_y = h_spar_func(y_pos)
 
-            I_step += sp.Piecewise(
-                (I_spar_y, y < y_crit),
-                (0, True))
+            if y_pos < y_crit:
+                I_step += 1/12 * h_spar_y**3 * t
             i += 2  # move to next spar
         
         I_total = I_step + I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
@@ -208,23 +203,29 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
         w = c_upper - a 
         A_1 = a * w
         A_2 = w * w
-        M = sp.Matrix([
-        [2*w+2*a, -w, -2*A_1*G*t],
-        [-w, 4*w, -2*A_2*G*t],
-        [2*A_1, 2*A_2, 0]])
+        M = np.array([
+            [2*w + 2*a, -w, -2*A_1*G*t],
+            [-w, 4*w, -2*A_2*G*t],
+            [2*A_1, 2*A_2, 0]
+        ], dtype=float)
 
-        rhs = sp.Matrix([1, 0, 0])
+        rhs = np.array([1.0, 0.0, 0.0])
+        solution = np.linalg.solve(M, rhs)
 
-        solution = M.LUsolve(rhs)
 
         q1, q2, dtheta_dy = solution
         J = 1 / (G * dtheta_dy)
 
     else:
-        I_total = I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
-        A = (h_fs + h_rs) / 2 * c_upper
-        circ = 1/ t * (h_fs + c_upper + h_rs + c_lower)
-        J = 4 * A ** 2 / circ
+        # No spars
+        I_step = 0
+        A = (h_fs + h_rs)/2 * c_upper
+        circ = 1/t * (h_fs + c_upper + h_rs + c_lower)
+        J = 4 * A**2 / circ
+
+    # -------------------
+    # Total bending inertia
+    I_total = I_fs + I_rs + I_top + I_bottom + I_string_top + I_string_bottom + I_step
     return I_total, J
 
 
@@ -253,34 +254,124 @@ def spar_stringer_lengths(y, spar_location_fraction1, spar_location_fraction2, r
 
 
 #______THIS IS WHERE WE CALL THE FUNCTION, ALL OF THE VALUES MUST BE REPLACED WITH THE CORRECT ONES
-h_fs, h_rs, c_upper, c_lower = spar_stringer_lengths(x_grid, 0.3, 0.6, 2.874, 1.043, b)
+results_geom = {
+    "h_fs": [],
+    "h_rs": [],
+    "c_upper": [],
+    "c_lower": []
+}
 
-I_xx, J = stiffness_distribution(x_grid, h_fs, h_rs, c_upper, c_lower, 0.2, 0.1, spar_list, G)
-
-d2v_dy2 = -M_vals / (E * I_xx)
-dth_dy  =  T_total   / (G * J)
-
-f_d2v = sp.lambdify(y, d2v_dy2, "numpy")
-f_th  = sp.lambdify(y, dth_dy,   "numpy")
-
-# First integration
-estimate_dv, error_dv = integrate.quad(f_d2v, 0, b)
-
-# Nested integration for displacement
-def slope(Y):
-    return integrate.quad(f_d2v, 0, Y)[0]
-
-# Deflection
-estimate_v, error_v = integrate.quad(slope, 0, b/2)
-
-# Twist
-estimate_th, error_th = integrate.quad(f_th, 0, b/2)
+for yi in x_grid:
+    h_fs_i, h_rs_i, c_upper_i, c_lower_i = spar_stringer_lengths(yi, 0.3, 0.6, 2.874, 1.043, b)
+    results_geom["h_fs"].append(h_fs_i)
+    results_geom["h_rs"].append(h_rs_i)
+    results_geom["c_upper"].append(c_upper_i)
+    results_geom["c_lower"].append(c_lower_i)
 
 
-'''
-print(estimate_v, error_v)
-print(estimate_th, error_th)
-print(m.degrees(estimate_th))
-print("I_xx:", I_xx)
-print("J:", J)
-'''
+
+
+
+results_stiffness = {
+    "I_xx": [],
+    "J": []
+}
+
+for i in range(len(x_grid)):
+    I, J_val = stiffness_distribution(
+        x_grid[i],
+        results_geom["h_fs"][i],
+        results_geom["h_rs"][i],
+        results_geom["c_upper"][i],
+        results_geom["c_lower"][i],
+        0.001,
+        0.1,
+        spar_list,
+        G
+    )
+    results_stiffness["I_xx"].append(I)
+    results_stiffness["J"].append(J_val)
+
+
+I_xx = []
+J = []
+
+for i in range(len(x_grid)):
+
+    I_xx.append(results_stiffness["I_xx"][i])
+    J.append(results_stiffness["J"][i])
+
+
+I_xx_num = np.array(I_xx, dtype=float)
+print(I_xx_num)
+J_num    = np.array(J, dtype=float)
+M_vals_num = np.array(M_vals, dtype=float)
+T_total_num = np.array(T_total, dtype=float)
+
+# Now compute numeric arrays
+d2v_dy2 = M_vals_num / (E * I_xx_num)
+dth_dy  = T_total_num / (G * J_num)
+
+# Assuming these arrays already exist:
+# x_grid: np.array of spanwise locations
+# d2v_dy2: np.array of -M_vals / (E * I_xx)
+# dth_dy: np.array of T_total / (G * J)
+
+# ---------------------------
+# 1️⃣ Create interpolating functions
+# ---------------------------
+f_d2v = interp1d(x_grid, d2v_dy2, kind='cubic', fill_value="extrapolate")
+f_dth = interp1d(x_grid, dth_dy, kind='cubic', fill_value="extrapolate")
+
+# ---------------------------
+# 2️⃣ Compute slope (dv/dy) by integrating f_d2v
+# ---------------------------
+def slope(y):
+    result, _ = integrate.quad(f_d2v, 0, y)
+    return result
+
+# Vectorize slope function to evaluate at multiple points
+slope_vec = np.vectorize(slope)
+
+slope_vals = slope_vec(x_grid)
+
+# ---------------------------
+# 3️⃣ Compute deflection v(y) by integrating slope
+# ---------------------------
+def deflection(y):
+    result, _ = integrate.quad(slope, 0, y)
+    return result
+
+deflection_vec = np.vectorize(deflection)
+v_vals = deflection_vec(x_grid)
+
+# ---------------------------
+# 4️⃣ Compute twist θ(y) by integrating f_dth
+# ---------------------------
+def twist(y):
+    result, _ = integrate.quad(f_dth, 0, y)
+    return result
+
+twist_vec = np.vectorize(twist)
+th_vals = twist_vec(x_grid)
+
+# ---------------------------
+# 5️⃣ Plotting
+# ---------------------------
+plt.figure(figsize=(8,5))
+plt.plot(x_grid, v_vals, label='Deflection v(y)')
+plt.xlabel('Spanwise location y [m]')
+plt.ylabel('Deflection v [m]')
+plt.title('Wing Deflection along Span (Interpolated)')
+plt.grid(True)
+plt.legend()
+plt.show()
+
+plt.figure(figsize=(8,5))
+plt.plot(x_grid, th_vals, label='Twist θ(y)', color='orange')
+plt.xlabel('Spanwise location y [m]')
+plt.ylabel('Twist θ [rad]')
+plt.title('Wing Twist along Span (Interpolated)')
+plt.grid(True)
+plt.legend()
+plt.show()

@@ -14,8 +14,8 @@ from shear_centre_location import shear_center_non_dim
 
 # Variables
 
-V_inf = 53  # Freestream velocity in m/s
-rho   = 1.225 # Air density in kg/m^3
+V_inf = 200.736  # Freestream velocity in m/s
+rho   = 0.3662 # Air density in kg/m^3
 aoa_deg = 0.0   # Angle of attack in degrees
 
 

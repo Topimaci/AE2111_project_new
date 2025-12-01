@@ -30,8 +30,8 @@ aoa_deg = 0.0   # Angle of attack in degrees
 
 #conditions
 g = 9.81 # Gravitational constant m/s^2
-V_inf = 50.0  # Freestream velocity in m/s
-rho   = 1.225 # Air density in kg/m^3
+V_inf = 200.736  # Freestream velocity in m/s
+rho   = 0.3662 # Air density in kg/m^3
 
 #Mass
 M_wing = 932.9 # mass of the wing in kg
