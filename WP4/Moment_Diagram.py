@@ -68,7 +68,7 @@ y_tip = y_span[n//2:]        # last half of spanwise locations
 Cl_tip = Cl[n//2:]           # corresponding Cl
 chord_tip = chord0[n//2:]     # corresponding chord lengths
 
-#"""To produce NVM for AOA 10 degrees, uncomment THIS!
+"""To produce NVM for AOA 10 degrees, uncomment THIS!
 # --- FOR AOA 10!!!!---- 
 L_prime = compute_lift_line_load(chord10, Cl10, V_inf, rho)
 D_prime = compute_drag_line_load(chord10, ICd10, V_inf, rho)
@@ -139,40 +139,51 @@ def Fuel_distribution_tank_2(mass_fuel, grav_const, wing_span, cord_24, cord_90,
     return (4 * mass_fuel * grav_const) / (0.66 * wing_span * (cord_24 + cord_90)) * \
            (cord_24 + ((cord_90 - cord_24) / (0.66 * wing_span)) * y_values)
 
+
+
 # --- Combined load array ---
 combined_loads = np.zeros_like(y_vals)
 
 # --- Structural load over full span ---
 
 wing_weight_only = wing_weight_distribution(M_wing, g, b, C_t, C_r, y_vals)
-combined_loads -= wing_weight_only
+
 
 # --- Tank 1 load (0% → 19%) ---
 y_t1 = y_vals[:i_19]                      # local y inside tank 1 region
 W_t1 = Fuel_distribution_tank_1(M_fuel_T1, g, b, C_r, C_19, y_t1)
-combined_loads[:i_19] -= W_t1
 
 # --- Tank 2 load (24% → 90%) ---
 # Shift y so Tank 2 formula sees y=0 at 24%
 y_t2_local = y_vals[i_24:i_90] - y_vals[i_24]
 W_t2 = Fuel_distribution_tank_2(M_fuel_T2, g, b, C_24, C_90, y_t2_local)
 
-combined_loads[i_24:i_90] -= W_t2
+
 
 # Spanwise segment for the gear
 y_gear = y_vals[i_19:i_24]                  # local y inside gear region
 gear_load_per_point = (W_main_gear )/ 0.4896
 
-# Add to combined load
-combined_loads[i_19:i_24] -= gear_load_per_point
 
 
-combined_loads[:] += L_prime
+# --- Adding the distributions --------------------------------------------------------------------------
+#----------------If AoA is 0 deg ------------------
+combined_loads[:] -= wing_weight_only                                        # struc Aoa=0
+combined_loads[:i_19] -= W_t1                                                # Tank 1 AoA=0
+combined_loads[i_24:i_90] -= W_t2                                            # Tank 2 AoA=0
+combined_loads[i_19:i_24] -= gear_load_per_point                             #Landing gear AoA=0
+combined_loads[:] += L_prime                                                 #Lift AoA=0
 
-#If AoA is 10 deg add this drag component
 
-combined_loads[:] += D_prime 
 
+"""----------------If AoA is 10 deg ------------------           # to use this add a # in front of this line
+combined_loads[:] += D_prime * np.sin(np.deg2rad(10))
+combined_loads[:] -= wing_weight_only * np.cos(np.deg2rad(10))               # struc Aoa=10
+combined_loads[:i_19] -= W_t1 * np.cos(np.deg2rad(10))                       # Tank 1 AoA=10
+combined_loads[i_24:i_90] -= W_t2 * np.cos(np.deg2rad(10))                   # Tank 2 AoA=10
+combined_loads[i_19:i_24] -= gear_load_per_point * np.cos(np.deg2rad(10))    #Landing gear AoA=10
+combined_loads[:] += L_prime * np.cos(np.deg2rad(10))                        #Lift AoA=10
+#"""
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
