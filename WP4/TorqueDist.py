@@ -20,12 +20,18 @@ aoa_deg = 0.0   # Angle of attack in degrees
 
 
 def compute_lift_line_load(chord: np.ndarray,
-                           Cl: np.ndarray,
+                           Cl0: np.ndarray,
+                           Cl10: np.ndarray,
+                            aoa_deg: float,
                            V_inf: float,
                            rho: float = 1.225) -> np.ndarray:
     """
     L'(y) = 0.5 * rho * V^2 * Cl(y) * c(y)
     """
+
+    Cl = (Cl10 - Cl0) / 10 * aoa_deg + Cl0
+    
+
     q_inf = 0.5 * rho * V_inf**2
     L_prime = q_inf * chord * Cl
     return L_prime
@@ -126,6 +132,7 @@ def distance_dx_calc(chord: np.ndarray,
 
 
 
+
 # Torque density distribution w(x), where w(x) = q(x) * d(x)
 def torque_density_distribution(x: np.ndarray,
                                 q_func,
@@ -194,11 +201,13 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case, V_inf, rho):
     L_span = x_sorted[-1]
     x_grid = np.linspace(0, L_span, 500)
     w_T = torque_density_distribution(x_grid, q_func, d_func, t_func=t_func)
-
     x_rev = x_grid[::-1]
     w_rev = w_T[::-1]
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
     T_dist = -T_rev[::-1]
+
+    #Weight of the fuel and wing
+
 
     # point loads...
     point_forces = [{'x': 1.84, 'P': 126.8*9.81, 'd': 0.473}]
