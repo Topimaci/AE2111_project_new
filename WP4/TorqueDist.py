@@ -232,9 +232,9 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
 
     # 6. Torque from weights
     d_wing_load = distance_dx_calc_wing_load_distribution(chord=chord, x_force_ratio=0.45, sweep_deg=8.36)
-    T_wing_load = combined_loads_weights_wing_fuel * d_wing_load
-    T_wing_load_grid = np.interp(x_grid, y_span, T_wing_load)
-    T_dist += T_wing_load_grid #adding torque due to weights
+    #T_wing_load = combined_loads_weights_wing_fuel * d_wing_load
+   # T_wing_load_grid = np.interp(x_grid, y_span, T_wing_load)
+   # T_dist += T_wing_load_grid #adding torque due to weights
     #Weight of the fuel and wing
 
 
