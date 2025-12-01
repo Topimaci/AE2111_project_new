@@ -10,6 +10,7 @@ import math as m
 from matplotlib.widgets import RadioButtons
 from scipy import integrate, interpolate
 from shear_centre_location import shear_center_non_dim
+from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 
 
 # Variables
@@ -20,20 +21,28 @@ aoa_deg = 0.0   # Angle of attack in degrees
 
 
 def compute_lift_line_load(chord: np.ndarray,
-                           Cl: np.ndarray,
+                           Cl0: np.ndarray,
+                           Cl10: np.ndarray,
+                            aoa_deg: float,
                            V_inf: float,
                            rho: float = 1.225) -> np.ndarray:
     """
     L'(y) = 0.5 * rho * V^2 * Cl(y) * c(y)
     """
+
+    Cl = (Cl10 - Cl0) / 10 * aoa_deg + Cl0
+    
+
     q_inf = 0.5 * rho * V_inf**2
     L_prime = q_inf * chord * Cl
     return L_prime
 
-def compute_drag_line_load(chord: np.ndarray, ICd: np.ndarray, V_inf: float, rho: float = 1.225) -> np.ndarray:
+def compute_drag_line_load(chord: np.ndarray, ICd0: np.ndarray, ICd10: np.ndarray, aoa_deg: float, V_inf: float, rho: float = 1.225) -> np.ndarray:
     """
     D'(y) = 0.5 * rho * V^2 * Cd(y) * c(y)
     """
+    ICd = (ICd10 - ICd0) / 10 * aoa_deg + ICd0
+
     q_inf = 0.5 * rho * V_inf**2
     D_prime = q_inf * chord * ICd
     return D_prime
@@ -51,12 +60,17 @@ def compute_normal_force_distribution(L_prime: np.ndarray,
 
 # torque distribution along the blade due to external loads or lifts etc, known as t(x)
 def compute_section_moment_density(chord: np.ndarray,
-                                   Cm: np.ndarray,
+                                   Cm0: np.ndarray,
+                                   Cm10: np.ndarray,
+                                   aoa_deg: float,
                                    V_inf: float,
                                    rho: float = 1.225) -> np.ndarray:
     """
     M'(y) = Cm(y) * q_inf * c(y)^2 
     """
+
+    Cm = (Cm10 - Cm0) / 10 * aoa_deg + Cm0
+
     q_inf = 0.5 * rho * V_inf**2
     M_prime = Cm * q_inf * chord**2
     return M_prime
@@ -121,6 +135,23 @@ def distance_dx_calc(chord: np.ndarray,
     dreal = (x_wb - x_force) * np.cos(sweep_rad)
     return dreal
 
+def distance_dx_calc_wing_load_distribution(chord: np.ndarray,
+                     ratio_frontspar: float = 0.3,
+                     ratio_rearspar: float = 0.7,
+                     x_force_ratio: float = 0.45,
+                     sweep_deg: float = 8.36) -> np.ndarray:
+    """
+    dreal(x) = (SC - x_force) * cos(sweep)
+    x_force   = centroid of wing-box (45% chord)
+    """
+    chord = np.asarray(chord)
+
+    x_wb   = shear_center_non_dim() * chord
+    x_force = x_force_ratio * chord
+
+    sweep_rad = np.deg2rad(sweep_deg)
+    dreal = (x_wb - x_force) * np.cos(sweep_rad)
+    return dreal
 
 
 
@@ -169,20 +200,20 @@ def add_point_forces_and_torques(x_grid: np.ndarray,
     return T_total
 
 
-def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case, V_inf, rho):
+def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_inf, rho):
     # 1. Lift & drag
-    L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
-    D_prime = compute_drag_line_load(chord, ICd, V_inf, rho)
+    L_prime = compute_lift_line_load(chord, Cl0, Cl10, aoa_deg, V_inf, rho)
+    D_prime = compute_drag_line_load(chord, ICd0, ICd10, aoa_deg, V_inf, rho)
 
     L_total = total_from_line_load(y_span, L_prime)
     D_total = total_from_line_load(y_span, D_prime)
     # print(f"AoA={aoa_deg_case:>4.1f}°  Lift={L_total:,.1f} N   Drag={D_total:,.1f} N")
 
     # 2. Normal force
-    N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg_case)
+    N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
 
     # 3. Section moment density
-    M_prime = compute_section_moment_density(chord, Cm, V_inf, rho)
+    M_prime = compute_section_moment_density(chord, Cm0, Cm10, aoa_deg, V_inf, rho)
 
     # 4. q(x), d(x), t(x)
     x_sorted, q_func, d_func, t_func = build_q_d_t_functions(
@@ -194,11 +225,30 @@ def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case, V_inf, rho):
     L_span = x_sorted[-1]
     x_grid = np.linspace(0, L_span, 500)
     w_T = torque_density_distribution(x_grid, q_func, d_func, t_func=t_func)
-
     x_rev = x_grid[::-1]
     w_rev = w_T[::-1]
     T_rev = integrate.cumulative_trapezoid(w_rev, x_rev, initial=0.0)
     T_dist = -T_rev[::-1]
+
+
+
+    # 6. Torque from weights
+    Nw = combined_loads_weights_wing_fuel.size
+    y_w = np.linspace(0.0, L_span, Nw)          # L_span = half-span in meters
+
+    w_on_grid = np.interp(x_grid, y_w, combined_loads_weights_wing_fuel)  # (500,)
+
+    chord_half = chord[y_span >= 0.0]
+    y_half = y_span[y_span >= 0.0]
+    chord_on_grid = np.interp(x_grid, y_half, chord_half)
+    d_weight_on_grid = distance_dx_calc_wing_load_distribution(
+        chord=chord_on_grid,
+        x_force_ratio=0.45,
+        sweep_deg=8.36
+    )
+    T_dist += w_on_grid * d_weight_on_grid
+
+
 
     # point loads...
     point_forces = [{'x': 1.84, 'P': 126.8*9.81, 'd': 0.473}]
@@ -237,10 +287,10 @@ if __name__ == "__main__":
 
     # 1. Reken beide situaties uit
     results = {
-        "AoA 0°":  compute_case(y_span0,  chord0,  Cl0,  ICd0,  Cm0,  0.0,  V_inf, rho),
-        "AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0, V_inf, rho),
+        f"AoA {aoa_deg}":  compute_case(y_span0,  chord0,  Cl0, Cl10, aoa_deg,  ICd0, ICd10, Cm0, Cm10, V_inf, rho)
+       # ,"AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0, V_inf, rho),
         }
-    
+
     case_labels = list(results.keys())
 
     #return function
