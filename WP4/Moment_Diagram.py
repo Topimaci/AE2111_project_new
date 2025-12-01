@@ -17,6 +17,7 @@ from TorqueDist import build_q_d_t_functions
 from TorqueDist import compute_normal_force_distribution
 from TorqueDist import compute_drag_line_load
 from TorqueDist import compute_section_moment_density
+from Integration import x_grid
 
 
 # --- Variables ---
@@ -29,14 +30,14 @@ aoa_deg = 0.0   # Angle of attack in degrees
 
 #conditions
 g = 9.81 # Gravitational constant m/s^2
-V_inf = 10.0  # Freestream velocity in m/s
+V_inf = 50.0  # Freestream velocity in m/s
 rho   = 1.225 # Air density in kg/m^3
 
 #Mass
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
 M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
-W_main_gear = 1245.87 #weight of landing gear (already accounted for there being two weight split half per wing (already halved))
+W_main_gear = 1245.87 #weight of landing gear (already accounted for there being two weight split half per wing (already halved)) in N
 
 
 
@@ -100,7 +101,7 @@ def compute_lift_line_load(chord: np.ndarray,
     return q_inf * chord * Cl
 
 # --- Compute L'(y) for the tip half ---
-V_inf = 50  # freestream velocity [m/s]
+  # freestream velocity [m/s]
 L_prime = compute_lift_line_load(chord_interp, Cl_interp, V_inf)
 
 """# --- Plotting the lift distribution to check if sensical---
@@ -113,7 +114,7 @@ plt.show()
 """
 
 # --- Create grid ---
-y_vals = np.linspace(0, b_half, 500)
+y_vals = x_grid
 N = len(y_vals) # we choose this to be 500
 
 # --- Index boundaries ---
@@ -195,7 +196,7 @@ plt.ylabel("q(y) [N/m]")
 plt.title("Distributed Load q(y)")
 plt.grid(True)
 
-# S(y)
+# S(y)+
 plt.subplot(3,1,2)
 plt.plot(y_vals, S_vals)
 plt.xlabel("Spanwise position y [m]")
