@@ -172,8 +172,8 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
     I_top = t * c_upper * (t/2 - x_c)**2
     I_bottom = t * c_lower * (((h_fs - x_c) + (h_rs - x_c))/2) ** 2
 
-    num_top = float(string_top_interp(y_pos))
-    num_bottom = float(string_bottom_interp(y_pos))
+    num_top = string_top_interp(y_pos)
+    num_bottom = string_bottom_interp(y_pos)
 
     #stringer inertias
     I_string_top = (A_string * (t - x_c)**2) * num_top
@@ -228,8 +228,34 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
     return I_total, J
 
 
+def spar_stringer_lengths(y, spar_location_fraction1, spar_location_fraction2, root_chord, tip_chord, b):
+    spar1_coor1, spar1_coor2, spar1_coor3, spar1_coor4 = spar_position(Airfoil_coordinates, spar_location_fraction1)
+    spar2_coor1, spar2_coor2, spar2_coor3, spar2_coor4 = spar_position(Airfoil_coordinates, spar_location_fraction2)
+    y_at_top_stringer = top_stringer_y_coord(spar1_coor1, spar1_coor2, spar2_coor1, spar2_coor2, spar_location_fraction1)
+    y1_at_bot_stringer, y2_at_bot_stringer = bot_stringer_y_coords(spar1_coor3, spar1_coor4, spar2_coor3, spar2_coor4, spar_location_fraction1, spar_location_fraction2)
+    box_coordinates = [[spar_location_fraction2, y_at_top_stringer], [spar_location_fraction1, y_at_top_stringer],
+                       [spar_location_fraction1, y1_at_bot_stringer], [spar_location_fraction2, y2_at_bot_stringer]]
+
+
+
+    front_spar_length = spar_length(spar_location_fraction1, y, root_chord, tip_chord, b, spar_location_fraction1, spar_location_fraction2)
+    rear_spar_length = spar_length(spar_location_fraction2, y, root_chord, tip_chord, b, spar_location_fraction1, spar_location_fraction2)
+    h_fs, h_rs = front_spar_length, rear_spar_length
+
+    a = (tip_chord - root_chord)/(b/2)
+    chord_length_at_y = root_chord + a * y
+    c_upper = abs(box_coordinates[0][0] - box_coordinates[1][0]) * chord_length_at_y
+    c_lower = m.sqrt((box_coordinates[2][0] - box_coordinates[3][0])**2 + (box_coordinates[2][1] - box_coordinates[3][1])**2) * chord_length_at_y
+
+    return h_fs, h_rs, c_upper, c_lower
+
+
+
+
 #______THIS IS WHERE WE CALL THE FUNCTION, ALL OF THE VALUES MUST BE REPLACED WITH THE CORRECT ONES
-I_xx, J = stiffness_distribution(x_grid, 0.3, 1, 1.2, 0.05, 0.2, 0.1, spar_list, G)
+h_fs, h_rs, c_upper, c_lower = spar_stringer_lengths(x_grid, 0.3, 0.6, 2.874, 1.043, b)
+
+I_xx, J = stiffness_distribution(x_grid, h_fs, h_rs, c_upper, c_lower, 0.2, 0.1, spar_list, G)
 
 d2v_dy2 = -M_vals / (E * I_xx)
 dth_dy  =  T_total   / (G * J)
@@ -250,6 +276,7 @@ estimate_v, error_v = integrate.quad(slope, 0, b/2)
 # Twist
 estimate_th, error_th = integrate.quad(f_th, 0, b/2)
 
+
 '''
 print(estimate_v, error_v)
 print(estimate_th, error_th)
@@ -257,62 +284,3 @@ print(m.degrees(estimate_th))
 print("I_xx:", I_xx)
 print("J:", J)
 '''
-
-
-##______Output results________________________________________________________
-## Get the box coordinates for spar length calculations
-def diagram_plotter(spar_location_fraction1, spar_location_fraction2, root_chord, tip_chord, b, t, A_string, spar_list, steps):
-    spar1_coor1, spar1_coor2, spar1_coor3, spar1_coor4 = spar_position(Airfoil_coordinates, spar_location_fraction1)
-    spar2_coor1, spar2_coor2, spar2_coor3, spar2_coor4 = spar_position(Airfoil_coordinates, spar_location_fraction2)
-    y_at_top_stringer = top_stringer_y_coord(spar1_coor1, spar1_coor2, spar2_coor1, spar2_coor2, spar_location_fraction1)
-    y1_at_bot_stringer, y2_at_bot_stringer = bot_stringer_y_coords(spar1_coor3, spar1_coor4, spar2_coor3, spar2_coor4, spar_location_fraction1, spar_location_fraction2)
-    box_coordinates = [[spar_location_fraction2, y_at_top_stringer], [spar_location_fraction1, y_at_top_stringer],
-                       [spar_location_fraction1, y1_at_bot_stringer], [spar_location_fraction2, y2_at_bot_stringer]]
-
-    y_array = np.linspace(0, b/2, steps)
-    dv_dy2_array = np.zeros_like(y_array)
-    dtheta_dy_array = np.zeros_like(y_array)
-
-    # Compute d2v/dy2 and dtheta/dy numerically
-    for i, y_i in enumerate(y_array):
-        front_spar_length = spar_length(spar_location_fraction1, y_i, root_chord, tip_chord, b, spar_location_fraction1, spar_location_fraction2)
-        rear_spar_length = spar_length(spar_location_fraction2, y_i, root_chord, tip_chord, b, spar_location_fraction1, spar_location_fraction2)
-        h_fs, h_rs = front_spar_length, rear_spar_length
-
-        a = (tip_chord - root_chord)/(b/2)
-        chord_length_at_y = root_chord + a * y_i
-        c_upper = abs(box_coordinates[0][0] - box_coordinates[1][0]) * chord_length_at_y
-        c_lower = m.sqrt((box_coordinates[2][0] - box_coordinates[3][0])**2 + (box_coordinates[2][1] - box_coordinates[3][1])**2) * chord_length_at_y
-
-        I_xx_sym, J = stiffness_distribution(y_i, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list)
-        I_xx = float(I_xx_sym.subs(y, y_i))
-
-        # Make numeric functions from symbolic expressions
-        f_M = sp.lambdify(y, M_y, "numpy")
-        f_T = sp.lambdify(y, T, "numpy")
-
-        # Inside the loop over y_array
-        dv_dy2_array[i]   = - f_M(y_i) / (E * I_xx)
-        dtheta_dy_array[i] = f_T(y_i) / (G * J)
-    
-
-    # Numerical integration using cumulative trapezoid
-    v_array = np.cumsum((dv_dy2_array[:-1] + dv_dy2_array[1:]) / 2 * np.diff(y_array))
-    theta_array = np.cumsum((dtheta_dy_array[:-1] + dtheta_dy_array[1:]) / 2 * np.diff(y_array))
-
-    # Add zero at the root
-    v_array = np.insert(v_array, 0, 0)
-    theta_array = np.insert(theta_array, 0, 0)
-
-    plt.plot(y_array, v_array, label="Deflection (m)")
-    plt.xlabel("Spanwise position (m)")
-    plt.ylabel("Deflection")
-    plt.show()
-    plt.plot(y_array, np.degrees(theta_array), label="Twist (deg)")
-    plt.xlabel("Spanwise position (m)")
-    plt.ylabel("Twist")
-    plt.vlines(b/2, min(np.degrees(theta_array)), max(np.degrees(theta_array)), colors='r', linestyles='dashed', label='Wing Tip')
-    plt.show()
-
-
-diagram_plotter(0.1, 0.6, 2.874, 1.043, b, 0.003, 0.2, spar_list, 60)
