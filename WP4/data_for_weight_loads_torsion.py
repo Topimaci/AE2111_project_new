@@ -226,4 +226,3 @@ combined_loads_weights_wing_fuel = [
     for i in range(n)
 ]
 
-print(combined_loads_weights_wing_fuel)
