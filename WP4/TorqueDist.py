@@ -10,6 +10,7 @@ import math as m
 from matplotlib.widgets import RadioButtons
 from scipy import integrate, interpolate
 from shear_centre_location import shear_center_non_dim
+from Moment_Diagram import W_t2, W_t1, wing_weight_only
 
 
 # Variables

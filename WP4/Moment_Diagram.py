@@ -30,14 +30,14 @@ aoa_deg = 0.0   # Angle of attack in degrees
 
 #conditions
 g = 9.81 # Gravitational constant m/s^2
-V_inf = 10.0  # Freestream velocity in m/s
+V_inf = 50.0  # Freestream velocity in m/s
 rho   = 1.225 # Air density in kg/m^3
 
 #Mass
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
 M_fuel_T2 = 881.2825 # mass of fuel in fuel tank 2 (after landing gear) in kg
-W_main_gear = 1245.87 #weight of landing gear (already accounted for there being two weight split half per wing (already halved))
+W_main_gear = 1245.87 #weight of landing gear (already accounted for there being two weight split half per wing (already halved)) in N
 
 
 
@@ -101,7 +101,7 @@ def compute_lift_line_load(chord: np.ndarray,
     return q_inf * chord * Cl
 
 # --- Compute L'(y) for the tip half ---
-V_inf = 50  # freestream velocity [m/s]
+  # freestream velocity [m/s]
 L_prime = compute_lift_line_load(chord_interp, Cl_interp, V_inf)
 
 """# --- Plotting the lift distribution to check if sensical---
@@ -144,7 +144,8 @@ combined_loads = np.zeros_like(y_vals)
 
 # --- Structural load over full span ---
 
-combined_loads -= wing_weight_distribution(M_wing, g, b, C_t, C_r, y_vals)
+wing_weight_only = wing_weight_distribution(M_wing, g, b, C_t, C_r, y_vals)
+combined_loads -= wing_weight_only
 
 # --- Tank 1 load (0% → 19%) ---
 y_t1 = y_vals[:i_19]                      # local y inside tank 1 region
@@ -167,6 +168,11 @@ combined_loads[i_19:i_24] -= gear_load_per_point
 
 
 combined_loads[:] += L_prime
+
+#If AoA is 10 deg add this drag component
+
+combined_loads[:] += D_prime 
+
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
 # Integrate q(y) from tip -> root
@@ -195,7 +201,7 @@ plt.ylabel("q(y) [N/m]")
 plt.title("Distributed Load q(y)")
 plt.grid(True)
 
-# S(y)
+# S(y)+
 plt.subplot(3,1,2)
 plt.plot(y_vals, S_vals)
 plt.xlabel("Spanwise position y [m]")
