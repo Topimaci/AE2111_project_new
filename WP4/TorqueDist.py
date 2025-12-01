@@ -16,7 +16,7 @@ from shear_centre_location import shear_center_non_dim
 
 V_inf = 53  # Freestream velocity in m/s
 rho   = 1.225 # Air density in kg/m^3
-aoa_deg = 0.0   # Angle of attack in degrees
+aoa_deg = 3.0   # Angle of attack in degrees
 
 
 def compute_lift_line_load(chord: np.ndarray,
@@ -176,9 +176,9 @@ def add_point_forces_and_torques(x_grid: np.ndarray,
     return T_total
 
 
-def compute_case(y_span, chord, Cl, ICd, Cm, aoa_deg_case, V_inf, rho):
+def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd, Cm, aoa_deg_case, V_inf, rho):
     # 1. Lift & drag
-    L_prime = compute_lift_line_load(chord, Cl, V_inf, rho)
+    L_prime = compute_lift_line_load(chord, Cl0, Cl10, aoa_deg, V_inf, rho)
     D_prime = compute_drag_line_load(chord, ICd, V_inf, rho)
 
     L_total = total_from_line_load(y_span, L_prime)
@@ -246,8 +246,8 @@ if __name__ == "__main__":
 
     # 1. Reken beide situaties uit
     results = {
-        "AoA 0°":  compute_case(y_span0,  chord0,  Cl0,  ICd0,  Cm0,  0.0,  V_inf, rho),
-        "AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0, V_inf, rho),
+        "AoA 0°":  compute_case(y_span0,  chord0,  Cl0, Cl10, aoa_deg,  ICd0,  Cm0,  0.0,  V_inf, rho)
+       # ,"AoA 10°": compute_case(y_span10, chord10, Cl10, ICd10, Cm10, 10.0, V_inf, rho),
         }
     
     case_labels = list(results.keys())
