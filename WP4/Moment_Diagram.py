@@ -17,6 +17,7 @@ from TorqueDist import build_q_d_t_functions
 from TorqueDist import compute_normal_force_distribution
 from TorqueDist import compute_drag_line_load
 from TorqueDist import compute_section_moment_density
+from Integration import x_grid
 
 
 # --- Variables ---
@@ -113,7 +114,7 @@ plt.show()
 """
 
 # --- Create grid ---
-y_vals = np.linspace(0, b_half, 500)
+y_vals = x_grid
 N = len(y_vals) # we choose this to be 500
 
 # --- Index boundaries ---
