@@ -4,6 +4,7 @@ import numpy as np
 import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+from scipy.integrate import cumulative_trapezoid
 from Integration import x_grid, T_total
 from Moment_Diagram import M_vals
 
@@ -303,7 +304,7 @@ for i in range(len(x_grid)):
 
 
 I_xx_num = np.array(I_xx, dtype=float)
-print(I_xx_num)
+# print(I_xx_num) <---- Uncomment to see the moment of inertia values
 J_num    = np.array(J, dtype=float)
 M_vals_num = np.array(M_vals, dtype=float)
 T_total_num = np.array(T_total, dtype=float)
@@ -312,48 +313,16 @@ T_total_num = np.array(T_total, dtype=float)
 d2v_dy2 = M_vals_num / (E * I_xx_num)
 dth_dy  = T_total_num / (G * J_num)
 
-# Assuming these arrays already exist:
-# x_grid: np.array of spanwise locations
-# d2v_dy2: np.array of -M_vals / (E * I_xx)
-# dth_dy: np.array of T_total / (G * J)
+# starting from d2v/dy2 and dtheta/dy, integrate to get v and theta
+# 1) slope dv/dy from d2v/dy2
+slope_vals = cumulative_trapezoid(d2v_dy2, x_grid, initial=0.0)
 
-# ---------------------------
-# 1️⃣ Create interpolating functions
-# ---------------------------
-f_d2v = interp1d(x_grid, d2v_dy2, kind='cubic', fill_value="extrapolate")
-f_dth = interp1d(x_grid, dth_dy, kind='cubic', fill_value="extrapolate")
+# 2) deflection v from slope dv/dy
+v_vals = cumulative_trapezoid(slope_vals, x_grid, initial=0.0)
 
-# ---------------------------
-# 2️⃣ Compute slope (dv/dy) by integrating f_d2v
-# ---------------------------
-def slope(y):
-    result, _ = integrate.quad(f_d2v, 0, y)
-    return result
+# 3) twist theta from twist rate dtheta/dy
+th_vals = cumulative_trapezoid(dth_dy, x_grid, initial=0.0)
 
-# Vectorize slope function to evaluate at multiple points
-slope_vec = np.vectorize(slope)
-
-slope_vals = slope_vec(x_grid)
-
-# ---------------------------
-# 3️⃣ Compute deflection v(y) by integrating slope
-# ---------------------------
-def deflection(y):
-    result, _ = integrate.quad(slope, 0, y)
-    return result
-
-deflection_vec = np.vectorize(deflection)
-v_vals = deflection_vec(x_grid)
-
-# ---------------------------
-# 4️⃣ Compute twist θ(y) by integrating f_dth
-# ---------------------------
-def twist(y):
-    result, _ = integrate.quad(f_dth, 0, y)
-    return result
-
-twist_vec = np.vectorize(twist)
-th_vals = twist_vec(x_grid)
 
 # ---------------------------
 # 5️⃣ Plotting
