@@ -252,8 +252,8 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
     
 
     # point loads...
-    point_forces = [{'x': 1.84, 'P': 126.8*9.81, 'd': 0.473}]
-    point_torques = [{'x': 1.84, 'T': 0.5 * rho * V_inf**2*0.04905*(0.56/2)**2*m.pi*0.785}]
+    point_forces = [{'x': 1.84, 'P': 126.8*9.81, 'd': 0.602}]
+    point_torques = [{'x': 1.84, 'T': 0.5 * rho * V_inf**2*0.04905*0.233*0.689624}]
     
 
     T_total = add_point_forces_and_torques(x_grid, T_dist, point_forces, point_torques)
