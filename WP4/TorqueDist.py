@@ -16,16 +16,34 @@ from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 
 # Variables
 
+<<<<<<< HEAD
 load_factor = 2.68*1.5
 V_inf = 250  # Freestream velocity in m/s
 rho   = 1.225 # Air density in kg/m^3
 aoa_deg = 1.75   # Angle of attack in degrees
+=======
+V_inf = 200.736  # Freestream velocity in m/s
+rho   = 0.3662 # Air density in kg/m^3
+  
+>>>>>>> 168ee5fbd66844d186aab95519254bf1759be114
 
+ # Angle of attack in degrees
+n = 2.68
+S_wing = 38.379
+W_situation = 140000     #### FORCE NOT MASS
+#OEM: 7881 = 77312 N
+###MTOM: 14266 = 140000 N
+###Payload design: 750kg =7357 N
 
 
 ### code for load factor and determining critical alpha
+<<<<<<< HEAD
 def critical_alpha(rho, v_situation, S_wing, W_situation):
     CL = 2*W_situation/(rho*v_situation^2*S_wing)
+=======
+def critical_alpha(n, rho_situation, v_situation, S_wing, W_situation):
+    CL = 2*n*W_situation/(rho_situation*(v_situation**2) *S_wing)
+>>>>>>> 168ee5fbd66844d186aab95519254bf1759be114
 
     ### from simulation
     aoa_critical = (CL-0.327220)*10/(1.218686-0.327220)     
@@ -33,9 +51,9 @@ def critical_alpha(rho, v_situation, S_wing, W_situation):
     return aoa_critical    
 
 
+aoa_deg = critical_alpha(n, rho, V_inf, S_wing, W_situation)
 
-
-
+print(aoa_deg)
 
 
 
@@ -226,7 +244,7 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
 
     L_total = total_from_line_load(y_span, L_prime)
     D_total = total_from_line_load(y_span, D_prime)
-    # print(f"AoA={aoa_deg_case:>4.1f}°  Lift={L_total:,.1f} N   Drag={D_total:,.1f} N")
+    #BLYET print(f"AoA={aoa_deg_case:>4.1f}°  Lift={L_total:,.1f} N   Drag={D_total:,.1f} N")
 
     # 2. Normal force
     N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
@@ -296,7 +314,7 @@ def total_from_line_load(y, fprime):
     idx = np.argsort(y)
     y_s = y[idx]; f_s = fprime[idx]
 
-    # voorkom issues bij dubbele y-waarden (bv. 0.0)
+    # Remove duplicates
     y_u, unique_idx = np.unique(y_s, return_index=True)
     f_u = f_s[unique_idx]
 
@@ -310,7 +328,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
     plt.subplots_adjust(left=0.35, bottom=0.15)
 
-    # --- Slider: AoA ---
+    # --- Slider: AoA --- <---- How beautifyl is this slider???
     ax_aoa = plt.axes((0.35, 0.05, 0.6, 0.03))
     aoa_slider = Slider(ax_aoa, "AoA [deg]", 0.0, 10.0, valinit=aoa_deg, valstep=0.05)
 
@@ -347,7 +365,7 @@ if __name__ == "__main__":
     # Slider updates
     aoa_slider.on_changed(update_plot)
 
-    # --- Radio buttons: plot type ---
+    # --- Radio buttons: plot type, switch between load and torque ---
     ax_radio_plot = plt.axes((0.05, 0.65, 0.25, 0.25))
     radio_plot = RadioButtons(ax_radio_plot, ["Torque", "Line loads"])
 
