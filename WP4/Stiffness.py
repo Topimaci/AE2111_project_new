@@ -311,7 +311,7 @@ M_vals_num = np.array(M_vals, dtype=float)
 T_total_num = np.array(T_total, dtype=float) * load_factor
 
 # Now compute numeric arrays
-d2v_dy2 = -M_vals_num / (E * I_xx_num)
+d2v_dy2 = M_vals_num / (E * I_xx_num)
 dth_dy  = T_total_num / (G * J_num)
 
 # starting from d2v/dy2 and dtheta/dy, integrate to get v and theta
