@@ -11,10 +11,12 @@ with warnings.catch_warnings():
         invalid_raise=False
     )
 
+v = 200
+M = v/343
 y_span0 = data0[:, 0]
 chord0  = data0[:, 1]
 Ai0     = data0[:, 2]
-Cl0     = data0[:, 3]
+Cl0     = data0[:, 3] *np.sqrt(1-M**2)
 ICd0    = data0[:, 5]
 Cm0     = data0[:, 7]
 
@@ -39,7 +41,7 @@ with warnings.catch_warnings():
 y_span10 = data10[:, 0]
 chord10  = data10[:, 1]
 Ai10     = data10[:, 2]
-Cl10     = data10[:, 3]
+Cl10     = data10[:, 3] * np.sqrt(1-M**2)
 ICd10    = data10[:, 5]
 Cm10     = data10[:, 7]
 

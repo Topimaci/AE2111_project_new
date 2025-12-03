@@ -2,7 +2,7 @@ from TorqueDist import compute_case
 from XFLR import y_span0, chord0, Cl0, ICd0, Cm0, ICd10, Cm10, Cl10
 import numpy as np
 
-V_inf = 58
+V_inf = 250
 rho = 1.225
 aoa_deg = 0.0
 
