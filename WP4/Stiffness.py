@@ -146,8 +146,8 @@ q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 #_______TO BE REPLACED LATER__________________________________________
 y_breaks = np.array([0, 3, 5, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([2, 2, 2, 0]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([2, 2, 2, 0])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
+stringer_top_num = np.array([2, 2, 0, 0]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([2, 2, 0, 0])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 
 #Linear interpolation of the stringers
@@ -171,8 +171,8 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
     I_top = t * c_upper * (t/2 - x_c)**2
     I_bottom = t * c_lower * (((h_fs - x_c) + (h_rs - x_c))/2) ** 2
 
-    num_top = string_top_interp(y_pos)
-    num_bottom = string_bottom_interp(y_pos)
+    num_top = max(0,string_top_interp(y_pos))
+    num_bottom = max(0,string_bottom_interp(y_pos))
 
     #stringer inertias
     I_string_top = (A_string * (t - x_c)**2) * num_top
@@ -297,12 +297,10 @@ for i in range(len(x_grid)):
 
 I_xx = []
 J = []
-
 for i in range(len(x_grid)):
 
     I_xx.append(results_stiffness["I_xx"][i])
     J.append(results_stiffness["J"][i])
-
 
 I_xx_num = np.array(I_xx, dtype=float)
 # print(I_xx_num) <---- Uncomment to see the moment of inertia values
