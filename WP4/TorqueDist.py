@@ -232,7 +232,7 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
 
     L_total = total_from_line_load(y_span, L_prime)
     D_total = total_from_line_load(y_span, D_prime)
-    # print(f"AoA={aoa_deg_case:>4.1f}°  Lift={L_total:,.1f} N   Drag={D_total:,.1f} N")
+    #BLYET print(f"AoA={aoa_deg_case:>4.1f}°  Lift={L_total:,.1f} N   Drag={D_total:,.1f} N")
 
     # 2. Normal force
     N_prime = compute_normal_force_distribution(L_prime, D_prime, aoa_deg)
@@ -302,7 +302,7 @@ def total_from_line_load(y, fprime):
     idx = np.argsort(y)
     y_s = y[idx]; f_s = fprime[idx]
 
-    # voorkom issues bij dubbele y-waarden (bv. 0.0)
+    # Remove duplicates
     y_u, unique_idx = np.unique(y_s, return_index=True)
     f_u = f_s[unique_idx]
 
@@ -316,7 +316,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
     plt.subplots_adjust(left=0.35, bottom=0.15)
 
-    # --- Slider: AoA ---
+    # --- Slider: AoA --- <---- How beautifyl is this slider???
     ax_aoa = plt.axes((0.35, 0.05, 0.6, 0.03))
     aoa_slider = Slider(ax_aoa, "AoA [deg]", 0.0, 10.0, valinit=aoa_deg, valstep=0.05)
 
@@ -353,7 +353,7 @@ if __name__ == "__main__":
     # Slider updates
     aoa_slider.on_changed(update_plot)
 
-    # --- Radio buttons: plot type ---
+    # --- Radio buttons: plot type, switch between load and torque ---
     ax_radio_plot = plt.axes((0.05, 0.65, 0.25, 0.25))
     radio_plot = RadioButtons(ax_radio_plot, ["Torque", "Line loads"])
 
