@@ -155,70 +155,6 @@ M_prime = compute_section_moment_density(chord_interp, Cm0_interp, Cm10_interp, 
 
 
 
-def build_q_d_t_functions(y_span: np.ndarray,
-                          chord: np.ndarray,
-                          N_prime: np.ndarray,
-                          M_prime: np.ndarray,
-                          sweep_deg: float = 10.43,
-                          ratio_frontspar: float = 0.3,
-                          ratio_rearspar: float = 0.7,
-                          x_force_ratio: float = 0.25):
-
-    mask = y_span >= 0.0
-    y_half = y_span[mask]
-    N_half = N_prime[mask]
-    M_half = M_prime[mask]
-    c_half = chord[mask]
-
-    x = y_half
-    idx = np.argsort(x)
-    x_sorted = x[idx]
-
-    q_sorted = N_half[idx]
-    M_sorted = M_half[idx]
-    c_sorted = c_half[idx]
-
-    q_func = interpolate.interp1d(x_sorted, q_sorted, kind="cubic",  fill_value="extrapolate")
-    t_func = interpolate.interp1d(x_sorted, M_sorted, kind="cubic",  fill_value="extrapolate")
-
-    
-    dreal_sorted = distance_dx_calc(
-        c_sorted,
-        ratio_frontspar=ratio_frontspar,
-        ratio_rearspar=ratio_rearspar,
-        x_force_ratio=x_force_ratio,
-        sweep_deg=sweep_deg
-    )
-
-    d_func = interpolate.interp1d(x_sorted, dreal_sorted, kind="linear", fill_value="extrapolate")
-
-    return x_sorted, q_func, d_func, t_func
-
-def distance_dx_calc(chord: np.ndarray,
-                     ratio_frontspar: float = 0.3,
-                     ratio_rearspar: float = 0.7,
-                     x_force_ratio: float = 0.25,
-                     sweep_deg: float = 10.43) -> np.ndarray:
-    """
-    dreal(x) = (x_wingbox - x_force) * cos(sweep)
-    x_wingbox = average position of front and rear spar
-    x_force   = position of aerodynamic force (25% chord)
-    """
-    chord = np.asarray(chord)
-
-    x_wb   = shear_center_non_dim() * chord
-    x_force = x_force_ratio * chord
-
-    sweep_rad = np.deg2rad(sweep_deg)
-    dreal = (x_wb - x_force) * np.cos(sweep_rad)
-    return dreal
-
-
-
-
-
-y, q_func, d_func, t_func = build_q_d_t_functions(x_grid, chord_interp, N_prime, M_prime, 10.43, 0.3, 0.7, 0.25)
-
 """# --- Plotting the lift distribution to check if sensical---
 plt.plot(y_interp, L_prime)
 plt.xlabel("Spanwise position y [m]")
@@ -237,8 +173,6 @@ i_19 = int(0.19 * N)   # Tank 1:   0% → 19%, what this does it returns an inde
 i_24 = int(0.24 * N)   # Tank 2:  24% → 90%
 i_90 = int(0.90 * N) 
 
-# --- q(y) ---
-q_vals = q_func(y_vals)
 
 # --- Wing structure load ---
 def wing_weight_distribution(mass_wing, grav_const, wing_span, tip_cord, root_cord, y_values, aoa_deg):
