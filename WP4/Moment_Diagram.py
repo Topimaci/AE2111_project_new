@@ -25,8 +25,9 @@ aoa_deg = 0.0   # Angle of attack in degrees
 
 #conditions
 g = 9.81 # Gravitational constant m/s^2
-V_inf = 200.736  # Freestream velocity in m/s
-rho   = 0.3662 # Air density in kg/m^3
+V_inf = 250  # Freestream velocity in m/s
+rho   = 1.225 # Air density in kg/m^3
+load_factor = 2.68*1.5
 
 #Mass
 M_wing = 932.9 # mass of the wing in kg
@@ -308,14 +309,14 @@ combined_loads[:] += L_prime * np.cos(np.deg2rad(aoa_deg))                      
 S_vals_tip_to_root = cumulative_trapezoid(combined_loads[::-1], y_vals[::-1], initial=0)
 
 # Flip so that y increases from root → tip
-S_vals = S_vals_tip_to_root[::-1]
+S_vals = S_vals_tip_to_root[::-1] * load_factor
 
 # --- BENDING MOMENT M(y) ----------------------------------------------------------------------------------
 # Integrate S(y) from tip -> root
 M_vals_tip_to_root = cumulative_trapezoid(S_vals[::-1], y_vals[::-1], initial=0)
 
 # Flip back
-M_vals = M_vals_tip_to_root[::-1]
+M_vals = M_vals_tip_to_root[::-1]*load_factor
 
 
 # ---------- PLOTS ---------------------------------------------------------------------------------------------

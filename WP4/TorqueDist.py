@@ -16,15 +16,16 @@ from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 
 # Variables
 
-V_inf = 200.736  # Freestream velocity in m/s
-rho   = 0.3662 # Air density in kg/m^3
+load_factor = 2.68*1.5
+V_inf = 250  # Freestream velocity in m/s
+rho   = 1.225 # Air density in kg/m^3
 aoa_deg = 1.75   # Angle of attack in degrees
 
 
 
 ### code for load factor and determining critical alpha
-def critical_alpha(n, rho, v_situation, S_wing, W_situation):
-    CL = 2*n*W_situation/(rho*v_situation^2*S_wing)
+def critical_alpha(rho, v_situation, S_wing, W_situation):
+    CL = 2*W_situation/(rho*v_situation^2*S_wing)
 
     ### from simulation
     aoa_critical = (CL-0.327220)*10/(1.218686-0.327220)     
@@ -273,7 +274,7 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
     point_torques = [{'x': 1.84, 'T': 0.5 * rho * V_inf**2*0.04905*0.233*0.689624}]
     
 
-    T_total = add_point_forces_and_torques(x_grid, T_dist, point_forces, point_torques)
+    T_total = add_point_forces_and_torques(x_grid, T_dist, point_forces, point_torques) * load_factor
 
     return {
         "y_span": y_span,

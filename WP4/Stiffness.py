@@ -138,15 +138,16 @@ max_tip_rotat_deg = 10   # in degrees
 max_tip_rotat_rad = m.radians(max_tip_rotat_deg)      # in radians
 E = 71 * 10 ** 9    # Young's modulus
 G = 27 * 10 ** 9    # Shear modulus
+load_factor = 2.68*1.5
 
 y = sp.symbols("y")
 q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 
 #_______TO BE REPLACED LATER__________________________________________
-y_breaks = np.array([3, 5, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([2, 0, 0]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([2, 0, 0])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
+y_breaks = np.array([0, 3, 5, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
+stringer_top_num = np.array([2, 2, 2, 0]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([2, 2, 2, 0])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 
 #Linear interpolation of the stringers
@@ -307,10 +308,10 @@ I_xx_num = np.array(I_xx, dtype=float)
 # print(I_xx_num) <---- Uncomment to see the moment of inertia values
 J_num    = np.array(J, dtype=float)
 M_vals_num = np.array(M_vals, dtype=float)
-T_total_num = np.array(T_total, dtype=float)
+T_total_num = np.array(T_total, dtype=float) * load_factor
 
 # Now compute numeric arrays
-d2v_dy2 = M_vals_num / (E * I_xx_num)
+d2v_dy2 = -M_vals_num / (E * I_xx_num)
 dth_dy  = T_total_num / (G * J_num)
 
 # starting from d2v/dy2 and dtheta/dy, integrate to get v and theta
@@ -321,7 +322,7 @@ slope_vals = cumulative_trapezoid(d2v_dy2, x_grid, initial=0.0)
 v_vals = cumulative_trapezoid(slope_vals, x_grid, initial=0.0)
 
 # 3) twist theta from twist rate dtheta/dy
-th_vals = cumulative_trapezoid(dth_dy, x_grid, initial=0.0)
+th_vals = cumulative_trapezoid(dth_dy, x_grid, initial=0.0) /np.pi*180
 
 
 # ---------------------------
@@ -339,7 +340,7 @@ plt.show()
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, th_vals, label='Twist θ(y)', color='orange')
 plt.xlabel('Spanwise location y [m]')
-plt.ylabel('Twist θ [rad]')
+plt.ylabel('Twist θ [deg]')
 plt.title('Wing Twist along Span (Interpolated)')
 plt.grid(True)
 plt.legend()
