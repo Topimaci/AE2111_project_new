@@ -18,13 +18,20 @@ from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 
 V_inf = 200.736  # Freestream velocity in m/s
 rho   = 0.3662 # Air density in kg/m^3
-aoa_deg = 1.75   # Angle of attack in degrees
+  
 
+ # Angle of attack in degrees
+n = 2.68
+S_wing = 38.379
+W_situation = 140000     #### FORCE NOT MASS
+#OEM: 7881 = 77312 N
+###MTOM: 14266 = 140000 N
+###Payload design: 750kg =7357 N
 
 
 ### code for load factor and determining critical alpha
-def critical_alpha(n, rho, v_situation, S_wing, W_situation):
-    CL = 2*n*W_situation/(rho*v_situation^2*S_wing)
+def critical_alpha(n, rho_situation, v_situation, S_wing, W_situation):
+    CL = 2*n*W_situation/(rho_situation*(v_situation**2) *S_wing)
 
     ### from simulation
     aoa_critical = (CL-0.327220)*10/(1.218686-0.327220)     
@@ -32,9 +39,9 @@ def critical_alpha(n, rho, v_situation, S_wing, W_situation):
     return aoa_critical    
 
 
+aoa_deg = critical_alpha(n, rho, V_inf, S_wing, W_situation)
 
-
-
+print(aoa_deg)
 
 
 
