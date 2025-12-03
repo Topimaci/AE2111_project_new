@@ -218,12 +218,17 @@ combined_loads_weights_wing_fuel = [
     for i in range(len(wing_weight_load_distribution))
 ]
 
-n = len(wing_weight_load_distribution)
-m = len(fuel2_distribution)
+n = len(wing_weight_load_distribution)       # długość combined
+m = len(fuel2_distribution)                  # długość fuel2
 
-combined_loads_weights_wing_fuel = [
-    combined_loads_weights_wing_fuel[i] - (fuel2_distribution[i - (n - m)] if i >= n - m else 0)
+end_index = n - 10
+
+start_index = end_index - m
+
+combined_loads_weights_wing_fuel_new = [
+    fuel2_distribution[i - start_index] if start_index <= i < end_index else 0
     for i in range(n)
 ]
+
 
 combined_loads_weights_wing_fuel = np.asarray(combined_loads_weights_wing_fuel, dtype=float)
