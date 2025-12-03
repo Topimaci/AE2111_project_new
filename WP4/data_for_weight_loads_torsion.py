@@ -218,10 +218,9 @@ combined_loads_weights_wing_fuel = [
     for i in range(len(wing_weight_load_distribution))
 ]
 
-n = len(wing_weight_load_distribution)       # długość combined
-m = len(fuel2_distribution)                  # długość fuel2
-
-end_index = n - 10
+n = len(wing_weight_load_distribution)
+m = len(fuel2_distribution)
+end_index = n - 50 #fuel weight until 90% of the chord
 
 start_index = end_index - m
 
