@@ -16,12 +16,12 @@ from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 
 # Variables
 
-V_inf = 200  # Freestream velocity in m/s
-rho   = 1.225 # Air density in kg/m^3
+V_inf = 200.68  # Freestream velocity in m/s
+rho   = 0.368 # Air density in kg/m^3
    # Angle of attack in degrees
 
  # Angle of attack in degrees
-n = 2.68
+n = 3.9
 S_wing = 38.379
 W_situation = 140000     #### FORCE NOT MASS
 #OEM: 7881 = 77312 N
@@ -30,21 +30,22 @@ W_situation = 140000     #### FORCE NOT MASS
 
 
 ### code for load factor and determining critical alpha
-def critical_alpha(rho, v_situation, S_wing, W_situation, landing = True, takeoff = False):
-    CL = 2*W_situation/(rho*v_situation**2*S_wing)
+def critical_alpha(rho, v_situation, S_wing, W_situation, n, landing = False, takeoff = False):
+    CL = 2*n*W_situation/(rho*v_situation**2*S_wing)
     if landing == True:
         CL -= 1.15
     if takeoff == True:
         CL -= 1.15
+    print("CL", CL)
     ### from simulation
     aoa_critical = (CL-0.327220)*10/(1.218686-0.327220)     
 
     return aoa_critical    
 
 
-aoa_deg = critical_alpha(rho, V_inf, S_wing, W_situation)
+aoa_deg = critical_alpha(rho, V_inf, S_wing, W_situation, n)
 
-print(aoa_deg)
+print("AOA", aoa_deg)
 
 
 
@@ -283,7 +284,7 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
     point_torques = [{'x': 1.84, 'T': 0.5 * rho * V_inf**2*0.04905*0.233*0.689624}]
     
 
-    T_total = add_point_forces_and_torques(x_grid, T_dist, point_forces, point_torques) * load_factor
+    T_total = add_point_forces_and_torques(x_grid, T_dist, point_forces, point_torques)
 
     return {
         "y_span": y_span,
@@ -321,7 +322,7 @@ if __name__ == "__main__":
 
     # --- Slider: AoA --- <---- How beautifyl is this slider???
     ax_aoa = plt.axes((0.35, 0.05, 0.6, 0.03))
-    aoa_slider = Slider(ax_aoa, "AoA [deg]", 0.0, 10.0, valinit=aoa_deg, valstep=0.05)
+    aoa_slider = Slider(ax_aoa, "AoA [deg]", 0.0, 30.0, valinit=aoa_deg, valstep=0.05)
 
     def update_plot(_=None):
         ax.clear()
