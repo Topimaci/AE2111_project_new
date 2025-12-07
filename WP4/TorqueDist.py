@@ -30,8 +30,9 @@ W_situation = 140000     #### FORCE NOT MASS
 
 
 ### code for load factor and determining critical alpha
-def critical_alpha(rho, v_situation, S_wing, W_situation, n, landing = True, takeoff = False):
+def critical_alpha(rho, v_situation, S_wing, W_situation, n, landing = False, takeoff = False):
     CL = 2*n*W_situation/(rho*v_situation**2*S_wing)
+    print(CL)
     if landing == True:
         CL -= 1.15
     if takeoff == True:
@@ -42,7 +43,7 @@ def critical_alpha(rho, v_situation, S_wing, W_situation, n, landing = True, tak
     return aoa_critical    
 
 
-aoa_deg = critical_alpha(rho, V_inf, S_wing, W_situation)
+aoa_deg = critical_alpha(rho, V_inf, S_wing, W_situation, n)
 
 print(aoa_deg)
 
