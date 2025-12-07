@@ -151,10 +151,20 @@ stringer_bottom_num = np.array([8, 7, 4, 2])  #nummber of stringer at the bottom
 
 
 #Linear interpolation of the stringers
-string_top_interp = interp1d(y_breaks, stringer_top_num, kind="linear",
-    fill_value="extrapolate")
-string_bottom_interp = interp1d(y_breaks, stringer_bottom_num, kind="linear",
-    fill_value="extrapolate")
+string_top_interp = interp1d(
+    y_breaks,
+    stringer_top_num,
+    kind='linear',
+    bounds_error=False,
+    fill_value=(stringer_top_num[0], stringer_top_num[-1])
+)
+string_bottom_interp = interp1d(
+    y_breaks,
+    stringer_bottom_num,
+    kind='linear',
+    bounds_error=False,
+    fill_value=(stringer_bottom_num[0], stringer_bottom_num[-1])
+)
 
 #spar_list = [lambda y: -0.0128 * y + 0.4, 0.3 * b/2, 0.1] #0.5 is how much of the wing span the spar takes, 0.6 is how much of the chord it takes, measured from left side
 #spar_list = [lambda y: 0, 0, 0]
@@ -298,10 +308,15 @@ for i in range(len(x_grid)):
 
 I_xx = []
 J = []
+num_top_list = []
+num_bottom_list = []
 for i in range(len(x_grid)):
 
     I_xx.append(results_stiffness["I_xx"][i])
     J.append(results_stiffness["J"][i])
+    y_pos = x_grid[i]        # or whatever variable is your span position
+    num_top_list.append(string_top_interp(y_pos))
+    num_bottom_list.append(string_bottom_interp(y_pos))
 
 I_xx_num = np.array(I_xx, dtype=float)
 # print(I_xx_num) <---- Uncomment to see the moment of inertia values
@@ -344,3 +359,13 @@ plt.title('Wing Twist along Span (Interpolated)')
 plt.grid(True)
 plt.legend()
 plt.show()
+
+plt.figure()
+plt.plot(x_grid, num_top_list, label="Top stringers")
+plt.plot(x_grid, num_bottom_list, label="Bottom stringers")
+plt.xlabel("Span position")
+plt.ylabel("Number of stringers")
+plt.grid(True)
+plt.legend()
+plt.show()
+
