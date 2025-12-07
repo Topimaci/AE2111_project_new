@@ -145,9 +145,9 @@ q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 
 #_______TO BE REPLACED LATER__________________________________________
-y_breaks = np.array([0, 3, 5, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([2, 2, 0, 0]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([2, 2, 0, 0])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
+y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
+stringer_top_num = np.array([8, 7, 4, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([8, 7, 4, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 
 #Linear interpolation of the stringers
@@ -160,22 +160,22 @@ string_bottom_interp = interp1d(y_breaks, stringer_bottom_num, kind="linear",
 #spar_list = [lambda y: 0, 0, 0]
 spar_list = []
 
-def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spar_list, G): #be careful, G is not an input, but still used in this function
+def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t_skin, t_spar, A_string, spar_list, G): #be careful, G is not an input, but still used in this function
     # I Moment of Inertia Calculations
     #neutral axis
     x_c = (h_rs ** 2 + h_fs ** 2 + h_fs * h_rs) / (3 * (h_rs + h_fs))
     #Spar inertias
-    I_fs = 1/12 * h_fs ** 3 * t + h_fs * t * (x_c - h_fs/2)**2
-    I_rs = 1/12 * h_rs ** 3 * t + h_rs * t * (x_c - h_rs/2)**2
+    I_fs = 1/12 * h_fs ** 3 * t_spar + h_fs * t_spar * (x_c - h_fs/2)**2
+    I_rs = 1/12 * h_rs ** 3 * t_spar + h_rs * t_spar * (x_c - h_rs/2)**2
     #Skin inertias
-    I_top = t * c_upper * (t/2 - x_c)**2
-    I_bottom = t * c_lower * (((h_fs - x_c) + (h_rs - x_c))/2) ** 2
+    I_top = t_skin * c_upper * (t_skin/2 - x_c)**2
+    I_bottom = t_skin * c_lower * (((h_fs - x_c) + (h_rs - x_c))/2) ** 2
 
     num_top = max(0,string_top_interp(y_pos))
     num_bottom = max(0,string_bottom_interp(y_pos))
 
     #stringer inertias
-    I_string_top = (A_string * (t - x_c)**2) * num_top
+    I_string_top = (A_string * (t_skin - x_c)**2) * num_top
     I_string_bottom = (A_string * (((h_fs - x_c) + (h_rs - x_c))/2) ** 2) * num_bottom
        
     if spar_list != []:
@@ -188,7 +188,7 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
             h_spar_y = h_spar_func(y_pos)
 
             if y_pos < y_crit:
-                I_step += 1/12 * h_spar_y**3 * t
+                I_step += 1/12 * h_spar_y**3 * t_spar
             i += 2  # move to next spar
         
         I_total = I_step + I_string_bottom + I_string_top + I_bottom + I_top + I_fs + I_rs
@@ -206,8 +206,8 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
         A_1 = a * w
         A_2 = w * w
         M = np.array([
-            [2*w + 2*a, -w, -2*A_1*G*t],
-            [-w, 4*w, -2*A_2*G*t],
+            [2*w + 2*a, -w, -2*A_1*G*t_skin],
+            [-w, 4*w, -2*A_2*G*t_skin],
             [2*A_1, 2*A_2, 0]
         ], dtype=float)
 
@@ -222,7 +222,7 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t, A_string, spa
         # No spars
         I_step = 0
         A = (h_fs + h_rs)/2 * c_upper
-        circ = 1/t * (h_fs + c_upper + h_rs + c_lower)
+        circ = 1/t_spar * (h_fs + c_upper + h_rs + c_lower)
         J = 4 * A**2 / circ
 
     # -------------------
@@ -286,8 +286,9 @@ for i in range(len(x_grid)):
         results_geom["h_rs"][i],
         results_geom["c_upper"][i],
         results_geom["c_lower"][i],
-        0.001,
-        0.1,
+        0.005,
+        0.03,
+        0.0016,
         spar_list,
         G
     )
@@ -306,7 +307,7 @@ I_xx_num = np.array(I_xx, dtype=float)
 # print(I_xx_num) <---- Uncomment to see the moment of inertia values
 J_num    = np.array(J, dtype=float)
 M_vals_num = np.array(M_vals, dtype=float)
-T_total_num = np.array(T_total, dtype=float) * load_factor
+T_total_num = np.array(T_total, dtype=float)
 
 # Now compute numeric arrays
 d2v_dy2 = M_vals_num / (E * I_xx_num)
