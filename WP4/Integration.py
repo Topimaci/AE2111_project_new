@@ -1,10 +1,11 @@
-from TorqueDist import compute_case
+from TorqueDist import compute_case, critical_alpha
 from XFLR import y_span0, chord0, Cl0, ICd0, Cm0, ICd10, Cm10, Cl10
 import numpy as np
+import conditions as c
 
-V_inf = 250
-rho = 1.225
-aoa_deg = 0.0
+V_inf = c.velocity
+rho = c.density
+aoa_deg = critical_alpha(rho, V_inf, 38.379, c.weight, c.load_factor, c.landing, c.takeoff)
 
 res0 = compute_case(y_span0, chord0, Cl0, Cl10, aoa_deg, ICd0 , ICd10, Cm0, Cm10, V_inf, rho)
 

@@ -12,25 +12,25 @@ from matplotlib.widgets import RadioButtons
 from scipy import integrate, interpolate
 from shear_centre_location import shear_center_non_dim
 from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
-
+import conditions as c
 
 # Variables
 
-V_inf = 200.68  # Freestream velocity in m/s
-rho   = 0.368 # Air density in kg/m^3
+V_inf = c.velocity  # Freestream velocity in m/s
+rho   = c.density # Air density in kg/m^3
    # Angle of attack in degrees
 
  # Angle of attack in degrees
-n = 3.9
+n = c.load_factor
 S_wing = 38.379
-W_situation = 140000     #### FORCE NOT MASS
+W_situation = c.weight     #### FORCE NOT MASS
 #OEM: 7881 = 77312 N
 ###MTOM: 14266 = 140000 N
 ###Payload design: 750kg =7357 N
 
 
 ### code for load factor and determining critical alpha
-def critical_alpha(rho, v_situation, S_wing, W_situation, n, landing = False, takeoff = False):
+def critical_alpha(rho, v_situation, S_wing, W_situation, n, landing, takeoff):
     CL = 2*n*W_situation/(rho*v_situation**2*S_wing)
     if landing == True:
         CL -= 1.15
@@ -43,7 +43,7 @@ def critical_alpha(rho, v_situation, S_wing, W_situation, n, landing = False, ta
     return aoa_critical    
 
 
-aoa_deg = critical_alpha(rho, V_inf, S_wing, W_situation, n)
+aoa_deg = critical_alpha(rho, V_inf, S_wing, W_situation, n, c.landing, c.takeoff)
 
 print("AOA", aoa_deg)
 
@@ -285,7 +285,7 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
     
 
     T_total = add_point_forces_and_torques(x_grid, T_dist, point_forces, point_torques)
-
+    print("Torque in Torque:", T_total)
     return {
         "y_span": y_span,
         "L_prime": L_prime,
@@ -338,17 +338,17 @@ if __name__ == "__main__":
         )
 
         if current_plot_type == "Torque":
-            ax.plot(res["x_grid"], res["T_dist"], label="Distributed loads only")
-            ax.plot(res["x_grid"], res["T_total"], label="With point forces/torques")
-            ax.set_xlabel("Spanwise position x [m]")
+            ax.plot(res["x_grid"], res["T_dist"], label="Distributed Loads Only")
+            ax.plot(res["x_grid"], res["T_total"], label="With Point Forces/Torques")
+            ax.set_xlabel("Spanwise Position x [m]")
             ax.set_ylabel("Torque T(x) [Nm]")
-            ax.set_title(f"Torque diagram (AoA = {aoa_now:.2f}°)")
+            ax.set_title(f"Torque Diagram (AoA = {aoa_now:.2f}°)")
         else:
-            ax.plot(res["y_span"], res["L_prime"], label="Lift line load L'(y)")
-            ax.plot(res["y_span"], res["D_prime"], label="Drag line load D'(y)")
-            ax.set_xlabel("Spanwise position y [m]")
-            ax.set_ylabel("Line load [N/m]")
-            ax.set_title(f"Aerodynamic line loads (AoA = {aoa_now:.2f}°)")
+            ax.plot(res["y_span"], res["L_prime"], label="Lift Line Load L'(y)")
+            ax.plot(res["y_span"], res["D_prime"], label="Drag Line Load D'(y)")
+            ax.set_xlabel("Spanwise Position y [m]")
+            ax.set_ylabel("Line Load [N/m]")
+            ax.set_title(f"Aerodynamic Line Loads (AoA = {aoa_now:.2f}°)")
 
         ax.grid(True)
         ax.legend()

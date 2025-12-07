@@ -7,7 +7,7 @@ from scipy.interpolate import interp1d
 from scipy.integrate import cumulative_trapezoid
 from Integration import x_grid, T_total
 from Moment_Diagram import M_vals
-
+import conditions as c
 
 
 ##______Spar length based on airfoil and y-position________________________________________________________
@@ -138,7 +138,7 @@ max_tip_rotat_deg = 10   # in degrees
 max_tip_rotat_rad = m.radians(max_tip_rotat_deg)      # in radians
 E = 71 * 10 ** 9    # Young's modulus
 G = 27 * 10 ** 9    # Shear modulus
-load_factor = 2.68*1.5
+load_factor = c.load_factor
 
 y = sp.symbols("y")
 q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
@@ -146,8 +146,8 @@ q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 #_______TO BE REPLACED LATER__________________________________________
 y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([8, 7, 4, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([8, 7, 4, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
+stringer_top_num = np.array([2, 2, 2, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([2, 22, 2, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 
 #Linear interpolation of the stringers
@@ -232,7 +232,7 @@ def stiffness_distribution(y_pos, h_fs, h_rs, c_upper, c_lower, t_skin, t_spar, 
         # No spars
         I_step = 0
         A = (h_fs + h_rs)/2 * c_upper
-        circ = 1/t_spar * (h_fs + c_upper + h_rs + c_lower)
+        circ = 1/t_spar * (h_fs + h_rs)+1/t_skin * (c_upper+c_lower)
         J = 4 * A**2 / circ
 
     # -------------------
@@ -297,8 +297,8 @@ for i in range(len(x_grid)):
         results_geom["c_upper"][i],
         results_geom["c_lower"][i],
         0.005,
-        0.03,
-        0.0016,
+        0.1,
+        0.0065,
         spar_list,
         G
     )
@@ -323,6 +323,7 @@ I_xx_num = np.array(I_xx, dtype=float)
 J_num    = np.array(J, dtype=float)
 M_vals_num = np.array(M_vals, dtype=float)
 T_total_num = np.array(T_total, dtype=float)
+print("Torque in Stiffness:", T_total_num)
 
 # Now compute numeric arrays
 d2v_dy2 = M_vals_num / (E * I_xx_num)
@@ -344,28 +345,20 @@ th_vals = cumulative_trapezoid(dth_dy, x_grid, initial=0.0) /np.pi*180
 # ---------------------------
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, v_vals, label='Deflection v(y)')
-plt.xlabel('Spanwise location y [m]')
+plt.xlabel('Spanwise Location y [m]')
 plt.ylabel('Deflection v [m]')
-plt.title('Wing Deflection along Span (Interpolated)')
+plt.title('Wing Deflection along Span')
 plt.grid(True)
 plt.legend()
 plt.show()
 
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, th_vals, label='Twist θ(y)', color='orange')
-plt.xlabel('Spanwise location y [m]')
+plt.xlabel('Spanwise Location y [m]')
 plt.ylabel('Twist θ [deg]')
-plt.title('Wing Twist along Span (Interpolated)')
+plt.title('Wing Twist along Span')
 plt.grid(True)
 plt.legend()
 plt.show()
 
-plt.figure()
-plt.plot(x_grid, num_top_list, label="Top stringers")
-plt.plot(x_grid, num_bottom_list, label="Bottom stringers")
-plt.xlabel("Span position")
-plt.ylabel("Number of stringers")
-plt.grid(True)
-plt.legend()
-plt.show()
 

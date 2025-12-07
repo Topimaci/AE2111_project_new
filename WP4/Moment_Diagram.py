@@ -3,7 +3,7 @@ import scipy as sp
 import matplotlib.pyplot as plt
 from XFLR import y_span, chord0, Ai, Cl0, ICd, Cm0
 from XFLR import y_span10, chord10, Ai10, Cl10, ICd10, Cm10
-
+from Integration import aoa_deg
 from scipy.optimize import curve_fit
 
 
@@ -11,7 +11,7 @@ from scipy import integrate, interpolate
 from scipy.integrate import cumulative_trapezoid
 from scipy.interpolate import interp1d
 from shear_centre_location import shear_center_non_dim
-
+import conditions as c
 from Integration import x_grid
 
 
@@ -21,13 +21,13 @@ b_half = 9.7925 #half of the wing span in m
 b = 19.585 #Span of the wing in m
 C_r = 2.874 # Root cord in m
 C_t = 1.04326 # Tip cord in m
-aoa_deg = 0.0   # Angle of attack in degrees
+#aoa_deg = 0.0   # Angle of attack in degrees
 
 #conditions
 g = 9.81 # Gravitational constant m/s^2
-V_inf = 250  # Freestream velocity in m/s
-rho   = 1.225 # Air density in kg/m^3
-load_factor = 2.68*1.5
+V_inf = c.velocity  # Freestream velocity in m/s
+rho   = c.density # Air density in kg/m^3
+load_factor = c.load_factor
 
 #Mass
 M_wing = 932.9 # mass of the wing in kg
@@ -260,7 +260,7 @@ plt.figure(figsize=(10,10))
 # q(y)
 plt.subplot(3,1,1)
 plt.plot(y_vals, combined_loads)
-plt.xlabel("Spanwise position y [m]")
+plt.xlabel("Spanwise Position y [m]")
 plt.ylabel("q(y) [N/m]")
 plt.title("Distributed Load q(y)")
 plt.grid(True)
@@ -268,7 +268,7 @@ plt.grid(True)
 # S(y)+
 plt.subplot(3,1,2)
 plt.plot(y_vals, S_vals)
-plt.xlabel("Spanwise position y [m]")
+plt.xlabel("Spanwise Position y [m]")
 plt.ylabel("Shear Force S(y) [N]")
 plt.title("Shear Force Diagram")
 plt.grid(True)
@@ -276,7 +276,7 @@ plt.grid(True)
 # M(y)
 plt.subplot(3,1,3)
 plt.plot(y_vals, M_vals)
-plt.xlabel("Spanwise position y [m]")
+plt.xlabel("Spanwise Position y [m]")
 plt.ylabel("Bending Moment M(y) [Nm]")
 plt.title("Bending Moment Diagram")
 plt.grid(True)
