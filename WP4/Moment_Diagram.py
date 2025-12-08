@@ -254,7 +254,7 @@ M_vals = M_vals_tip_to_root[::-1]*load_factor
 
 
 # ---------- PLOTS ---------------------------------------------------------------------------------------------
-
+'''
 plt.figure(figsize=(10,10))
 
 # q(y)
@@ -284,3 +284,4 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
+'''
