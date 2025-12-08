@@ -128,7 +128,7 @@ th_data_map = {
     9: {'pos': th_pos_9, 'neg': th_neg_9},
     15: {'pos': th_pos_15, 'neg': th_neg_15},
     22: {'pos': th_pos_22, 'neg': th_neg_22},
-    28: {'pos': th_neg_28, 'neg': th_neg_28},
+    28: {'pos': th_pos_28, 'neg': th_neg_28},
 }
 
 colors = {
