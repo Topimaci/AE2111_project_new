@@ -1,7 +1,7 @@
 load_factor = -1.5
-velocity = 86.52
-weight = 84669
+velocity = 47.94
+weight = 140000
 #84669
 density = 1.225
-landing = False
-takeoff = True
+landing = True
+takeoff = False
