@@ -149,7 +149,6 @@ y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of st
 stringer_top_num = np.array([4, 4, 2, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
 stringer_bottom_num = np.array([4, 4, 2, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
-
 #Linear interpolation of the stringers
 string_top_interp = interp1d(
     y_breaks,
@@ -380,3 +379,8 @@ plt.grid(True)
 plt.legend()
 plt.show()
 '''
+
+with open("output.txt", "w") as f:
+    f.write("x_grid = [{}]\n".format(", ".join(map(str, x_grid))))
+    f.write("v_vals = [{}]\n".format(", ".join(map(str, v_vals))))
+    f.write("th_vals = [{}]\n".format(", ".join(map(str, th_vals))))
