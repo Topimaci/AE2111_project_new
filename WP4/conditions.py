@@ -4,4 +4,4 @@ weight = 84669
 #84669
 density = 1.225
 landing = False
-takeoff = False
+takeoff = True
