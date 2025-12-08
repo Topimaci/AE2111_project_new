@@ -343,7 +343,7 @@ th_vals = cumulative_trapezoid(dth_dy, x_grid, initial=0.0) /np.pi*180
 # ---------------------------
 # 5️⃣ Plotting
 # ---------------------------
-'''
+
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, v_vals, label='Deflection v(y)')
 plt.xlabel('Spanwise Location y [m]')
@@ -361,7 +361,7 @@ plt.title('Wing Twist along Span')
 plt.grid(True)
 plt.legend()
 plt.show()
-
+'''
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, I_xx_num, label='Moment of Inertia I_xx', color='orange')
 plt.xlabel('Spanwise Location y [m]')
