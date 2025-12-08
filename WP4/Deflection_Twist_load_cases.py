@@ -177,6 +177,10 @@ for case in load_cases:
 
     plt.legend()
     plt.tight_layout()
+
+    filename = f"deflection_lc_{case}_var3.png"
+    plt.savefig(filename)
+    print(f"Saved: {filename}")
     plt.show()
 
 
@@ -216,4 +220,8 @@ for case in load_cases:
 
     plt.legend()
     plt.tight_layout()
+    
+    filename = f"twist_lc_{case}_var3.png"
+    plt.savefig(filename)
+    print(f"Saved: {filename}")
     plt.show()
