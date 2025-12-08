@@ -142,86 +142,90 @@ POSITIVE_STYLE = '-'
 NEGATIVE_STYLE = '--' 
 
 # ----------------------------------------------------
-# --- 2. PLOTTING: GENERATE A NEW FIGURE FOR EACH LOAD CASE (DEFLECTION) ---
+# --- 2. DEFLECTION PLOT (v_vals) - SINGLE FIGURE ---
 # ----------------------------------------------------
 
-for case in load_cases:
-    plt.figure(figsize=(8, 5))
-    plt.xlabel('Spanwise Location $y$ [m]')
-    plt.ylabel('Deflection $v$ [m]')
-    plt.title(f'Wing Deflection along Span (Load Case {case})')
-    plt.grid(True)
-    plt.axhline(0, color='black', linewidth=0.8, linestyle=':') # Add zero line for reference
-    
-    color = colors[case]
+plt.figure(figsize=(10, 6))
+plt.xlabel('Spanwise Location $y$ [m]')
+plt.ylabel('Deflection $v$ [m]')
+plt.title('Wing Deflection along Span (Positive vs. Negative) - All Load Cases, Design 3')
+plt.grid(True)
+plt.axhline(0, color='black', linewidth=0.8, linestyle=':') # Zero line
 
-    # Plot positive values (solid line)
+# Iterate through the load cases and plot the two explicit lists
+for case in load_cases:
+    color = colors[case]
+    
+    # Plot positive values (solid line) from the POSITIVE list
     plt.plot(
         x_grid,
         v_data_map[case]['pos'],
-        label='Positive Deflection ($v_{pos}$)',
+        label=f'Load Case {case} (Positive)',
         color=color,
         linestyle=POSITIVE_STYLE,
         linewidth=2
     )
 
-    # Plot negative values (dashed line)
+    # Plot negative values (dashed line) from the NEGATIVE list
     plt.plot(
         x_grid,
         v_data_map[case]['neg'],
-        label='Negative Deflection ($v_{neg}$)',
+        label=f'Load Case {case} (Negative)',
         color=color,
         linestyle=NEGATIVE_STYLE,
         linewidth=2
     )
 
-    plt.legend()
-    plt.tight_layout()
+plt.legend(loc='best', fontsize='small', ncol=2)
+plt.tight_layout()
 
-    filename = f"deflection_lc_{case}_var3.png"
-    plt.savefig(filename)
-    print(f"Saved: {filename}")
-    plt.show()
+# 💾 SAVE PLOT
+deflection_filename = "deflection_all_lc_var3.png"
+plt.savefig(deflection_filename)
+print(f"Saved: {deflection_filename}")
+plt.show()
 
 
 # ----------------------------------------------------
-# --- 3. PLOTTING: GENERATE A NEW FIGURE FOR EACH LOAD CASE (TWIST) ---
+# --- 3. TWIST PLOT (th_vals) - SINGLE FIGURE ---
 # ----------------------------------------------------
 
+plt.figure(figsize=(10, 6))
+plt.xlabel('Spanwise Location $y$ [m]')
+plt.ylabel('Twist $\\theta$ [deg]')
+plt.title('Wing Twist along Span (Positive vs. Negative) - All Load Cases, Design 3')
+plt.grid(True)
+plt.axhline(0, color='black', linewidth=0.8, linestyle=':') # Zero line
+
+# Iterate through the load cases and plot the two explicit lists
 for case in load_cases:
-    plt.figure(figsize=(8, 5))
-    plt.xlabel('Spanwise Location $y$ [m]')
-    plt.ylabel('Twist $\\theta$ [deg]')
-    plt.title(f'Wing Twist along Span (Load Case {case})')
-    plt.grid(True)
-    plt.axhline(0, color='black', linewidth=0.8, linestyle=':') # Add zero line for reference
-    
     color = colors[case]
-
-    # Plot positive values (solid line)
+    
+    # Plot positive values (solid line) from the POSITIVE list
     plt.plot(
         x_grid,
         th_data_map[case]['pos'],
-        label='Positive Twist ($\theta_{pos}$)',
+        label=f'Load Case {case} (Positive)',
         color=color,
         linestyle=POSITIVE_STYLE,
         linewidth=2
     )
 
-    # Plot negative values (dashed line)
+    # Plot negative values (dashed line) from the NEGATIVE list
     plt.plot(
         x_grid,
         th_data_map[case]['neg'],
-        label='Negative Twist ($\theta_{neg}$)',
+        label=f'Load Case {case} (Negative)',
         color=color,
         linestyle=NEGATIVE_STYLE,
         linewidth=2
     )
 
-    plt.legend()
-    plt.tight_layout()
-    
-    filename = f"twist_lc_{case}_var3.png"
-    plt.savefig(filename)
-    print(f"Saved: {filename}")
-    plt.show()
+plt.legend(loc='best', fontsize='small', ncol=2)
+plt.tight_layout()
+
+# 💾 SAVE PLOT
+twist_filename = "twist_all_lc_var3.png"
+plt.savefig(twist_filename)
+print(f"Saved: {twist_filename}")
+plt.show()
