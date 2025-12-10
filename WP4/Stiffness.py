@@ -146,9 +146,8 @@ q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 #_______TO BE REPLACED LATER__________________________________________
 y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([2, 2, 2, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([2, 22, 2, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
-
+stringer_top_num = np.array([4, 3, 2, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([4, 3, 2, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 #Linear interpolation of the stringers
 string_top_interp = interp1d(
@@ -343,6 +342,7 @@ th_vals = cumulative_trapezoid(dth_dy, x_grid, initial=0.0) /np.pi*180
 # ---------------------------
 # 5️⃣ Plotting
 # ---------------------------
+
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, v_vals, label='Deflection v(y)')
 plt.xlabel('Spanwise Location y [m]')
@@ -360,5 +360,27 @@ plt.title('Wing Twist along Span')
 plt.grid(True)
 plt.legend()
 plt.show()
+'''
+plt.figure(figsize=(8,5))
+plt.plot(x_grid, I_xx_num, label='Moment of Inertia I_xx', color='orange')
+plt.xlabel('Spanwise Location y [m]')
+plt.ylabel('Moment of Inertia [mm**4]')
+plt.title('Moment of Inertia along Span')
+plt.grid(True)
+plt.legend()
+plt.show()
 
+plt.figure(figsize=(8,5))
+plt.plot(x_grid, J_num, label='Polar Moment of Inertia J', color='blue')
+plt.xlabel('Spanwise Location y [m]')
+plt.ylabel('Polar Moment of Inertia [mm**4]')
+plt.title('Polar Moment of Inertia along Span')
+plt.grid(True)
+plt.legend()
+plt.show()
+'''
 
+with open("output.txt", "w") as f:
+    f.write("x_grid = [{}]\n".format(", ".join(map(str, x_grid))))
+    f.write("v_vals = [{}]\n".format(", ".join(map(str, v_vals))))
+    f.write("th_vals = [{}]\n".format(", ".join(map(str, th_vals))))
