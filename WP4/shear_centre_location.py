@@ -6,14 +6,14 @@ from scipy.integrate import quad
 #horizontal axis is symmetry axis
 
 chord   = 1000
-x_front = 0.2 * chord
-x_rear  = 0.7 * chord
+x_front = 0.3 * chord
+x_rear  = 0.6 * chord
 c_front = 0.1205 * chord
 c_rear  = 0.0783 * chord
 
-t_front = 10
-t_rear  = 10
-t_skin   = 10
+t_front = 1
+t_rear  = 1
+t_skin  = 1
 
 #input to check if code is correct
 #chord = 1
