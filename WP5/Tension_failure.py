@@ -1,9 +1,6 @@
+import numpy as np
 
-from WP4.Moment_Diagram import M_vals
-
-
-
-
+M_vals = np.load("M_vals.npy")
 
 print(type(M_vals))
 
