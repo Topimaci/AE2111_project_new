@@ -29,3 +29,8 @@ Stringers_3_S3 = 2.0
 Stringers_3_S4 = 2.0
 
 A_3 = 65.0 # Area stringer (crossection) in cm^2
+
+# --- Other constants ---
+E = 71 * 10**9 # Young's modulus in Pa
+k = 5.57 # Boundary condition constant (=4 due to the assumption that both ends are clamped)
+
