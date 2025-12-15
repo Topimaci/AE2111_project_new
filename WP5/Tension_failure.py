@@ -26,6 +26,15 @@ stress_critical = 450000000   ###has to be discussed what we define as critical
 stress_critical_array= np.full_like(x_grid, stress_critical)
 
 
+plt.figure(figsize=(8,5))
+plt.plot(x_grid, stress, label='Stress', color='orange')
+plt.xlabel('Spanwise Location y [m]')
+plt.ylabel('Stress')
+plt.title('Stress along Span')
+plt.grid(True)
+plt.legend()
+plt.show()
+
 
 
 cutoff_value = 400
@@ -51,11 +60,3 @@ plt.show()
 
 
 
-plt.figure(figsize=(8,5))
-plt.plot(x_grid, stress, label='Stress', color='orange')
-plt.xlabel('Spanwise Location y [m]')
-plt.ylabel('Stress')
-plt.title('Stress along Span')
-plt.grid(True)
-plt.legend()
-plt.show()
