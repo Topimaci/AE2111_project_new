@@ -146,8 +146,8 @@ q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 #_______TO BE REPLACED LATER__________________________________________
 y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([7, 5, 2, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([7, 5, 2, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
+stringer_top_num = np.array([2, 2, 2, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([2, 2, 2, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
 
 
 #Linear interpolation of the stringers
@@ -300,8 +300,8 @@ for i in range(len(x_grid)):
         results_geom["c_upper"][i],
         results_geom["c_lower"][i],
         0.005,
-        0.08,
-        0.0065,
+        0.02,
+        0.001,
         spar_list,
         G
     )
