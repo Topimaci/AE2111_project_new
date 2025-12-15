@@ -18,6 +18,7 @@ t_skin = 5.0 # Thickness of the skin in mm
 E = 71 * 10**9 # Young's modulus in Pa
 k = 5.57 # Boundary condition constant (=4 due to the assumption that both ends are clamped)
 wing_half = 9.79 # half of the wingspan in m
+L = 0.5 * wing_half # Length of a  uninterupted stringer = half of half the wingspan since # of stringers change at half the wingspan 
 
 
 # --- Geometry of stringer (L-shaped) -------------------------------------------
@@ -43,17 +44,7 @@ def MoI_stringer(width, height, thickness):
 I_stringer = MoI_stringer(w_stinger, h_stringer, t_skin)
 
 
-# --- Length of stringer ---------------------
-
-
-
-
-
-
-
-
-
-# ---Critical stress---
+# ---Critical stress--------------------------------------------------------
 # The critical stress for a certain stringer
 
 def column_critical_stress(k, E, I, length, Area):
@@ -61,3 +52,5 @@ def column_critical_stress(k, E, I, length, Area):
     sigma_crit = (k * (np.pi)**2 * E * (I * 10**-12 ) )/ ((length**2) * (Area * 10**-4))
 
     return sigma_crit
+
+sigma_crit_per_stringer = column_critical_stress(k, E, I_stringer, L, A)
