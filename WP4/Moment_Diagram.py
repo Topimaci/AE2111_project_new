@@ -27,7 +27,6 @@ C_t = 1.04326 # Tip cord in m
 g = 9.81 # Gravitational constant m/s^2
 V_inf = c.velocity  # Freestream velocity in m/s
 rho   = c.density # Air density in kg/m^3
-
 #Mass
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
