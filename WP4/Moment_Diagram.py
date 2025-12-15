@@ -250,7 +250,7 @@ S_vals = S_vals_tip_to_root[::-1] * load_factor
 M_vals_tip_to_root = cumulative_trapezoid(S_vals[::-1], y_vals[::-1], initial=0)
 
 # Flip back
-M_vals = M_vals_tip_to_root[::-1]*load_factor
+M_vals = M_vals_tip_to_root[::-1]
 
 
 
