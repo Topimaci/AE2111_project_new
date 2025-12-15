@@ -18,9 +18,37 @@ y_norm_stress_front = h_fs - x_c
 stress = M_vals*y_norm_stress_front/I_xx
 
 
-print(y_norm_stress_front)
+#print(y_norm_stress_front)
 #ultimate stress = 510MPA
 #yield stress = 450 MPA
+stress_critical = 450000000   ###has to be discussed what we define as critical
+
+stress_critical_array= np.full_like(x_grid, stress_critical)
+
+
+
+
+cutoff_value = 400
+cutoff_stress = stress[cutoff_value]
+range_value = 500 - cutoff_value
+for i in range(range_value):
+    print(i)
+    stress[cutoff_value+i] = cutoff_stress
+
+print(stress[cutoff_value])
+print(stress[499])
+
+margin_of_safety = stress_critical_array/stress
+
+plt.figure(figsize=(8,5))
+plt.plot(x_grid, margin_of_safety, label='Margin of saftey', color='orange')
+plt.xlabel('Spanwise Location y [m]')
+plt.ylabel('Margin of saftey')
+plt.title('Margin of safety')
+plt.grid(True)
+plt.legend()
+plt.show()
+
 
 
 plt.figure(figsize=(8,5))
