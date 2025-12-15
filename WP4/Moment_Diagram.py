@@ -28,7 +28,8 @@ g = 9.81 # Gravitational constant m/s^2
 V_inf = c.velocity  # Freestream velocity in m/s
 rho   = c.density # Air density in kg/m^3
 load_factor = c.load_factor
-
+print(f"DEBUG: c.load_factor value: {c.load_factor}")
+print(f"DEBUG: c.load_factor type: {type(c.load_factor)}")
 #Mass
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
@@ -230,12 +231,13 @@ combined_loads[:] += N_prime                                                 #Li
 
 
 #"""----------------Combined loads ------------------           # to use this add a # in front of this line
-combined_loads[:] += D_prime * np.sin(np.deg2rad(aoa_deg))                        # Drag
+#combined_loads[:] += D_prime * np.sin(np.deg2rad(aoa_deg))                        # Drag
 combined_loads[:] -= wing_weight_only * np.cos(np.deg2rad(aoa_deg))               # struc 
 combined_loads[:i_19] -= W_t1 * np.cos(np.deg2rad(aoa_deg))                       # Tank 1 
 combined_loads[i_24:i_90] -= W_t2 * np.cos(np.deg2rad(aoa_deg))                   # Tank 2 
 combined_loads[i_19:i_24] -= gear_load_per_point * np.cos(np.deg2rad(aoa_deg))    #Landing gear 
-combined_loads[:] += L_prime * np.cos(np.deg2rad(aoa_deg))                        #Lift 
+combined_loads[:] += N_prime                        #Lift 3
+combined_loads = combined_loads * load_factor
 #"""
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
@@ -243,7 +245,7 @@ combined_loads[:] += L_prime * np.cos(np.deg2rad(aoa_deg))                      
 S_vals_tip_to_root = cumulative_trapezoid(combined_loads[::-1], y_vals[::-1], initial=0)
 
 # Flip so that y increases from root → tip
-S_vals = S_vals_tip_to_root[::-1] * load_factor
+S_vals = S_vals_tip_to_root[::-1]
 
 # --- BENDING MOMENT M(y) ----------------------------------------------------------------------------------
 # Integrate S(y) from tip -> root
@@ -257,7 +259,7 @@ M_vals = M_vals_tip_to_root[::-1]
 np.save("M_vals", M_vals)
 
 # ---------- PLOTS ---------------------------------------------------------------------------------------------
-'''
+
 plt.figure(figsize=(10,10))
 
 # q(y)
@@ -287,4 +289,3 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
-'''
