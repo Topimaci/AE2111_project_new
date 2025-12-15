@@ -6,6 +6,7 @@ import conditions as c
 V_inf = c.velocity
 rho = c.density
 aoa_deg = critical_alpha(rho, V_inf, 38.379, c.weight, c.load_factor, c.landing, c.takeoff)
+aoa_deg_abs = critical_alpha(rho, V_inf, 38.379, c.weight, abs(c.load_factor), c.landing, c.takeoff)
 
 res0 = compute_case(y_span0, chord0, Cl0, Cl10, aoa_deg, ICd0 , ICd10, Cm0, Cm10, V_inf, rho)
 

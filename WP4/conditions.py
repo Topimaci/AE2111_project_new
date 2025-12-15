@@ -1,6 +1,6 @@
 #load_factor = 3 #+LC4
 #load_factor = -1.5 #-LC4 
-load_factor = 4 #+LC9
+load_factor = -4 #+LC9
 #load_factor = -1.5 #-LC9
 #load_factor = 4 #+LC15
 #load_factor = -1.5  #-LC15
