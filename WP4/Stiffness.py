@@ -323,6 +323,7 @@ for i in range(len(x_grid)):
 
 I_xx_num = np.array(I_xx, dtype=float)
 np.save("I_xx", I_xx_num)
+print("IXX", I_xx_num)
 # print(I_xx_num) <---- Uncomment to see the moment of inertia values
 J_num    = np.array(J, dtype=float)
 M_vals_num = np.array(M_vals, dtype=float)
@@ -365,7 +366,7 @@ plt.title('Wing Twist along Span')
 plt.grid(True)
 plt.legend()
 plt.show()
-'''
+
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, I_xx_num, label='Moment of Inertia I_xx', color='orange')
 plt.xlabel('Spanwise Location y [m]')
@@ -374,7 +375,7 @@ plt.title('Moment of Inertia along Span')
 plt.grid(True)
 plt.legend()
 plt.show()
-
+'''
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, J_num, label='Polar Moment of Inertia J', color='blue')
 plt.xlabel('Spanwise Location y [m]')
