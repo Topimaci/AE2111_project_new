@@ -27,13 +27,6 @@ C_t = 1.04326 # Tip cord in m
 g = 9.81 # Gravitational constant m/s^2
 V_inf = c.velocity  # Freestream velocity in m/s
 rho   = c.density # Air density in kg/m^3
-<<<<<<< HEAD
-load_factor = c.load_factor
-print(f"DEBUG: c.load_factor value: {c.load_factor}")
-print(f"DEBUG: c.load_factor type: {type(c.load_factor)}")
-=======
-
->>>>>>> a3b9409412481e2a0835ddd63b07e14d3489e7f4
 #Mass
 M_wing = 932.9 # mass of the wing in kg
 M_fuel_T1 = 533.6655 # mass of fuel in fuel tank 1 (close to the fuselage) in kg
