@@ -32,7 +32,7 @@ def Stringer_Geometry(Area_stringer, t_skin): # area in m^2, t in m
     return width, height # in m
 
 w_stinger, h_stringer = Stringer_Geometry(A, t_skin)
-print(w_stinger, h_stringer)
+#print(w_stinger, h_stringer)
 
 # --- Moment of Inertia of stringer ----------------------------
 #Assumptions: thinwalled approx 
@@ -57,7 +57,12 @@ def column_critical_stress(k, E, I, length, Area):
 
 sigma_crit_per_stringer_S12 = column_critical_stress(k1, E, I_stringer, L, A)
 sigma_crit_per_stringer_S34 = column_critical_stress(k2, E, I_stringer, L, A)
+print(sigma_crit_per_stringer_S12)
+print(sigma_crit_per_stringer_S34)
+
 
 # in array form
-#sigma_crit_column = np.full(500, sigma_crit_per_stringer)
-#print(sigma_crit_per_stringer)
+sigma_crit_column_S12 = np.full(250, sigma_crit_per_stringer_S12)
+sigma_crit_column_S34 = np.full(250, sigma_crit_per_stringer_S34)
+sigma_crit_column_full = np.append(sigma_crit_column_S12,sigma_crit_column_S34)
+print(sigma_crit_column_full)
