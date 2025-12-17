@@ -322,7 +322,7 @@ if __name__ == "__main__":
 
     # --- Slider: AoA --- <---- How beautifyl is this slider???
     ax_aoa = plt.axes((0.35, 0.05, 0.6, 0.03))
-    aoa_slider = Slider(ax_aoa, "AoA [deg]", 0.0, 30.0, valinit=aoa_deg, valstep=0.05)
+    aoa_slider = Slider(ax_aoa, "AoA [deg]", -10.0, 30.0, valinit=aoa_deg, valstep=0.05)
 
     def update_plot(_=None):
         ax.clear()
