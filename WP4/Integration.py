@@ -15,5 +15,3 @@ T_total = np.array(res0["T_total"])
 
 
 types = [type(x) for x in x_grid]
-
-np.save("X_grid", x_grid)
