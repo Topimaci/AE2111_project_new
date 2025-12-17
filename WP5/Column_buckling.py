@@ -16,7 +16,8 @@ t_skin = 0.005 # Thickness of the skin in m
 
 # --- Other constants ---
 E = 71 * (10**9) # Young's modulus in Pa
-k = 4 # Boundary condition constant (=4 due to the assumption that both ends are clamped)
+k1 = 4 # Boundary condition stringer section 12 constant (=4 due to the assumption that both ends are clamped)
+k2 = 0.25 # boundary condition stringer section 34(fixed-free)
 wing_half = 9.79 # half of the wingspan in m
 L = 0.5 * wing_half # Length of a  uninterupted stringer = half of half the wingspan since # of stringers change at half the wingspan 
 
@@ -26,11 +27,12 @@ L = 0.5 * wing_half # Length of a  uninterupted stringer = half of half the wing
 def Stringer_Geometry(Area_stringer, t_skin): # area in m^2, t in m
     
     width = (Area_stringer) / ( 3 * t_skin)
-    height = width / 2
+    height = width * 2
 
     return width, height # in m
 
 w_stinger, h_stringer = Stringer_Geometry(A, t_skin)
+print(w_stinger, h_stringer)
 
 # --- Moment of Inertia of stringer ----------------------------
 #Assumptions: thinwalled approx 
@@ -53,8 +55,9 @@ def column_critical_stress(k, E, I, length, Area):
 
     return sigma_crit
 
-sigma_crit_per_stringer = column_critical_stress(k, E, I_stringer, L, A)
+sigma_crit_per_stringer_S12 = column_critical_stress(k1, E, I_stringer, L, A)
+sigma_crit_per_stringer_S34 = column_critical_stress(k2, E, I_stringer, L, A)
 
 # in array form
-sigma_crit_column = np.full(500, sigma_crit_per_stringer)
-print(sigma_crit_per_stringer)
+#sigma_crit_column = np.full(500, sigma_crit_per_stringer)
+#print(sigma_crit_per_stringer)
