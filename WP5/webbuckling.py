@@ -43,6 +43,7 @@ print("--- Loading Data ---")
 try:
     h_fs = np.load(os.path.join(WP4_DIR, "h_front_spar.npy"))
     h_rs = np.load(os.path.join(WP4_DIR, "h_rear_spar.npy"))
+    c_upper = np.load(os.path.join(WP4_DIR, "c_upper.npy"))
     print(f"Spar Data Loaded. First values -> Front: {h_fs[0]:.4f}, Rear: {h_rs[0]:.4f}")
 except FileNotFoundError:
     print(f"CRITICAL ERROR: Spar .npy files not found in {WP4_DIR}")
@@ -63,19 +64,11 @@ except FileNotFoundError:
 csv_path = os.path.join(CURRENT_DIR, "ks_vs_ab.csv")
 try:
     data = np.loadtxt(csv_path, delimiter=",")
-    print("Web buckling CSV loaded.")
+    print("interpolation data loaded.")
 except OSError:
     print(f"CRITICAL ERROR: Could not find '{csv_path}'. Check filename or location.")
     sys.exit(1)
 
-# ==========================================
-# 4. DATA PROCESSING & FUNCTIONS
-# ==========================================
-
-ab_data = data[:, 0] * 5
-ks_data = data[:, 1] * 10 + 5
-
-_ks_interp = PchipInterpolator(ab_data, ks_data, extrapolate=False)
 
 # Material properties
 Pois = 0.33
@@ -83,6 +76,15 @@ E = 72.4 * 10**9 # Pa
 t = 0.06         # m
 
 k_v = 1.3
+
+
+# DATA PROCESSING & FUNCTIONS
+
+
+ab_data = data[:, 0] * 5
+ks_data = data[:, 1] * 10 + 5
+
+_ks_interp = PchipInterpolator(ab_data, ks_data, extrapolate=False)
 
 def average_shear_stress(V, h_s, h_r, t_f, t_r):
     return V / (h_s * t_f + h_r * t_r)
@@ -98,13 +100,39 @@ def max_shear_stress(ave_shear_stress):
 def ks(a_over_b):
     return _ks_interp(a_over_b)
 
-# ==========================================
-# 5. PLOTTING
-# ==========================================
+# CALCULATIONS
+# total maximum shear in a wingbox - Maximum stress due to shear stress + shear due to torsion
+# for now added minus sign in front of shear so that it makes sense with torque, also A_i = h_fs * c_upper (Assumption: someone said the wingbox is a rectangle)
+shear_total = - shear / (h_fs * t + h_rs * t) * k_v + torque / (2 * t * h_fs * c_upper)
+
+# minimum rib spacing - if the ribs are spaced further than this, structure will fail
+rib_pos = [0] #first rib to be assumed at the root
+
+init_pos = 0
+init_ind_pos = 0
+for ind_pos, pos in enumerate(x_grid):
+    #making sure a/b ratio is bigger than 1 (in this case ab_data[0]) to be able to use the k_s graph
+    a_over_b = (pos - init_pos) / ((h_fs[init_ind_pos] + h_rs[ind_pos])/2)
+    if a_over_b < ab_data[0]:
+        continue
+    # critical shear of a web with spars at init_pos and pos
+    shear_crit = critical_shear_stress(ks(a_over_b), (h_fs[init_ind_pos] + h_fs[ind_pos])/2)
+    if shear_crit > max(shear_total[init_ind_pos: ind_pos + 1]):
+        continue
+    else:
+        rib_pos.append(x_grid[ind_pos - 1])
+        init_pos = x_grid[ind_pos - 1]
+        init_ind_pos = ind_pos - 1
+
+rib_pos.append(x_grid[-1]) #last rib assumed to be at the tip
+
+print(rib_pos)
+
+# PLOTTING
 plt.figure(figsize=(10, 6))
 
 # Shear force plot
-plt.subplot(2, 1, 1)
+plt.subplot(3, 1, 1)
 plt.plot(x_grid, shear)
 plt.xlabel("x [m]")
 plt.ylabel("Shear force V(x) [N]")
@@ -112,12 +140,21 @@ plt.title("Shear force distribution")
 plt.grid(True)
 
 # Torque plot
-plt.subplot(2, 1, 2)
+plt.subplot(3, 1, 2)
 plt.plot(x_grid, torque)
 plt.xlabel("x [m]")
 plt.ylabel("Torque T(x) [Nm]")
 plt.title("Torque distribution")
 plt.grid(True)
+
+plt.subplot(3, 1, 3)
+plt.plot(x_grid, shear_total)
+plt.scatter(rib_pos, [0] * len(rib_pos), color = 'r', label = 'Ribs')
+plt.xlabel("x [m]")
+plt.ylabel("Shear stress [Pa]")
+plt.title("Maximum shear stress located in the rear spar for LC9")
+plt.grid(True)
+
 
 plt.tight_layout()
 plt.show()
