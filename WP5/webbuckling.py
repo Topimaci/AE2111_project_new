@@ -90,8 +90,6 @@ def average_shear_stress(V, h_s, h_r, t_f, t_r):
     return V / (h_s * t_f + h_r * t_r)
 
 def critical_shear_stress(k_s, b):
-    # Note: I added **2 to (t/b) as that is the standard buckling formula.
-    # If your project explicitly requires linear (t/b), remove the **2.
     return m.pi ** 2 * k_s * E / (12 - 12 * Pois ** 2) * (t/b)**2
 
 def max_shear_stress(ave_shear_stress):
@@ -103,30 +101,60 @@ def ks(a_over_b):
 # CALCULATIONS
 # total maximum shear in a wingbox - Maximum stress due to shear stress + shear due to torsion
 # for now added minus sign in front of shear so that it makes sense with torque, also A_i = h_fs * c_upper (Assumption: someone said the wingbox is a rectangle)
-shear_total = - shear / (h_fs * t + h_rs * t) * k_v + torque / (2 * t * h_fs * c_upper)
+shear_total = - average_shear_stress(shear, h_fs, h_fs, t, t) * k_v + torque / (2 * t * h_fs * c_upper)
 
 # minimum rib spacing - if the ribs are spaced further than this, structure will fail
 rib_pos = [0] #first rib to be assumed at the root
 
+shear_str = []
+ab = []
+b = []
+
 init_pos = 0
 init_ind_pos = 0
 for ind_pos, pos in enumerate(x_grid):
-    #making sure a/b ratio is bigger than 1 (in this case ab_data[0]) to be able to use the k_s graph
-    a_over_b = (pos - init_pos) / ((h_fs[init_ind_pos] + h_rs[ind_pos])/2)
+
+    if ind_pos == 0:
+        continue
+
+    a_over_b = (pos - init_pos) / ((h_fs[init_ind_pos] + h_fs[ind_pos]) / 2)
+
+    # lower bound
     if a_over_b < ab_data[0]:
         continue
-    # critical shear of a web with spars at init_pos and pos
-    shear_crit = critical_shear_stress(ks(a_over_b), (h_fs[init_ind_pos] + h_fs[ind_pos])/2)
-    if shear_crit > max(shear_total[init_ind_pos: ind_pos + 1]):
-        continue
-    else:
+
+    # upper bound
+    if a_over_b > ab_data[-1]:
+        # append at upper limit
+        ab.append(ab_data[-1])
+        shear_str.append(critical_shear_stress(ks(ab_data[-1]), (h_fs[init_ind_pos] + h_fs[ind_pos]) / 2))
         rib_pos.append(x_grid[ind_pos - 1])
+        b.append((h_fs[init_ind_pos] + h_fs[ind_pos]) / 2)
+
+        init_pos = x_grid[ind_pos - 1]
+        init_ind_pos = ind_pos - 1
+        continue 
+
+    # inside interpolation range
+    shear_crit = critical_shear_stress(ks(a_over_b), (h_fs[init_ind_pos] + h_fs[ind_pos]) / 2)
+
+    shear_max = max(shear_total[init_ind_pos: ind_pos + 1])
+
+    if shear_crit < shear_max:
+        ab.append(a_over_b)
+        shear_str.append(shear_crit)
+        rib_pos.append(x_grid[ind_pos - 1])
+        b.append((h_fs[init_ind_pos] + h_fs[ind_pos]) / 2)
+
         init_pos = x_grid[ind_pos - 1]
         init_ind_pos = ind_pos - 1
 
-rib_pos.append(x_grid[-1]) #last rib assumed to be at the tip
 
-print(rib_pos)
+rib_pos.append(x_grid[-1]) #last rib assumed to be at the tip
+print("ab =", ab)
+print("tau =",shear_str)
+print("b =",b)
+#print(rib_pos)
 
 # PLOTTING
 plt.figure(figsize=(10, 6))
