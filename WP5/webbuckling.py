@@ -4,6 +4,7 @@ import math as m
 import numpy as np
 from scipy.interpolate import PchipInterpolator
 import matplotlib.pyplot as plt 
+from bisect import bisect_right
 
 # ==========================================
 # 1. PATH CONFIGURATION
@@ -151,12 +152,53 @@ for ind_pos, pos in enumerate(x_grid):
 
 
 rib_pos.append(x_grid[-1]) #last rib assumed to be at the tip
-print("ab =", ab)
-print("tau =",shear_str)
-print("b =",b)
+#print("ab =", ab)
+#print("tau =",shear_str)
+#print("b =",b)
 #print(rib_pos)
 
+#ARBITRARY RIB SPACING
+
+ribs = [0, 1,2,3,4,5,6,7,7.5,8,8.5,9,9.5 ,x_grid[-1]]
+
+#finding the closest equivalent based on x_grid
+
+rib_lst = []
+rib_lst_index = []
+
+for rib in ribs:
+    idx = bisect_right(x_grid, rib) - 1
+    idx = max(idx, 0)  # safety
+    rib_lst.append(x_grid[idx])
+    rib_lst_index.append(idx)
+
+rib_lst.append(x_grid[-1])
+rib_lst_index.append(len(x_grid) - 1)
+
+#list of spar height based on rib_lst_index
+
+h_fs_lst = [h_fs[i] for i in rib_lst_index]
+
+x = []
+y = []
+
+for i in range(len(rib_lst) - 1):
+    spacing = rib_lst[i + 1] - rib_lst[i]
+    h_avg = 0.5 * (h_fs_lst[i] + h_fs_lst[i + 1])
+
+    val = critical_shear_stress(
+        ks(spacing / h_avg),
+        h_avg
+    )
+
+    x.extend([rib_lst[i], rib_lst[i + 1]])
+    y.extend([val, val])
+
 # PLOTTING
+plt.step(x, y, where='post')
+plt.xlabel("Interval")
+plt.ylabel("Function value")
+
 plt.figure(figsize=(10, 6))
 
 # Shear force plot
@@ -182,6 +224,7 @@ plt.xlabel("x [m]")
 plt.ylabel("Shear stress [Pa]")
 plt.title("Maximum shear stress located in the rear spar for LC9")
 plt.grid(True)
+
 
 
 plt.tight_layout()
