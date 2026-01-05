@@ -74,7 +74,7 @@ except OSError:
 # Material properties
 Pois = 0.33
 E = 72.4 * 10**9 # Pa
-t = 0.06         # m
+t = 0.005         # m
 
 k_v = 1.3
 
@@ -91,7 +91,7 @@ def average_shear_stress(V, h_s, h_r, t_f, t_r):
     return V / (h_s * t_f + h_r * t_r)
 
 def critical_shear_stress(k_s, b):
-    return m.pi ** 2 * k_s * E / (12 - 12 * Pois ** 2) * (t/b)**2
+    return m.pi ** 2 * k_s * E / (12 - 12 * Pois ** 2) * (t / b)**2
 
 def max_shear_stress(ave_shear_stress):
     return k_v * ave_shear_stress
@@ -102,7 +102,7 @@ def ks(a_over_b):
 # CALCULATIONS
 # total maximum shear in a wingbox - Maximum stress due to shear stress + shear due to torsion
 # for now added minus sign in front of shear so that it makes sense with torque, also A_i = h_fs * c_upper (Assumption: someone said the wingbox is a rectangle)
-shear_total = - average_shear_stress(shear, h_fs, h_fs, t, t) * k_v + torque / (2 * t * h_fs * c_upper)
+shear_total = 1.25 * np.abs(average_shear_stress(shear, h_fs, h_fs, t, t) * k_v + torque / (2 * t * h_fs * c_upper))
 
 # minimum rib spacing - if the ribs are spaced further than this, structure will fail
 rib_pos = [0] #first rib to be assumed at the root
@@ -152,14 +152,14 @@ for ind_pos, pos in enumerate(x_grid):
 
 
 rib_pos.append(x_grid[-1]) #last rib assumed to be at the tip
-#print("ab =", ab)
-#print("tau =",shear_str)
-#print("b =",b)
-#print(rib_pos)
+print("ab =", [float(v) for v in ab])
+print("tau =", [float(v) for v in shear_str])
+print("b =", [float(v) for v in b])
+print("rib positions =", [float(v) for v in rib_pos])
 
 #ARBITRARY RIB SPACING
 
-ribs = [0, 1,2,3,4,5,6,7,7.5,8,8.5,9,9.5 ,x_grid[-1]]
+ribs = rib_pos
 
 #finding the closest equivalent based on x_grid
 
@@ -195,9 +195,6 @@ for i in range(len(rib_lst) - 1):
     y.extend([val, val])
 
 # PLOTTING
-plt.step(x, y, where='post')
-plt.xlabel("Interval")
-plt.ylabel("Function value")
 
 plt.figure(figsize=(10, 6))
 
@@ -225,6 +222,7 @@ plt.ylabel("Shear stress [Pa]")
 plt.title("Maximum shear stress located in the rear spar for LC9")
 plt.grid(True)
 
+plt.step(x, y, where='post')
 
 
 plt.tight_layout()
