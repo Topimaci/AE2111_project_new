@@ -52,16 +52,25 @@ for i in range(range_value):
 
 margin_of_safety = stress_critical_array/stress
 
-print("Margin of safety root", margin_of_safety[0])
+
 
 plt.figure(figsize=(8,5))
-plt.plot(x_grid, margin_of_safety, label='Margin of saftey', color='orange')
+plt.plot(x_grid, margin_of_safety, label='Margin of safety', color='blue')
+
+# horizontal dotted line at y = 1
+plt.axhline(y=1, color='red', linestyle='--', label='Safety threshold')
+
 plt.xlabel('Spanwise Location y [m]')
-plt.ylabel('Margin of saftey')
+plt.ylabel('Margin of safety')
 plt.title('Margin of safety')
 plt.grid(True)
 plt.legend()
+
+#starts the graph from, (0,0) otherwise made graph look weird
+plt.ylim(bottom=0)  
+
 plt.show()
+
 
 
 
