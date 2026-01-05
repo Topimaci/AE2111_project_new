@@ -233,7 +233,7 @@ combined_loads[:i_19] -= W_t1 * np.cos(np.deg2rad(aoa_deg_abs))                 
 combined_loads[i_24:i_90] -= W_t2 * np.cos(np.deg2rad(aoa_deg_abs))                   # Tank 2
 combined_loads[i_19:i_24] -= gear_load_per_point * np.cos(np.deg2rad(aoa_deg_abs))    #Landing gear
 combined_loads[:] += N_prime                                                      #Lift & Drag
-combined_loads *= abs(c.load_factor)
+#combined_loads *= abs(c.load_factor)
 #"""
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------
@@ -254,7 +254,7 @@ M_vals = M_vals_tip_to_root[::-1]
 
 
 
-np.save("M_vals", M_vals)
+
 
 # ---------- PLOTS ---------------------------------------------------------------------------------------------
 

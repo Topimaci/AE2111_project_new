@@ -11,6 +11,9 @@ h_rs = np.load("h_rear_spar.npy")
 #distance from the top spar to the neutral axis
 x_c = (h_rs ** 2 + h_fs ** 2 + h_fs * h_rs) / (3 * (h_rs + h_fs))
 
+print("front spar", h_fs[0])
+print("rear spar", h_rs[0])
+
 #for POSITIVE LOAD CASES
 #distance from the neutral axis to the lower left point of cross section
 y_norm_stress_front = h_fs - x_c
@@ -35,19 +38,21 @@ plt.grid(True)
 plt.legend()
 plt.show()
 
-
+print(y_norm_stress_front[0])
+print(M_vals[0])
+print(I_xx[0])
 
 cutoff_value = 400
 cutoff_stress = stress[cutoff_value]
 range_value = 500 - cutoff_value
 for i in range(range_value):
-    print(i)
     stress[cutoff_value+i] = cutoff_stress
 
-print(stress[cutoff_value])
-print(stress[499])
+
 
 margin_of_safety = stress_critical_array/stress
+
+print("Margin of safety root", margin_of_safety[0])
 
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, margin_of_safety, label='Margin of saftey', color='orange')
