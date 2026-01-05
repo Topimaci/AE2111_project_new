@@ -285,7 +285,7 @@ for yi in x_grid:
 
 np.save("h_front_spar", results_geom["h_fs"])
 np.save("h_rear_spar", results_geom["h_rs"])
-
+np.save("c_upper", results_geom["c_upper"])
 
 
 
@@ -387,7 +387,6 @@ plt.grid(True)
 plt.legend()
 plt.show()
 '''
-
 with open("output.txt", "w") as f:
     f.write("x_grid = [{}]\n".format(", ".join(map(str, x_grid))))
     f.write("v_vals = [{}]\n".format(", ".join(map(str, v_vals))))

@@ -243,6 +243,8 @@ S_vals_tip_to_root = cumulative_trapezoid(combined_loads[::-1], y_vals[::-1], in
 # Flip so that y increases from root → tip
 S_vals = S_vals_tip_to_root[::-1]
 
+np.save("S_vals", S_vals)
+
 # --- BENDING MOMENT M(y) ----------------------------------------------------------------------------------
 # Integrate S(y) from tip -> root
 M_vals_tip_to_root = cumulative_trapezoid(S_vals[::-1], y_vals[::-1], initial=0)
