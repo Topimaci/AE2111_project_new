@@ -228,12 +228,12 @@ combined_loads[:] += N_prime                                                 #Li
 
 
 #"""----------------Combined loads ------------------           # to use this add a # in front of this line
-combined_loads[:] -= wing_weight_only * np.cos(np.deg2rad(aoa_deg_abs))               # struc
-combined_loads[:i_19] -= W_t1 * np.cos(np.deg2rad(aoa_deg_abs))                       # Tank 1
+combined_loads[:] -= wing_weight_only * np.cos(np.deg2rad(aoa_deg_abs))            # struc
+combined_loads[:i_19] -= W_t1 * np.cos(np.deg2rad(aoa_deg_abs))                        # Tank 1
 combined_loads[i_24:i_90] -= W_t2 * np.cos(np.deg2rad(aoa_deg_abs))                   # Tank 2
-combined_loads[i_19:i_24] -= gear_load_per_point * np.cos(np.deg2rad(aoa_deg_abs))    #Landing gear
+combined_loads[i_19:i_24] -= gear_load_per_point * np.cos(np.deg2rad(aoa_deg_abs))     #Landing gear
 combined_loads[:] += N_prime                                                      #Lift & Drag
-combined_loads *= abs(c.load_factor)
+#combined_loads *= abs(c.load_factor)
 #"""
 
 # --- SHEAR FORCE S(y) -----------------------------------------------------------------------------------

@@ -299,9 +299,9 @@ for i in range(len(x_grid)):
         results_geom["h_rs"][i],
         results_geom["c_upper"][i],
         results_geom["c_lower"][i],
-        0.005,
+        0.002,
         0.02,
-        0.0005,
+        0.00022,
         spar_list,
         G
     )
@@ -391,3 +391,4 @@ with open("output.txt", "w") as f:
     f.write("v_vals = [{}]\n".format(", ".join(map(str, v_vals))))
     f.write("th_vals = [{}]\n".format(", ".join(map(str, th_vals))))
 
+print()
