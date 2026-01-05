@@ -39,8 +39,8 @@ plt.legend()
 plt.show()
 
 print(y_norm_stress_front[0])
-print(M_vals[0])
-print(I_xx[0])
+print("Root moment", M_vals[0])
+print("Root inertia",I_xx[0])
 
 cutoff_value = 400
 cutoff_stress = stress[cutoff_value]
@@ -48,12 +48,13 @@ range_value = 500 - cutoff_value
 for i in range(range_value):
     stress[cutoff_value+i] = cutoff_stress
 
-
+ 
 
 margin_of_safety = stress_critical_array/stress
 
 print("Margin of safety root", margin_of_safety[0])
-
+print("Margin of safety at cutoff value", margin_of_safety[400])
+print("distance at which MoS is getting cut off", x_grid[400])
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, margin_of_safety, label='Margin of saftey', color='orange')
 plt.xlabel('Spanwise Location y [m]')
@@ -63,5 +64,6 @@ plt.grid(True)
 plt.legend()
 plt.show()
 
-
-
+# 3 design does not work just, MoS root 0.94
+# 2 design does work, MoS just works at 1.004
+# 1 design does not work, MoS at 0.52

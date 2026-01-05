@@ -301,9 +301,9 @@ for i in range(len(x_grid)):
         results_geom["h_rs"][i],
         results_geom["c_upper"][i],
         results_geom["c_lower"][i],
-        0.003,
+        0.002,
         0.005,
-        0.0002,
+        0.00020,
         spar_list,
         G
     )
