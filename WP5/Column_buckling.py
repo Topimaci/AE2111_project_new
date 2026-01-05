@@ -1,5 +1,7 @@
 import numpy as np
 
+import matplotlib.pyplot as plt
+
 
 #---Constants---------------------------------------------------------------
 
@@ -42,7 +44,7 @@ L = 0.5 * wing_half # Length of a  uninterupted stringer = half of half the wing
 # Assumptions: t = t_skin, h = 2w, double thickness contribution in intersection is neglegted(due to thin-walled)
 def Stringer_Geometry(Area_stringer, t_skin): # area in m^2, t in m
     
-    width = (Area_stringer) / ( 3 * t_skin)
+    width = (Area_stringer + t_skin**2) / ( 3 * t_skin)
     height = width * 2
 
     return width, height # in m
@@ -50,21 +52,21 @@ def Stringer_Geometry(Area_stringer, t_skin): # area in m^2, t in m
 w_stinger_D1, h_stringer_D1 = Stringer_Geometry(A_D1, t_skin_D1)
 w_stinger_D2, h_stringer_D2 = Stringer_Geometry(A_D2, t_skin_D2)
 w_stinger_D3, h_stringer_D3 = Stringer_Geometry(A_D3, t_skin_D3)
-#print(w_stinger, h_stringer)
+print(w_stinger_D1, h_stringer_D1)
 
 # --- Moment of Inertia of stringer ----------------------------
 #Assumptions: thinwalled approx 
 def MoI_stringer(width, height, thickness):
-    y_bar = (width + 0.5*(height**2))/ (width * height * thickness)
+    y_bar = (0.5 *(width*thickness + (height - thickness)**2) + height*thickness - thickness**2 )/ (width + height - thickness)
 
-    I_stringer = (width * thickness * y_bar) + (thickness * (height**3))/12 + (height * thickness) * ((0.5*height - y_bar)**2)
+    I_stringer = ((width* (thickness)**3)/12) + (width*thickness * (y_bar - 0.5 * thickness)**2) + ((thickness* (height - thickness)**3)/12) + (thickness*(height - thickness) * (0.5*height - y_bar)**2 )
 
     return I_stringer # in m^4
     
 I_stringer_D1 = MoI_stringer(w_stinger_D1, h_stringer_D1, t_skin_D1)
 I_stringer_D2 = MoI_stringer(w_stinger_D2, h_stringer_D2, t_skin_D2)
 I_stringer_D3 = MoI_stringer(w_stinger_D3, h_stringer_D3, t_skin_D3)
-
+print(I_stringer_D1)
 
 # ---Critical stress--------------------------------------------------------
 # The critical stress for a certain stringer
@@ -99,4 +101,30 @@ sigma_crit_column_full_D2 = np.append(sigma_crit_column_S12_D2,sigma_crit_column
 sigma_crit_column_S12_D3 = np.full(250, sigma_crit_per_stringer_S12_D3) * Stringers_S12_D3
 sigma_crit_column_S34_D3 = np.full(250, sigma_crit_per_stringer_S34_D3) * Stringers_S34_D3
 sigma_crit_column_full_D3 = np.append(sigma_crit_column_S12_D3,sigma_crit_column_S34_D3)
-#print(sigma_crit_column_full)
+
+'''
+print(sigma_crit_column_full_D1)
+print(sigma_crit_column_full_D2)
+print(sigma_crit_column_full_D3)
+'''
+
+'''
+x = np.linspace(0, 10, 500)
+plt.plot(x, sigma_crit_column_full_D1)
+plt.title("D1")
+plt.xlabel("x axis")
+plt.ylabel("crit sigma")
+plt.show()
+
+plt.plot(x, sigma_crit_column_full_D2)
+plt.title("D2")
+plt.xlabel("x axis")
+plt.ylabel("crit sigma")
+plt.show()
+
+plt.plot(x, sigma_crit_column_full_D3)
+plt.title("D3")
+plt.xlabel("x axis")
+plt.ylabel("crit sigma")
+plt.show()
+#'''
