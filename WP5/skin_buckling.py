@@ -1,73 +1,111 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#---Constants---------------------------------------------------------------
-# Note: Python uses ** for exponents, not ^. 
-# Alternatively, use scientific notation like 71e9
-E = 71 * 10**9     # Pa (Young's Modulus)
+# ==============================================================================
+# PART 1: CALCULATE APPLIED STRESS (LOAD)
+# ==============================================================================
+
+# 1. Load Data
+M_vals = np.load("M_vals.npy")
+x_grid = np.load("X_grid.npy")  # This is our master "z" coordinate
+I_xx = np.load("I_xx.npy")
+h_fs = np.load("h_front_spar.npy")
+h_rs = np.load("h_rear_spar.npy")
+
+# 2. Geometry & Neutral Axis
+# Distance from top spar to neutral axis (Centroid of trapezoid)
+x_c = (h_rs ** 2 + h_fs ** 2 + h_fs * h_rs) / (3 * (h_rs + h_fs))
+
+# Distance from Neutral Axis to the skin (assuming top skin at front spar is critical)
+y_norm_stress_front = h_fs - x_c
+
+# 3. Calculate Applied Stress: sigma = M * y / I
+# We use abs() because buckling cares about the magnitude of compression
+stress_applied = np.abs(M_vals * y_norm_stress_front / I_xx)
+
+# 4. Apply Cutoff (Fixing the tip singularity)
+cutoff_idx = 400
+if len(stress_applied) > cutoff_idx:
+    cutoff_stress = stress_applied[cutoff_idx]
+    stress_applied[cutoff_idx:] = cutoff_stress
+
+# ==============================================================================
+# PART 2: CALCULATE CRITICAL STRESS (STRENGTH)
+# ==============================================================================
+
+# Constants
+E = 71 * 10**9     # Pa
 v = 0.33           # Poisson's ratio
-t = 0.005          # Skin thickness in meters 
-L = 9.79          # Total Span of the wing in meters (EXAMPLE VALUE - CHANGE THIS)
+t = 0.005          # Skin thickness [m]
 
-#---Design Parameters Setup-------------------------------------------------
-# 1. Create the Z coordinate array (500 data points from root to tip)
-z = np.linspace(0, L, 500)
+# Use the loaded x_grid as our 'z' to ensure arrays match size
+z = x_grid
+L = z[-1]          # Total span
 
-# 2. Create arrays for b and k_c that match the size of z
-b = np.zeros_like(z)   # Creates an empty array of zeros
-k_c = np.zeros_like(z) # Creates an empty array of zeros
+# Design Parameters (Configuration 1: Fewest stringers -> Critical Case)
+w_wingbox = 2.8735 * 0.3  # width of wingbox [m]
 
-#---USER INPUT SECTION------------------------------------------------------
-# THIS IS WHERE YOU PUT YOUR VALUES
-# --------------------------------------------------------------------------
-
-# Define the spacing values for the two sections
-
-w_wingbox = 2.8735 * 0.3 #width of the wingbox in meters 
-#number of stringers for each design (half wing)
+# Stringer counts
 n_s_root1 = 4
 n_s_tip1 = 2
 
 n_s_root2 = 7
-n_s_tip2  = 4
+n_s_tip2 = 4
 
 n_s_root3 = 9
-n_s_tip3  = 5
+n_s_tip3 = 5
 
-b_value_root = (n_s_root1+1)/w_wingbox  # Stringer spacing for the first half (in meters)
-b_value_tip  = (n_s_tip1+1)/w_wingbox # Stringer spacing for the second half (in meters)
+# Calculate Spacing 'b' [m]
+b_value_root = w_wingbox / (n_s_root3 + 1)
+b_value_tip  = w_wingbox / (n_s_tip3 + 1)
 
-# Define k_c (Buckling coefficient)
-# If k_c is constant (4) everywhere:
-k_c[:] = 4 
-# OR if k_c also changes halfway, uncomment the lines below:
-# k_c[z < L/2] = 4.0
-# k_c[z >= L/2] = 3.6
+# Create b array matching the stress array size
+b = np.zeros_like(z)
+k_c = np.zeros_like(z)
 
-# --------------------------------------------------------------------------
-# Applying the logic: b changes halfway through the wing
-# We use a mask: "z < L/2" finds all indices where we are in the first half
+# Apply Distribution Logic (Split at 50% span)
 midpoint = L / 2
+mask_root = z < midpoint
+mask_tip  = z >= midpoint
 
-b[z < midpoint]  = b_value_root  # First half gets root spacing
-b[z >= midpoint] = b_value_tip   # Second half gets tip spacing
+b[mask_root] = b_value_root
+b[mask_tip]  = b_value_tip
 
-#---Calculation-------------------------------------------------------------
-# We use np.pi to allow array calculation
-# The formula is applied element-wise to the entire array at once
+k_c[:] = 4.0  # Assume simply supported
+
+# Calculate Critical Buckling Stress
 Sigma_cr_skin = (k_c * (np.pi ** 2) * E) / (12 * (1 - v ** 2)) * (t / b) ** 2
 
-#---Plotting----------------------------------------------------------------
-plt.figure(figsize=(10, 6))
-plt.plot(z, Sigma_cr_skin / 10**6, label='Skin Critical Buckling Stress', color='blue') # Converted to MPa for readability
+# ==============================================================================
+# PART 3: MARGIN OF SAFETY & PLOTTING
+# ==============================================================================
 
-plt.title('Skin Buckling Stress distribution along Span')
-plt.xlabel('Spanwise position z [m]')
-plt.ylabel('Critical Buckling Stress [MPa]')
+# Calculate Reserve Factor (Margin of Safety)
+# RF = Strength / Load
+# Note: Handle division by zero if stress is 0 (though unlikely with M_vals)
+with np.errstate(divide='ignore', invalid='ignore'):
+    margin_of_safety = Sigma_cr_skin / stress_applied
+
+# Plotting
+plt.figure(figsize=(12, 7))
+
+# Plot the Margin of Safety curve
+plt.plot(z, margin_of_safety, label='Reserve Factor (Buckling)', color='purple', linewidth=2)
+
+# Add Safety Threshold Line (RF = 1.0)
+plt.axhline(y=1.0, color='red', linestyle='--', linewidth=2, label='Failure Threshold (RF=1)')
+plt.axhline(y=1.5, color='green', linestyle=':', label='Safety Target (RF=1.5)')
+
+# Formatting
+plt.title(f'Skin Buckling Safety Margin along Span\n(Config: Root={n_s_root3}, Tip={n_s_tip3} stringers)', fontsize=14)
+plt.xlabel('Spanwise Position z [m]', fontsize=12)
+plt.ylabel('Reserve Factor (Strength / Load)', fontsize=12)
 plt.grid(True, which='both', linestyle='--')
 plt.legend()
 
-# Add a vertical line to show where the switch happens
-plt.axvline(x=midpoint, color='red', linestyle=':', label='Section Change')
+# Limit y-axis to make the plot readable (e.g., if root margin is huge, tip detail is lost)
+# You might want to adjust this based on your results, or let it auto-scale
+plt.ylim(0, max(5, np.nanmax(margin_of_safety[cutoff_idx:]))) 
 
+plt.tight_layout()
 plt.show()
