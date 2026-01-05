@@ -3,16 +3,38 @@ import numpy as np
 
 #---Constants---------------------------------------------------------------
 
-# --- Design ---
+# --- Design 1 ---
 # Number of stringers per section (0-3m, 3-4.87m, 4.87-7m, 5-9.8m)
-Stringers_S1 = 12.0
-Stringers_S2 = 12.0
-Stringers_S3 = 8.0
-Stringers_S4 = 8.0
+Stringers_S1_D1 = 12.0
+Stringers_S2_D1 = 12.0
+Stringers_S3_D1 = 8.0
+Stringers_S4_D1 = 8.0
 
-A = 0.0002 # Area stringer (crossection) in m^2
+A_D1 = 0.0002 # Area stringer (crossection) in m^2
 
-t_skin = 0.005 # Thickness of the skin in m
+t_skin_D1 = 0.005 # Thickness of the skin in m
+
+# --- Design 2 ---
+# Number of stringers per section (0-3m, 3-4.87m, 4.87-7m, 5-9.8m)
+Stringers_S1_D2 = 13.0
+Stringers_S2_D2 = 13.0
+Stringers_S3_D2 = 8.0
+Stringers_S4_D2 = 8.0
+
+A_D2 = 0.00028 # Area stringer (crossection) in m^2
+
+t_skin_D2 = 0.003 # Thickness of the skin in m
+
+# --- Design 3 ---
+# Number of stringers per section (0-3m, 3-4.87m, 4.87-7m, 5-9.8m)
+Stringers_S1_D3 = 8.0
+Stringers_S2_D3 = 8.0
+Stringers_S3_D3 = 4.0
+Stringers_S4_D3 = 4.0
+
+A_D3 = 0.00022 # Area stringer (crossection) in m^2
+
+t_skin_D3 = 0.005 # Thickness of the skin in m
 
 # --- Other constants ---
 E = 71 * (10**9) # Young's modulus in Pa
@@ -57,12 +79,12 @@ def column_critical_stress(k, E, I, length, Area):
 
 sigma_crit_per_stringer_S12 = column_critical_stress(k1, E, I_stringer, L, A)
 sigma_crit_per_stringer_S34 = column_critical_stress(k2, E, I_stringer, L, A)
-print(sigma_crit_per_stringer_S12)
-print(sigma_crit_per_stringer_S34)
+#print(sigma_crit_per_stringer_S12)
+#print(sigma_crit_per_stringer_S34)
 
 
-# in array form
+# in array form    (per stringer)
 sigma_crit_column_S12 = np.full(250, sigma_crit_per_stringer_S12)
 sigma_crit_column_S34 = np.full(250, sigma_crit_per_stringer_S34)
 sigma_crit_column_full = np.append(sigma_crit_column_S12,sigma_crit_column_S34)
-print(sigma_crit_column_full)
+#print(sigma_crit_column_full)
