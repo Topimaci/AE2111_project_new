@@ -13,6 +13,7 @@ from scipy import integrate, interpolate
 from shear_centre_location import shear_center_non_dim
 from data_for_weight_loads_torsion import combined_loads_weights_wing_fuel
 import conditions as c
+import os
 
 # Variables
 
@@ -353,6 +354,10 @@ if __name__ == "__main__":
         ax.grid(True)
         ax.legend()
         fig.canvas.draw_idle()
+
+        BASE_DIR = os.path.dirname(__file__)
+        np.save(os.path.join(BASE_DIR, "y_torque"), res["x_grid"])
+        np.save(os.path.join(BASE_DIR, "T_torque"), res["T_total"])
 
     # Slider updates
     aoa_slider.on_changed(update_plot)
