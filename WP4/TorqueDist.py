@@ -36,7 +36,7 @@ def critical_alpha(rho, v_situation, S_wing, W_situation, n, landing, takeoff):
         CL -= 1.15
     if takeoff == True:
         CL -= 1.15
-    print("CL", CL)
+    #print("CL", CL)
     ### from simulation
     aoa_critical = (CL-0.327220)*10/(1.218686-0.327220)     
 
@@ -45,7 +45,7 @@ def critical_alpha(rho, v_situation, S_wing, W_situation, n, landing, takeoff):
 
 aoa_deg = critical_alpha(rho, V_inf, S_wing, W_situation, n, c.landing, c.takeoff)
 
-print("AOA", aoa_deg)
+#print("AOA", aoa_deg)
 
 
 
@@ -285,7 +285,7 @@ def compute_case(y_span, chord, Cl0, Cl10, aoa_deg, ICd0, ICd10, Cm0, Cm10, V_in
     
 
     T_total = add_point_forces_and_torques(x_grid, T_dist, point_forces, point_torques)
-    print("Torque in Torque:", T_total)
+    #print("Torque in Torque:", T_total)
     return {
         "y_span": y_span,
         "L_prime": L_prime,

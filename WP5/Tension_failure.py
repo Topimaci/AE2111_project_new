@@ -52,6 +52,8 @@ for i in range(range_value):
 
 margin_of_safety = stress_critical_array/stress
 
+print("Margin of safety root", margin_of_safety[0])
+
 plt.figure(figsize=(8,5))
 plt.plot(x_grid, margin_of_safety, label='Margin of saftey', color='orange')
 plt.xlabel('Spanwise Location y [m]')
