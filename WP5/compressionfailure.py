@@ -1,90 +1,60 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 
-# -----------------------------
-# Shared data (same for all designs)
-# -----------------------------
+# --- Load shared data ---
 M_vals = np.load("M_vals.npy")
 x_grid = np.load("X_grid.npy")
 
-# -----------------------------
-# Critical stress (compression)
-# -----------------------------
-stress_critical = 450000000  # Pa
+# --- Critical stress ---
+stress_critical = 450_000_000  # Pa
 stress_critical_array = np.full_like(x_grid, stress_critical)
 
-# -----------------------------
-# Cutoff parameters
-# -----------------------------
+# --- Cutoff parameters ---
 cutoff_value = 350
 range_value = 500 - cutoff_value
 
-# -----------------------------
-# first graph Designs 1, 2, 3
-# -----------------------------
-designs_123 = ["D1", "D2", "D3"]
+# --- Helper function to compute MoS ---
+def compute_mos(I_file, h_fs_file, h_rs_file):
+    I_xx = np.load(I_file)
+    h_fs = np.load(h_fs_file)
+    h_rs = np.load(h_rs_file)
 
-plt.figure(figsize=(8,5))
+    # Neutral axis to extreme fiber
+    x_c = (h_rs ** 2 + h_fs ** 2 + h_fs * h_rs) / (3 * (h_rs + h_fs))
 
-for d in designs_123:
-
-    I_xx = np.load(f"I_xx_{d}.npy")
-    h_fs = np.load(f"h_front_spar_{d}.npy")
-    h_rs = np.load(f"h_rear_spar_{d}.npy")
-
-    x_c = (h_rs**2 + h_fs**2 + h_fs*h_rs) / (3*(h_rs + h_fs))
+    # Bending stress
     stress = M_vals * x_c / I_xx
-    
+
     # Apply cutoff
-    cutoff_stress = stress[cutoff_value]
-    for i in range(range_value):
-        stress[cutoff_value + i] = cutoff_stress
+    max_index = min(cutoff_value + range_value, len(stress))
+    stress[cutoff_value:max_index] = stress[cutoff_value]
 
-    margin_of_safety = stress_critical_array / stress
+    # Margin of safety
+    return stress_critical_array / np.abs(stress)
 
-    plt.plot(x_grid, margin_of_safety, label=f"Design {d}")
-
-plt.axhline(y=1, color='red', linestyle='--', label='Safety threshold')
-plt.xlabel('Spanwise Location y [m]')
-plt.ylabel('Margin of Safety')
-plt.title('Compression Margin of Safety - Designs 1, 2, 3')
+# --- Graph 1: D1, D2, D3 ---
+plt.figure(figsize=(8,5))
+for d in ["D1", "D2", "D3"]:
+    mos = compute_mos(f"I_xx_{d}.npy", f"h_front_spar_{d}.npy", f"h_rear_spar_{d}.npy")
+    plt.plot(x_grid[:len(mos)], mos, label=f"Design {d}")
+plt.axhline(y=1.25, color='red', linestyle='--', label='Safety threshold')
+plt.xlabel("Spanwise Location y [m]")
+plt.ylabel("Margin of Safety")
+plt.title("Compression Margin of Safety - Designs 1, 2, 3")
 plt.grid(True)
 plt.legend()
 plt.ylim(bottom=0)
 plt.show()
 
-
-# -----------------------------
-#second graph, Designs 4, 5
-# -----------------------------
-designs_45 = ["D4", "D5"]
-
+# --- Graph 2: D4, D5 ---
 plt.figure(figsize=(8,5))
-
-for d in designs_45:
-
-    I_xx = np.load(f"I_xx_{d}.npy")
-    h_fs = np.load(f"h_front_spar_{d}.npy")
-    h_rs = np.load(f"h_rear_spar_{d}.npy")
-
-    x_c = (h_rs**2 + h_fs**2 + h_fs*h_rs) / (3*(h_rs + h_fs))
-    stress = M_vals * x_c / I_xx
-    print(d) 
-    print(I_xx)
-    # Apply cutoff
-    cutoff_stress = stress[cutoff_value]
-    for i in range(range_value):
-        stress[cutoff_value + i] = cutoff_stress
-
-    margin_of_safety = stress_critical_array / stress
-
-    plt.plot(x_grid, margin_of_safety, label=f"Design {d}")
-
-plt.axhline(y=1, color='red', linestyle='--', label='Safety threshold')
-plt.xlabel('Spanwise Location y [m]')
-plt.ylabel('Margin of Safety')
-plt.title('Compression Margin of Safety - Designs 4 & 5')
+for d in ["D4", "D5"]:
+    mos = compute_mos(f"I_xx_{d}.npy", f"h_front_spar_{d}.npy", f"h_rear_spar_{d}.npy")
+    plt.plot(x_grid[:len(mos)], mos, label=f"Design {d}")
+plt.axhline(y=1.25, color='red', linestyle='--', label='Safety threshold')
+plt.xlabel("Spanwise Location y [m]")
+plt.ylabel("Margin of Safety")
+plt.title("Compression Margin of Safety - Designs 4 & 5")
 plt.grid(True)
 plt.legend()
 plt.ylim(bottom=0)

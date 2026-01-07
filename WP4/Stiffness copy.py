@@ -1,16 +1,11 @@
 import math as m
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
-from scipy.integrate import cumulative_trapezoid
-from Integration import x_grid, T_total
+from Integration import x_grid
 from Moment_Diagram import M_vals
-import conditions as c
 
 # --- Constants ---
 b = 19.585
-E = 71e9
-G = 27e9
 root_chord = 2.874
 tip_chord = 1.043
 
@@ -60,44 +55,29 @@ def spar_length(frac, y_pos, r_c, t_c, span, f1, f2):
     s2c1, s2c2, s2c3, s2c4 = spar_position(Airfoil_coordinates, f2)
     y_top = top_stringer_y_coord(s1c1, s1c2, s2c1, s2c2, f1)
     yb1, yb2 = bot_stringer_y_coords(s1c3, s1c4, s2c3, s2c4, f1, f2)
-    
-    # Calculate local chord
     chord_y = r_c + ((t_c - r_c) / (span / 2)) * y_pos
-    
-    # Calculate vertical fraction
     a_box = (yb2 - yb1) / (f2 - f1)
     y_bot_at_spar = a_box * frac + (yb1 - a_box * f1)
     return (y_top - y_bot_at_spar) * chord_y
 
-# --- Structural Analysis ---
 def stiffness_distribution(y_pos, h_fs, h_rs, c_up, c_low, t_sk, t_sp, A_str, interp_top, interp_bot):
     x_c = (h_rs**2 + h_fs**2 + h_fs*h_rs) / (3*(h_rs + h_fs))
-    
-    # Inertias
     I_fs = (1/12 * h_fs**3 * t_sp) + (h_fs * t_sp * (x_c - h_fs/2)**2)
     I_rs = (1/12 * h_rs**3 * t_sp) + (h_rs * t_sp * (x_c - h_rs/2)**2)
     I_top = t_sk * c_up * (t_sk/2 - x_c)**2
     I_bot = t_sk * c_low * (((h_fs - x_c) + (h_rs - x_c))/2)**2
-    
     num_t, num_b = max(0, interp_top(y_pos)), max(0, interp_bot(y_pos))
     I_str_t = (A_str * (t_sk - x_c)**2) * num_t
     I_str_b = (A_str * (((h_fs - x_c) + (h_rs - x_c))/2)**2) * num_b
-    
-    I_total = I_fs + I_rs + I_top + I_bot + I_str_t + I_str_b
-    
-    # Torsion J
-    Area = (h_fs + h_rs) / 2 * c_up
-    circ = (1/t_sp * (h_fs + h_rs)) + (1/t_sk * (c_up + c_low))
-    J = 4 * Area**2 / circ
-    return I_total, J
+    return I_fs + I_rs + I_top + I_bot + I_str_t + I_str_b
 
-# --- Design Loop ---
+# --- Design Definitions ---
 designs = {
     "D1": {"str_t": [4,4,2,2], "str_b":[4,4,2,2], "t_sk":0.002, "t_sp":0.005, "A_str":0.0001},
     "D2": {"str_t": [7,7,4,4], "str_b":[7,7,4,4], "t_sk":0.003, "t_sp":0.008, "A_str":0.00025},
     "D3": {"str_t": [9,9,5,5], "str_b":[9,9,5,5], "t_sk":0.003, "t_sp":0.005, "A_str":0.0002},
-    "D4": {"str_t": [7,7,4,4], "str_b":[5,5,3,3], "t_sk":0.005, "t_sp":0.010, "A_str":0.00025},
-    "D5": {"str_t": [8,8,5,5], "str_b":[6,6,3,3], "t_sk":0.003, "t_sp":0.008, "A_str":0.0003},
+    "D4": {"str_t": [8, 7, 5, 4], "str_b":[5, 5, 4, 4], "t_sk":0.005, "t_sp":0.010, "A_str":0.0004},
+    "D5": {"str_t": [9, 8, 6, 4], "str_b":[7, 7, 4, 3], "t_sk":0.004, "t_sp":0.008, "A_str":0.0003},
 }
 
 y_breaks = np.array([0, 3, 4.89, 7])
@@ -106,32 +86,23 @@ for name, d in designs.items():
     itop = interp1d(y_breaks, d["str_t"], kind='linear', fill_value="extrapolate")
     ibot = interp1d(y_breaks, d["str_b"], kind='linear', fill_value="extrapolate")
     
-    I_vals, J_vals = [], []
+    I_vals = []
+    h_fs_arr = []
+    h_rs_arr = []
+    
     for yi in x_grid:
-        # Geometry
         h_fs = spar_length(0.3, yi, root_chord, tip_chord, b, 0.3, 0.6)
         h_rs = spar_length(0.6, yi, root_chord, tip_chord, b, 0.3, 0.6)
-        
         chord_y = root_chord + ((tip_chord - root_chord)/(b/2)) * yi
         c_up = abs(0.6 - 0.3) * chord_y
-        # Simplified c_lower logic to match your geometric intent
-        c_low = c_up # Assumes roughly rectangular for lower skin arc length unless specified
-        
-        I, J = stiffness_distribution(yi, h_fs, h_rs, c_up, c_low, d["t_sk"], d["t_sp"], d["A_str"], itop, ibot)
+        c_low = c_up  # simplified
+        I = stiffness_distribution(yi, h_fs, h_rs, c_up, c_low, d["t_sk"], d["t_sp"], d["A_str"], itop, ibot)
         I_vals.append(I)
-        J_vals.append(J)
-
-    # Convert to arrays
-    I_arr, J_arr = np.array(I_vals), np.array(J_vals)
-    M_arr, T_arr = np.array(M_vals), np.array(T_total)
+        h_fs_arr.append(h_fs)
+        h_rs_arr.append(h_rs)
     
-    # Integration
-    slope = cumulative_trapezoid(M_arr / (E * I_arr), x_grid, initial=0)
-    v = cumulative_trapezoid(slope, x_grid, initial=0)
-    theta = (cumulative_trapezoid(T_arr / (G * J_arr), x_grid, initial=0)) * 180 / np.pi
-    
-    print(f"{name}: Max Deflection = {v[-1]:.4f}m, Max Twist = {theta[-1]:.4f} deg")
-    
-    # Save results
-    np.save(f"v_{name}", v)
-    np.save(f"theta_{name}", theta)
+    # Save everything needed for MoS calculation
+    np.save(f"I_xx_{name}.npy", np.array(I_vals))
+    np.save(f"h_front_spar_{name}.npy", np.array(h_fs_arr))
+    np.save(f"h_rear_spar_{name}.npy", np.array(h_rs_arr))
+    print(f"Saved I_xx, h_front_spar, h_rear_spar for {name}")
