@@ -39,12 +39,12 @@ data = np.loadtxt(csv_path, delimiter=",")
 # ==========================================
 Pois = 0.33
 E = 72.4e9          # Pa
-t = 0.008           # m
+t = 0.008           # m  ADJUST THE THICKNESS HERE!!!!!
 k_v = 1.3           # shear correction
-SF = 1.0            # safety factor (increase if desired)
+SF = 1.0            # safety factor
 
 # ==========================================
-# 5. INTERPOLATION (1 <= a/b <= 5)
+# 5. INTERPOLATION (1 <= a/b <= 5, roughly not exactly 1 and 5)
 # ==========================================
 ab_data = data[:, 0] * 5
 ks_data = data[:, 1] * 10 + 5
@@ -78,7 +78,7 @@ tau_torsion = torque / (2 * t * h_fs * c_upper)
 shear_total = np.abs(tau_shear + tau_torsion)
 
 # ==========================================
-# 8. RIB PLACEMENT ALGORITHM (CORRECT)
+# 8. RIB PLACEMENT ALGORITHM for finding the maximum rib spacing before failure
 # ==========================================
 rib_pos = [x_grid[0]]
 shear_allow = []
@@ -133,8 +133,6 @@ while i_start < len(x_grid) - 1:
 
     i_start = last_safe_i
 
-rib_pos.append(x_grid[-1])
-
 # ==========================================
 # 9. BUILD STEPWISE ALLOWABLE CURVE
 # ==========================================
@@ -156,8 +154,70 @@ print("\nBay a/b ratios:")
 for i, ab in enumerate(ab_vals):
     print(f"Bay {i+1}: a/b = {ab:.3f}")
 
+#====
+#10. Arbitrary rib spacing - FINAL RIB SPACING
+#====
+
+#If you get a/b is larger error, just adjust the rib spacing accordingly
+rib_position = [0, 1.685, 3.174, 4.506, 5.681, 6.739 , 7.68, 8.522, 9.266, x_grid[-1]]
+
+rib_pos_new = []
+rib_pos_new_ind = []
+
+# Finding closest LOWER x_grid positions
+last_ind = -1
+
+for pos in rib_position:
+    ind = int(np.argmin(np.abs(x_grid - pos)))
+
+    # enforce strict monotonicity
+    if ind <= last_ind:
+        continue
+
+    rib_pos_new_ind.append(ind)
+    rib_pos_new.append(x_grid[ind])
+    last_ind = ind
+
+x_vals = []
+y_vals = []
+
+for i in range(len(rib_pos_new) - 1):
+    rib1 = rib_pos_new[i]
+    rib2 = rib_pos_new[i + 1]
+
+    height1 = h_fs[rib_pos_new_ind[i]]
+    height2 = h_fs[rib_pos_new_ind[i + 1]]
+
+    avg_height = 0.5 * (height1 + height2)
+    spacing = rib2 - rib1
+
+    ab_val = spacing / avg_height
+    k_s = ks(ab_val)
+    #Making sure a/b is in range
+    if ab_val > ab_data[-1]:
+        print("The a/b ratio is larger than 5 between ribs at ", rib1, " and ", rib2)
+        break
+    if ab_val < ab_data[0]:
+        print("The a/b ratio is smaller than 1 between ribs at ", rib1, " and ", rib2)
+        break
+
+    cr_shear = critical_shear_stress(k_s, avg_height)
+
+    x_vals.extend([rib1, rib2])
+    y_vals.extend([cr_shear, cr_shear])
+
+avg_bay_stress = []
+
+for i in range(len(rib_pos_new_ind) - 1):
+    i1 = rib_pos_new_ind[i]
+    i2 = rib_pos_new_ind[i + 1]
+
+    # Average applied shear stress in bay
+    tau_avg_bay = np.mean(shear_total[i1:i2+1])
+
+    avg_bay_stress.extend([tau_avg_bay, tau_avg_bay])
 # ==========================================
-# 10. PLOTTING
+# 11. PLOTTING
 # ==========================================
 plt.figure(figsize=(10, 8))
 
@@ -175,9 +235,11 @@ plt.title("Torque distribution")
 
 plt.subplot(3, 1, 3)
 plt.plot(x_grid, shear_total, label="Applied shear stress")
-plt.step(x_crit, y_crit, where="post", color="orange",
-         label="Allowable shear stress")
-plt.scatter(rib_pos, [0]*len(rib_pos), color="red", label="Ribs")
+#Comment / uncomment if you need the maximum rib spacing graph
+plt.step(x_crit, y_crit, where="post", color="orange", label="Allowable shear stress")
+plt.scatter(rib_pos, [0]*len(rib_pos), color="red", label="Ribs") 
+plt.step(x_vals, y_vals, where="post", label = "Shear - chosen ribs", color="green")
+plt.scatter(rib_pos_new, [0]*len(rib_pos_new), color="blue", label="Ribs final")
 plt.xlabel("x [m]")
 plt.ylabel("Shear stress [Pa]")
 plt.legend()
@@ -185,4 +247,13 @@ plt.grid(True)
 plt.title("Shear buckling–driven rib spacing")
 
 plt.tight_layout()
+plt.show()
+
+
+#FOR ORIOL
+safety_margin_x_values = x_vals
+margin_of_safety = np.array(y_vals) / np.array(avg_bay_stress)
+
+print(margin_of_safety)
+plt.step(x_vals, margin_of_safety)
 plt.show()
