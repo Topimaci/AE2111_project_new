@@ -18,6 +18,8 @@ print("rear spar", h_rs[0])
 #distance from the neutral axis to the lower left point of cross section
 y_norm_stress_front = h_fs - x_c
 
+print("y distance", y_norm_stress_front[0])
+print("I_xx", I_xx[0])
 stress = M_vals*y_norm_stress_front/I_xx
 
 
