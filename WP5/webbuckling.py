@@ -213,7 +213,7 @@ for i in range(len(rib_pos_new_ind) - 1):
     i2 = rib_pos_new_ind[i + 1]
 
     # Average applied shear stress in bay
-    tau_avg_bay = np.mean(shear_total[i1:i2+1])
+    tau_avg_bay = np.max(shear_total[i1:i2+1])
 
     avg_bay_stress.extend([tau_avg_bay, tau_avg_bay])
 # ==========================================
