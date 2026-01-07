@@ -191,15 +191,14 @@ A_string = 0.0004
 """
 #DESIGN 5
 #Philosophy, more contribution from stringers rather than spars and skin
-
+"""
 y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
 stringer_top_num = np.array([9, 8, 6, 4]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
 stringer_bottom_num = np.array([7, 7, 4, 3])  #nummber of stringer at the bottom per interval (that's why it's a list
 t_skin = 0.004
 t_spar = 0.008
 A_string = 0.0003
-
-
+"""
 
 
 
@@ -382,6 +381,7 @@ for i in range(len(x_grid)):
 
 I_xx_num = np.array(I_xx, dtype=float)
 np.save("I_xx", I_xx_num)
+print("Ixx from stiffness", I_xx_num[0])
 #print("IXX", I_xx_num)
 # print(I_xx_num) <---- Uncomment to see the moment of inertia values
 J_num    = np.array(J, dtype=float)

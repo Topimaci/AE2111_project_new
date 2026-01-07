@@ -18,6 +18,10 @@ print("rear spar", h_rs[0])
 #distance from the neutral axis to the lower left point of cross section
 y_norm_stress_front = h_fs - x_c
 
+y_norm_stress_front = x_c
+
+print("y distance", y_norm_stress_front[0])
+print("I_xx", I_xx[0])
 stress = M_vals*y_norm_stress_front/I_xx
 
 
@@ -48,7 +52,7 @@ range_value = 500 - cutoff_value
 for i in range(range_value):
     stress[cutoff_value+i] = cutoff_stress
 
- 
+print("stress root",stress[0]) 
 
 margin_of_safety = stress_critical_array/stress
 
@@ -61,7 +65,7 @@ margin_of_safety = stress_critical_array/stress
 #MoS_1 = np.load("Design1_Tension_MoS.npy")
 #MoS_2 = np.load("Design2_Tension_MoS.npy")
 #MoS_3 = np.load("Design3_Tension_MoS.npy")
-#MoS_4 = np.load("Design4_Tension_MoS.npy")
+MoS_4 = np.load("Design4_Tension_MoS.npy")
 #MoS_5 = np.load("Design5_Tension_MoS.npy")
 
 
@@ -73,10 +77,10 @@ plt.figure(figsize=(8,5))
 
 #plt.plot(x_grid, MoS_1, label='MoS Design 1', color='red')
 #plt.plot(x_grid, MoS_2, label='MoS Design 2', color='green')
-plt.plot(x_grid, margin_of_safety, label='MoS Design 3', color='blue')
-#plt.plot(x_grid, MoS_3, label='Margin of safety', color='blue')
-#plt.plot(x_grid, MoS_4, label='Margin of safety', color='blue')
-#plt.plot(x_grid, MoS_5, label='Margin of safety', color='blue')
+plt.plot(x_grid, margin_of_safety, label='MoS Design 5', color='blue')
+#plt.plot(x_grid, MoS_3, label='MoS Design 3', color='blue')
+plt.plot(x_grid, MoS_4, label='MoS Design 4', color='orange')
+#plt.plot(x_grid, MoS_5, label='Margin of safety', color='purple')
 
 
 
@@ -85,7 +89,7 @@ plt.plot(x_grid, margin_of_safety, label='MoS Design 3', color='blue')
 plt.axhline(y=1.25, color='red', linestyle='--', label='Safety threshold')
 
 plt.xlabel('Spanwise Location y [m]')
-plt.ylabel('Margin of safety')
+plt.ylabel('Margin of safety [-]')
 plt.title('Margin of safety')
 plt.grid(True)
 plt.legend()
