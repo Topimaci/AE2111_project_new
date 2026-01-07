@@ -21,6 +21,7 @@ y_norm_stress_front = h_fs - x_c
 
 # 3. Calculate Applied Stress: sigma = M * y / I
 # We use abs() because buckling cares about the magnitude of compression
+# NOTE: In reality, changing designs changes I_xx, but we use the loaded file as the baseline load.
 stress_applied = np.abs(M_vals * y_norm_stress_front / I_xx)
 
 # 4. Apply Cutoff (Fixing the tip singularity)
@@ -30,7 +31,7 @@ if len(stress_applied) > cutoff_idx:
     stress_applied[cutoff_idx:] = cutoff_stress
 
 # ==============================================================================
-# PART 2 & 3: CALCULATE CRITICAL STRESS & PLOT FOR ALL DESIGNS
+# PART 2 & 3: CALCULATE CRITICAL STRESS & PLOT FOR ALL 5 DESIGNS
 # ==============================================================================
 
 # Constants
@@ -40,60 +41,101 @@ z = x_grid
 L = z[-1]          # Total span
 w_wingbox = 2.8735 * 0.3  # width of wingbox [m]
 
-# --- DEFINE THE 3 DESIGNS ---
-# Format: Label, thickness (t), n_root, n_tip, color
+# --- DEFINE ALL DESIGNS ---
 designs = [
+    # DESIGN 1 (Simple Split)
     {
         "label": "Design 1", 
+        "type": "simple",
         "t": 0.002, 
         "n_root": 4, 
         "n_tip": 2, 
         "color": "blue"
     },
+    # DESIGN 2 (Simple Split)
     {
         "label": "Design 2", 
-        "t": 0.006, 
+        "type": "simple",
+        "t": 0.003, 
         "n_root": 7, 
         "n_tip": 4, 
         "color": "orange"
     },
+    # DESIGN 3 (Simple Split)
     {
         "label": "Design 3", 
+        "type": "simple",
         "t": 0.003, 
         "n_root": 9, 
         "n_tip": 5, 
         "color": "green"
+    },
+    # DESIGN 4 (Complex Breaks - Spar/Skin Heavy)
+    {
+        "label": "Design 4",
+        "type": "complex",
+        "t": 0.005,
+        "y_breaks": np.array([0, 3, 4.89, 7]),
+        "n_top": np.array([7, 7, 4, 4]),
+        "color": "red"
+    },
+    # DESIGN 5 (Complex Breaks - Stringer Heavy)
+    {
+        "label": "Design 5",
+        "type": "complex",
+        "t": 0.003,
+        "y_breaks": np.array([0, 3, 4.89, 7]),
+        "n_top": np.array([8, 8, 5, 5]),
+        "color": "purple"
     }
 ]
 
 # Initialize Plot
-plt.figure(figsize=(12, 7))
+plt.figure(figsize=(14, 8))
 
 # Loop through each design to calculate and plot
 for d in designs:
     t_current = d["t"]
-    n_root = d["n_root"]
-    n_tip = d["n_tip"]
     
-    # Calculate Spacing 'b' [m] for this design
-    b_value_root = w_wingbox / (n_root + 1)
-    b_value_tip  = w_wingbox / (n_tip + 1)
-
-    # Create b array matching the stress array size
+    # --- LOGIC TO GENERATE 'b' ARRAY ---
     b = np.zeros_like(z)
     
-    # Apply Distribution Logic (Split at 50% span)
-    midpoint = L / 2
-    mask_root = z < midpoint
-    mask_tip  = z >= midpoint
+    if d["type"] == "simple":
+        # Logic: Split halfway
+        n_root = d["n_root"]
+        n_tip = d["n_tip"]
+        
+        b_value_root = w_wingbox / (n_root + 1)
+        b_value_tip  = w_wingbox / (n_tip + 1)
+        
+        midpoint = L / 2
+        b[z < midpoint]  = b_value_root
+        b[z >= midpoint] = b_value_tip
+        
+    elif d["type"] == "complex":
+        # Logic: Use y_breaks to determine number of stringers
+        breaks = d["y_breaks"]
+        counts = d["n_top"]
+        
+        # We use searchsorted to find which interval each z value falls into
+        # 'side="right"' ensures that z=0 falls into index 0
+        indices = np.searchsorted(breaks, z, side='right') - 1
+        
+        # Handle cases where z might be smaller than the first break (index -1)
+        indices[indices < 0] = 0
+        # Handle cases where z is larger than last break (use last count)
+        indices[indices >= len(counts)] = len(counts) - 1
+        
+        # Create an array of stringer counts for every point z
+        current_n_counts = counts[indices]
+        
+        # Calculate b
+        b = w_wingbox / (current_n_counts + 1)
 
-    b[mask_root] = b_value_root
-    b[mask_tip]  = b_value_tip
+    # --- CALCULATE STRESS ---
+    k_c = 4.0  # Assume simply supported
 
-    # Buckling Coefficient
-    k_c = 4.0  # Assume simply supported (vectorized or scalar works)
-
-    # Calculate Critical Buckling Stress for this design
+    # Calculate Critical Buckling Stress
     Sigma_cr_skin = (k_c * (np.pi ** 2) * E) / (12 * (1 - v ** 2)) * (t_current / b) ** 2
 
     # Calculate Reserve Factor (Margin of Safety)
@@ -107,18 +149,17 @@ for d in designs:
 # --- FORMATTING THE GRAPH ---
 
 # Add Safety Threshold Lines
-plt.axhline(y=1.0, color='red', linestyle='--', linewidth=2, label='Failure Threshold (RF=1)')
-plt.axhline(y=1.5, color='black', linestyle=':', label='Safety Target (RF=1.5)')
+plt.axhline(y=1.0, color='red', linestyle='--', linewidth=3, label='Failure Threshold (RF=1)')
+plt.axhline(y=1.5, color='black', linestyle=':', linewidth=2, label='Safety Target (RF=1.5)')
 
-plt.title('Skin Buckling Safety Margin Comparison', fontsize=14)
+plt.title('Skin Buckling Safety Margin Comparison (All 5 Designs)', fontsize=14)
 plt.xlabel('Spanwise Position z [m]', fontsize=12)
 plt.ylabel('Reserve Factor (Strength / Load)', fontsize=12)
-plt.grid(True, which='both', linestyle='--')
-plt.legend()
+plt.grid(True, which='both', linestyle='--', alpha=0.7)
+plt.legend(loc='upper right')
 
-# Limit y-axis to focus on the critical area (near 1.0)
-# Adjust the top limit (e.g., 5 or 10) depending on how high your margins go
-plt.ylim(0, 10) 
+# Limit y-axis to focus on the critical area
+plt.ylim(0, 8) 
 
 plt.tight_layout()
 plt.show()
