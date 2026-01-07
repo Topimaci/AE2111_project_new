@@ -178,7 +178,7 @@ A_string = 0.0002
 """
 
 ####_____________________ NEW DESIGNS______________
-
+"""
 #DESIGN 4
 #PHilosophy, more contribution from spars and skins than stringers
 
@@ -199,7 +199,7 @@ t_skin = 0.004
 t_spar = 0.008
 A_string = 0.0003
 
-"""
+
 
 
 
