@@ -197,12 +197,7 @@ stringer_top_num = np.array([9, 8, 6, 4]) #nummber of stringer at the top per in
 stringer_bottom_num = np.array([7, 7, 4, 3])  #nummber of stringer at the bottom per interval (that's why it's a list
 t_skin = 0.004
 t_spar = 0.008
-<<<<<<< HEAD
-A_string = 0.00035
-=======
 A_string = 0.0003
-
->>>>>>> b8f0ecea7d5d37772acdfbc7fa0baabce1c4f36c
 
 
 
