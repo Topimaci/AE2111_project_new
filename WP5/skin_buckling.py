@@ -75,7 +75,7 @@ designs = [
         #"n_root": 9, "n_tip": 5,
         #"n_bot_root": 9, "n_bot_tip": 5
     #},
-    # DESIGN 4
+    # DESIGN 4.0
     {
         "label": "Design 4 (Thick Skin)", "type": "complex", "color": "red",
         "t": 0.005, 
