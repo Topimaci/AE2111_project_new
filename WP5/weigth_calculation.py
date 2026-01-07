@@ -7,16 +7,16 @@ class weight_calculation:
         self.stringer_area = stringer_area
         self.skin_thickness = skin_thickness
         self.spar_thickness = spar_thickness
-        self.rib_thickness = 123 ## modify
-        self.rib_lightening_coeff = 0.123 ## modify, how much is metal
-        self.span = 123 ## modify
+        self.rib_thickness = 0.005 ## modify
+        self.rib_lightening_coeff = 0.6 ## modify, how much is metal
+        self.span = 19.585 ## modify
         self.density = 3000 ## kg/m^3
-        self.c_root = 123 ## modify
+        self.c_root = 2.874 ## modify
         self.wing_box_coordinates = [[0.6, 0.0781825],
                                      [0.1, 0.0781825],
                                      [0.1, -0.020718342983016523],
                                      [0.6, -0.026055198062595653]]
-        self.taper_ratio = 123 ## modify
+        self.taper_ratio = 0.363 ## modify
         self.front_spar_h_frac = 0
         self.rear_spar_h_frac = 0
         self.top_stringers_c_frac = 0
@@ -112,7 +112,9 @@ class weight_calculation:
         weight += self.spar_weight("rear")
         weight += self.stringers_weight("top")
         weight += self.stringers_weight("bottom")
-        weight += self.rib_weight(self.span/(2 * 2))
+        ribs = [0, 0.65, 1.7, 2.444, 3.666, 4.888, 5.7, 6.517, 7.332, 8, 8.592, 9.184, 9.776]
+        for rib in ribs:
+            weight += self.rib_weight(rib)
         weight += self.skin_weight()
         return weight
 
