@@ -156,16 +156,15 @@ t_skin = 0.002
 t_spar = 0.005
 A_string = 0.0001
 """
-
 #Design option 2
-
+"""
 y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
 stringer_top_num = np.array([7, 7, 4, 4]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
 stringer_bottom_num = np.array([7, 7, 4, 4])  #nummber of stringer at the bottom per interval (that's why it's a list
 t_skin = 0.003
 t_spar = 0.008
 A_string = 0.00025
-
+"""
 
 
 #Design option 3
@@ -184,23 +183,21 @@ A_string = 0.0002
 #PHilosophy, more contribution from spars and skins than stringers
 """
 y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([7, 7, 4, 4]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([5, 5, 3, 3])  #nummber of stringer at the bottom per interval (that's why it's a list
+stringer_top_num = np.array([8, 7, 5, 4]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([5, 5, 4, 4])  #nummber of stringer at the bottom per interval (that's why it's a list
 t_skin = 0.005
 t_spar = 0.010
-A_string = 0.00025
+A_string = 0.0004
 """
-
 #DESIGN 5
 #Philosophy, more contribution from stringers rather than spars and skin
-"""
+
 y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
-stringer_top_num = np.array([8, 8, 5, 5]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_top_num = np.array([9, 8, 6, 4]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
 stringer_bottom_num = np.array([6, 6, 3, 3])  #nummber of stringer at the bottom per interval (that's why it's a list
-t_skin = 0.003
+t_skin = 0.004
 t_spar = 0.008
-A_string = 0.0003
-"""
+A_string = 0.00035
 
 
 
