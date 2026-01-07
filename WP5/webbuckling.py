@@ -1,231 +1,260 @@
 import sys
-import os 
+import os
 import math as m
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.interpolate import PchipInterpolator
-import matplotlib.pyplot as plt 
-from bisect import bisect_right
 
 # ==========================================
 # 1. PATH CONFIGURATION
 # ==========================================
-# Get the directory where this script (webbuckling.py) is located (WP5)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Get the project root (one folder up from WP5)
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
-
-# Get the WP4 directory path
 WP4_DIR = os.path.join(PROJECT_ROOT, "WP4")
 
-# Add WP4 to sys.path
-# This is crucial: it allows Integration.py to find 'XFLR', 'TorqueDist', etc.
-if WP4_DIR not in sys.path:
-    sys.path.insert(0, WP4_DIR)
-
-# Add Project Root to sys.path (standard practice)
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+for p in [WP4_DIR, PROJECT_ROOT]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 # ==========================================
 # 2. IMPORTS
 # ==========================================
-# We import x_grid from WP4.Integration. 
-# Because we added WP4 to sys.path above, Integration.py will run without errors.
 from WP4.Integration import x_grid
+from WP4.Stiffness import t_spar
 
 # ==========================================
 # 3. LOADING DATA
 # ==========================================
-print("--- Loading Data ---")
+h_fs = np.load(os.path.join(WP4_DIR, "h_front_spar.npy"))
+h_rs = np.load(os.path.join(WP4_DIR, "h_rear_spar.npy"))
+c_upper = np.load(os.path.join(WP4_DIR, "c_upper.npy"))
 
-# A. Load Spar Data (Located in WP4 folder)
-# We use WP4_DIR because that is where the .npy files were generated
-try:
-    h_fs = np.load(os.path.join(WP4_DIR, "h_front_spar.npy"))
-    h_rs = np.load(os.path.join(WP4_DIR, "h_rear_spar.npy"))
-    c_upper = np.load(os.path.join(WP4_DIR, "c_upper.npy"))
-    print(f"Spar Data Loaded. First values -> Front: {h_fs[0]:.4f}, Rear: {h_rs[0]:.4f}")
-except FileNotFoundError:
-    print(f"CRITICAL ERROR: Spar .npy files not found in {WP4_DIR}")
-    print("Please run 'WP4/Integration.py' first to generate these files.")
-    sys.exit(1)
+shear  = np.load(os.path.join(WP4_DIR, "S_vals.npy"))
+torque = np.load(os.path.join(WP4_DIR, "T_torque.npy"))
 
-# B. Load Shear & Torque Data (Located in WP4 folder)
-try:
-    shear  = np.load(os.path.join(WP4_DIR, "S_vals.npy"))
-    torque = np.load(os.path.join(WP4_DIR, "T_torque.npy"))
-    print("Shear and Torque Data Loaded.")
-except FileNotFoundError:
-    print(f"CRITICAL ERROR: S_vals.npy or T_torque.npy not found in {WP4_DIR}")
-    sys.exit(1)
-
-# C. Load Web Buckling CSV (Located in WP5 folder)
-# We use CURRENT_DIR because this file IS inside WP5
 csv_path = os.path.join(CURRENT_DIR, "ks_vs_ab.csv")
-try:
-    data = np.loadtxt(csv_path, delimiter=",")
-    print("interpolation data loaded.")
-except OSError:
-    print(f"CRITICAL ERROR: Could not find '{csv_path}'. Check filename or location.")
-    sys.exit(1)
+data = np.loadtxt(csv_path, delimiter=",")
 
-
-# Material properties
+# ==========================================
+# 4. MATERIAL & CONSTANTS
+# ==========================================
 Pois = 0.33
-E = 72.4 * 10**9 # Pa
-t = 0.06         # m
+E = 72.4e9          # Pa
+t = t_spar           # m 
+k_v = 1.3           # shear correction
+SF = 1.0            # safety factor
 
-k_v = 1.3
-
-
-# DATA PROCESSING & FUNCTIONS
-
-
+# ==========================================
+# 5. INTERPOLATION (1 <= a/b <= 5, roughly not exactly 1 and 5)
+# ==========================================
 ab_data = data[:, 0] * 5
 ks_data = data[:, 1] * 10 + 5
 
-_ks_interp = PchipInterpolator(ab_data, ks_data, extrapolate=False)
-
-def average_shear_stress(V, h_s, h_r, t_f, t_r):
-    return V / (h_s * t_f + h_r * t_r)
-
-def critical_shear_stress(k_s, b):
-    return m.pi ** 2 * k_s * E / (12 - 12 * Pois ** 2) * (t/b)**2
-
-def max_shear_stress(ave_shear_stress):
-    return k_v * ave_shear_stress
+ks_interp = PchipInterpolator(ab_data, ks_data, extrapolate=False)
 
 def ks(a_over_b):
-    return _ks_interp(a_over_b)
+    return ks_interp(a_over_b)
 
-# CALCULATIONS
-# total maximum shear in a wingbox - Maximum stress due to shear stress + shear due to torsion
-# for now added minus sign in front of shear so that it makes sense with torque, also A_i = h_fs * c_upper (Assumption: someone said the wingbox is a rectangle)
-shear_total = - average_shear_stress(shear, h_fs, h_fs, t, t) * k_v + torque / (2 * t * h_fs * c_upper)
+# ==========================================
+# 6. STRESS FUNCTIONS
+# ==========================================
+def average_shear_stress(V, h_s, h_r, t_s, t_r):
+    return V / (h_s * t_s + h_r * t_r)
 
-# minimum rib spacing - if the ribs are spaced further than this, structure will fail
-rib_pos = [0] #first rib to be assumed at the root
+def critical_shear_stress(k_s, b):
+    return (m.pi**2 * k_s * E / (12 * (1 - Pois**2))) * (t / b)**2
 
-shear_str = []
-ab = []
-b = []
+def max_shear_stress(tau_avg):
+    return k_v * tau_avg
 
-init_pos = 0
-init_ind_pos = 0
-for ind_pos, pos in enumerate(x_grid):
+# ==========================================
+# 7. TOTAL APPLIED SHEAR STRESS
+# ==========================================
+tau_shear = max_shear_stress(
+    average_shear_stress(shear, h_fs, h_fs, t, t)
+)
 
-    if ind_pos == 0:
+tau_torsion = torque / (2 * t * h_fs * c_upper)
+
+shear_total = np.abs(tau_shear + tau_torsion)
+
+# ==========================================
+# 8. RIB PLACEMENT ALGORITHM for finding the maximum rib spacing before failure
+# ==========================================
+rib_pos = [x_grid[0]]
+shear_allow = []
+b_vals = []
+ab_vals = []
+
+i_start = 0
+
+while i_start < len(x_grid) - 1:
+
+    last_safe_i = None
+    last_safe_tau = None
+    last_safe_b = None
+    last_safe_ab = None
+
+    for i in range(i_start + 1, len(x_grid)):
+
+        a = x_grid[i] - x_grid[i_start]
+        b_avg = 0.5 * (h_fs[i_start] + h_fs[i])
+        a_over_b = a / b_avg
+
+        # Enforce a/b limits
+        if a_over_b < ab_data[0]:
+            continue
+        if a_over_b > ab_data[-1]:
+            break
+
+        tau_crit = critical_shear_stress(
+            ks(a_over_b),
+            b_avg
+        )
+
+        tau_max = np.max(shear_total[i_start:i+1])
+
+        if tau_crit >= SF * tau_max:
+            last_safe_i = i
+            last_safe_tau = tau_crit
+            last_safe_b = b_avg
+            last_safe_ab = a_over_b
+        else:
+            break
+
+    if last_safe_i is None:
+        raise RuntimeError(
+            f"No admissible rib spacing from x = {x_grid[i_start]:.3f} m"
+        )
+
+    rib_pos.append(x_grid[last_safe_i])
+    shear_allow.append(last_safe_tau)
+    b_vals.append(last_safe_b)
+    ab_vals.append(last_safe_ab)
+
+    i_start = last_safe_i
+
+# ==========================================
+# 9. BUILD STEPWISE ALLOWABLE CURVE
+# ==========================================
+x_crit = []
+y_crit = []
+
+for i in range(len(shear_allow)):
+    x0 = rib_pos[i]
+    x1 = rib_pos[i + 1]
+    x_crit.extend([x0, x1])
+    y_crit.extend([shear_allow[i], shear_allow[i]])
+
+
+print("Rib positions [m]:")
+for r in rib_pos:
+    print(f"{r:.3f}")
+
+print("\nBay a/b ratios:")
+for i, ab in enumerate(ab_vals):
+    print(f"Bay {i+1}: a/b = {ab:.3f}")
+
+#====
+#10. Arbitrary rib spacing - FINAL RIB SPACING
+#====
+
+#If you get a/b is larger error, just adjust the rib spacing accordingly
+rib_position = [0, 1.685, 3.174, 4.506, 5.681, 6.739 , 7.68, 8.522, 9.266, x_grid[-1]]
+
+rib_pos_new = []
+rib_pos_new_ind = []
+
+# Finding closest LOWER x_grid positions
+last_ind = -1
+
+for pos in rib_position:
+    ind = int(np.argmin(np.abs(x_grid - pos)))
+
+    # enforce strict monotonicity
+    if ind <= last_ind:
         continue
 
-    a_over_b = (pos - init_pos) / ((h_fs[init_ind_pos] + h_fs[ind_pos]) / 2)
+    rib_pos_new_ind.append(ind)
+    rib_pos_new.append(x_grid[ind])
+    last_ind = ind
 
-    # lower bound
-    if a_over_b < ab_data[0]:
-        continue
+x_vals = []
+y_vals = []
 
-    # upper bound
-    if a_over_b > ab_data[-1]:
-        # append at upper limit
-        ab.append(ab_data[-1])
-        shear_str.append(critical_shear_stress(ks(ab_data[-1]), (h_fs[init_ind_pos] + h_fs[ind_pos]) / 2))
-        rib_pos.append(x_grid[ind_pos - 1])
-        b.append((h_fs[init_ind_pos] + h_fs[ind_pos]) / 2)
+for i in range(len(rib_pos_new) - 1):
+    rib1 = rib_pos_new[i]
+    rib2 = rib_pos_new[i + 1]
 
-        init_pos = x_grid[ind_pos - 1]
-        init_ind_pos = ind_pos - 1
-        continue 
+    height1 = h_fs[rib_pos_new_ind[i]]
+    height2 = h_fs[rib_pos_new_ind[i + 1]]
 
-    # inside interpolation range
-    shear_crit = critical_shear_stress(ks(a_over_b), (h_fs[init_ind_pos] + h_fs[ind_pos]) / 2)
+    avg_height = 0.5 * (height1 + height2)
+    spacing = rib2 - rib1
 
-    shear_max = max(shear_total[init_ind_pos: ind_pos + 1])
+    ab_val = spacing / avg_height
+    k_s = ks(ab_val)
+    #Making sure a/b is in range
+    if ab_val > ab_data[-1]:
+        print("The a/b ratio is larger than 5 between ribs at ", rib1, " and ", rib2)
+        break
+    if ab_val < ab_data[0]:
+        print("The a/b ratio is smaller than 1 between ribs at ", rib1, " and ", rib2)
+        break
 
-    if shear_crit < shear_max:
-        ab.append(a_over_b)
-        shear_str.append(shear_crit)
-        rib_pos.append(x_grid[ind_pos - 1])
-        b.append((h_fs[init_ind_pos] + h_fs[ind_pos]) / 2)
+    cr_shear = critical_shear_stress(k_s, avg_height)
 
-        init_pos = x_grid[ind_pos - 1]
-        init_ind_pos = ind_pos - 1
+    x_vals.extend([rib1, rib2])
+    y_vals.extend([cr_shear, cr_shear])
 
+avg_bay_stress = []
 
-rib_pos.append(x_grid[-1]) #last rib assumed to be at the tip
-#print("ab =", ab)
-#print("tau =",shear_str)
-#print("b =",b)
-#print(rib_pos)
+for i in range(len(rib_pos_new_ind) - 1):
+    i1 = rib_pos_new_ind[i]
+    i2 = rib_pos_new_ind[i + 1]
 
-#ARBITRARY RIB SPACING
+    # Average applied shear stress in bay
+    tau_avg_bay = np.max(shear_total[i1:i2+1])
 
-ribs = [0, 1,2,3,4,5,6,7,7.5,8,8.5,9,9.5 ,x_grid[-1]]
+    avg_bay_stress.extend([tau_avg_bay, tau_avg_bay])
+# ==========================================
+# 11. PLOTTING
+# ==========================================
+plt.figure(figsize=(10, 8))
 
-#finding the closest equivalent based on x_grid
-
-rib_lst = []
-rib_lst_index = []
-
-for rib in ribs:
-    idx = bisect_right(x_grid, rib) - 1
-    idx = max(idx, 0)  # safety
-    rib_lst.append(x_grid[idx])
-    rib_lst_index.append(idx)
-
-rib_lst.append(x_grid[-1])
-rib_lst_index.append(len(x_grid) - 1)
-
-#list of spar height based on rib_lst_index
-
-h_fs_lst = [h_fs[i] for i in rib_lst_index]
-
-x = []
-y = []
-
-for i in range(len(rib_lst) - 1):
-    spacing = rib_lst[i + 1] - rib_lst[i]
-    h_avg = 0.5 * (h_fs_lst[i] + h_fs_lst[i + 1])
-
-    val = critical_shear_stress(
-        ks(spacing / h_avg),
-        h_avg
-    )
-
-    x.extend([rib_lst[i], rib_lst[i + 1]])
-    y.extend([val, val])
-
-# PLOTTING
-plt.step(x, y, where='post')
-plt.xlabel("Interval")
-plt.ylabel("Function value")
-
-plt.figure(figsize=(10, 6))
-
-# Shear force plot
 plt.subplot(3, 1, 1)
 plt.plot(x_grid, shear)
-plt.xlabel("x [m]")
-plt.ylabel("Shear force V(x) [N]")
-plt.title("Shear force distribution")
+plt.ylabel("Shear force [N]")
 plt.grid(True)
+plt.title("Shear force distribution")
 
-# Torque plot
 plt.subplot(3, 1, 2)
 plt.plot(x_grid, torque)
-plt.xlabel("x [m]")
-plt.ylabel("Torque T(x) [Nm]")
-plt.title("Torque distribution")
+plt.ylabel("Torque [Nm]")
 plt.grid(True)
+plt.title("Torque distribution")
 
 plt.subplot(3, 1, 3)
-plt.plot(x_grid, shear_total)
-plt.scatter(rib_pos, [0] * len(rib_pos), color = 'r', label = 'Ribs')
+plt.plot(x_grid, shear_total, label="Applied shear stress")
+#Comment / uncomment if you need the maximum rib spacing graph
+plt.step(x_crit, y_crit, where="post", color="orange", label="Allowable shear stress")
+plt.scatter(rib_pos, [0]*len(rib_pos), color="red", label="Ribs") 
+plt.step(x_vals, y_vals, where="post", label = "Shear - chosen ribs", color="green")
+plt.scatter(rib_pos_new, [0]*len(rib_pos_new), color="blue", label="Ribs final")
 plt.xlabel("x [m]")
 plt.ylabel("Shear stress [Pa]")
-plt.title("Maximum shear stress located in the rear spar for LC9")
+plt.legend()
 plt.grid(True)
-
-
+plt.title("Shear buckling–driven rib spacing")
 
 plt.tight_layout()
+plt.show()
+
+
+#FOR ORIOL
+safety_margin_x_values = x_vals
+margin_of_safety = np.array(y_vals) / np.array(avg_bay_stress)
+
+print(margin_of_safety)
+plt.step(x_vals, margin_of_safety)
 plt.show()

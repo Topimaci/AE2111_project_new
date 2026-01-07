@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.integrate import cumulative_trapezoid
 from Integration import x_grid, T_total
+
+np.save("X_grid", x_grid)
 from Moment_Diagram import M_vals
 import conditions as c
 
@@ -145,9 +147,66 @@ q1, q2, dtheta = sp.symbols('q1 q2 dtheta')
 
 
 #_______TO BE REPLACED LATER__________________________________________
+#Design option 1
+"""
+y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
+stringer_top_num = np.array([4, 4, 2, 2]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([4, 4, 2, 2])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
+t_skin = 0.002
+t_spar = 0.005
+A_string = 0.0001
+"""
+#Design option 2
+"""
+y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
+stringer_top_num = np.array([7, 7, 4, 4]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([7, 7, 4, 4])  #nummber of stringer at the bottom per interval (that's why it's a list
+t_skin = 0.003
+t_spar = 0.008
+A_string = 0.00025
+"""
+
+
+#Design option 3
+"""
 y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
 stringer_top_num = np.array([9, 9, 5, 5]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
-stringer_bottom_num = np.array([9, 9, 5, 5])  #nummber of stringer at the bottom per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([9, 9, 5, 5])  #nummber of stringer at the bottom per interval (that's why it's a list
+t_skin = 0.003
+t_spar = 0.005 
+A_string = 0.0002
+"""
+
+####_____________________ NEW DESIGNS______________
+
+#DESIGN 4
+#PHilosophy, more contribution from spars and skins than stringers
+"""
+y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
+stringer_top_num = np.array([8, 7, 5, 4]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([5, 5, 4, 4])  #nummber of stringer at the bottom per interval (that's why it's a list
+t_skin = 0.005
+t_spar = 0.010
+A_string = 0.0004
+"""
+#DESIGN 5
+#Philosophy, more contribution from stringers rather than spars and skin
+
+y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
+stringer_top_num = np.array([9, 8, 6, 4]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
+stringer_bottom_num = np.array([6, 6, 3, 3])  #nummber of stringer at the bottom per interval (that's why it's a list
+t_skin = 0.004
+t_spar = 0.008
+A_string = 0.0003
+
+
+
+
+
+
+
+
+
 
 
 #Linear interpolation of the stringers
@@ -289,7 +348,7 @@ np.save("c_upper", results_geom["c_upper"])
 
 results_stiffness = {
     "I_xx": [],
-    "J": []
+    "J": [] 
 }
 
 for i in range(len(x_grid)):
@@ -299,9 +358,9 @@ for i in range(len(x_grid)):
         results_geom["h_rs"][i],
         results_geom["c_upper"][i],
         results_geom["c_lower"][i],
-        0.003,
-        0.005,
-        0.0002,
+        t_skin,
+        t_spar,
+        A_string,
         spar_list,
         G
     )
@@ -323,13 +382,13 @@ for i in range(len(x_grid)):
 
 I_xx_num = np.array(I_xx, dtype=float)
 np.save("I_xx", I_xx_num)
-print("IXX", I_xx_num)
+#print("IXX", I_xx_num)
 # print(I_xx_num) <---- Uncomment to see the moment of inertia values
 J_num    = np.array(J, dtype=float)
 M_vals_num = np.array(M_vals, dtype=float)
 T_total_num = np.array(T_total, dtype=float)
-print("Torque in Stiffness:", T_total_num)
-
+#print("Torque in Stiffness:", T_total_num)
+np.save("M_vals", M_vals_num)
 # Now compute numeric arrays
 d2v_dy2 = M_vals_num / (E * I_xx_num)
 dth_dy  = T_total_num / (G * J_num)
@@ -343,6 +402,7 @@ v_vals = cumulative_trapezoid(slope_vals, x_grid, initial=0.0)
 
 # 3) twist theta from twist rate dtheta/dy
 th_vals = cumulative_trapezoid(dth_dy, x_grid, initial=0.0) /np.pi*180
+
 
 
 # ---------------------------
@@ -390,4 +450,8 @@ with open("output.txt", "w") as f:
     f.write("v_vals = [{}]\n".format(", ".join(map(str, v_vals))))
     f.write("th_vals = [{}]\n".format(", ".join(map(str, th_vals))))
 
-print()
+
+
+#print(f"""Info For Ben:
+#Files uploaded for loadcase {}
+#""")
