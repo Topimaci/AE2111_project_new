@@ -2,7 +2,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-from compressionfailure import stress
+from Tension_failure import stress
 
 #---Constants---------------------------------------------------------------
 
