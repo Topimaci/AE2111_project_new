@@ -30,82 +30,95 @@ if len(stress_applied) > cutoff_idx:
     stress_applied[cutoff_idx:] = cutoff_stress
 
 # ==============================================================================
-# PART 2: CALCULATE CRITICAL STRESS (STRENGTH)
+# PART 2 & 3: CALCULATE CRITICAL STRESS & PLOT FOR ALL DESIGNS
 # ==============================================================================
 
 # Constants
 E = 71 * 10**9     # Pa
 v = 0.33           # Poisson's ratio
-t = 0.005          # Skin thickness [m]
-
-# Use the loaded x_grid as our 'z' to ensure arrays match size
 z = x_grid
 L = z[-1]          # Total span
-
-# Design Parameters (Configuration 1: Fewest stringers -> Critical Case)
 w_wingbox = 2.8735 * 0.3  # width of wingbox [m]
 
-# Stringer counts
-n_s_root1 = 4
-n_s_tip1 = 2
+# --- DEFINE THE 3 DESIGNS ---
+# Format: Label, thickness (t), n_root, n_tip, color
+designs = [
+    {
+        "label": "Design 1", 
+        "t": 0.002, 
+        "n_root": 4, 
+        "n_tip": 2, 
+        "color": "blue"
+    },
+    {
+        "label": "Design 2", 
+        "t": 0.006, 
+        "n_root": 7, 
+        "n_tip": 4, 
+        "color": "orange"
+    },
+    {
+        "label": "Design 3", 
+        "t": 0.003, 
+        "n_root": 9, 
+        "n_tip": 5, 
+        "color": "green"
+    }
+]
 
-n_s_root2 = 7
-n_s_tip2 = 4
-
-n_s_root3 = 9
-n_s_tip3 = 5
-
-# Calculate Spacing 'b' [m]
-b_value_root = w_wingbox / (n_s_root3 + 1)
-b_value_tip  = w_wingbox / (n_s_tip3 + 1)
-
-# Create b array matching the stress array size
-b = np.zeros_like(z)
-k_c = np.zeros_like(z)
-
-# Apply Distribution Logic (Split at 50% span)
-midpoint = L / 2
-mask_root = z < midpoint
-mask_tip  = z >= midpoint
-
-b[mask_root] = b_value_root
-b[mask_tip]  = b_value_tip
-
-k_c[:] = 4.0  # Assume simply supported
-
-# Calculate Critical Buckling Stress
-Sigma_cr_skin = (k_c * (np.pi ** 2) * E) / (12 * (1 - v ** 2)) * (t / b) ** 2
-
-# ==============================================================================
-# PART 3: MARGIN OF SAFETY & PLOTTING
-# ==============================================================================
-
-# Calculate Reserve Factor (Margin of Safety)
-# RF = Strength / Load
-# Note: Handle division by zero if stress is 0 (though unlikely with M_vals)
-with np.errstate(divide='ignore', invalid='ignore'):
-    margin_of_safety = Sigma_cr_skin / stress_applied
-
-# Plotting
+# Initialize Plot
 plt.figure(figsize=(12, 7))
 
-# Plot the Margin of Safety curve
-plt.plot(z, margin_of_safety, label='Reserve Factor (Buckling)', color='purple', linewidth=2)
+# Loop through each design to calculate and plot
+for d in designs:
+    t_current = d["t"]
+    n_root = d["n_root"]
+    n_tip = d["n_tip"]
+    
+    # Calculate Spacing 'b' [m] for this design
+    b_value_root = w_wingbox / (n_root + 1)
+    b_value_tip  = w_wingbox / (n_tip + 1)
 
-# Add Safety Threshold Line (RF = 1.0)
+    # Create b array matching the stress array size
+    b = np.zeros_like(z)
+    
+    # Apply Distribution Logic (Split at 50% span)
+    midpoint = L / 2
+    mask_root = z < midpoint
+    mask_tip  = z >= midpoint
+
+    b[mask_root] = b_value_root
+    b[mask_tip]  = b_value_tip
+
+    # Buckling Coefficient
+    k_c = 4.0  # Assume simply supported (vectorized or scalar works)
+
+    # Calculate Critical Buckling Stress for this design
+    Sigma_cr_skin = (k_c * (np.pi ** 2) * E) / (12 * (1 - v ** 2)) * (t_current / b) ** 2
+
+    # Calculate Reserve Factor (Margin of Safety)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        margin_of_safety = Sigma_cr_skin / stress_applied
+
+    # Plot this design's curve
+    plt.plot(z, margin_of_safety, label=f'{d["label"]} (t={t_current*1000}mm)', color=d["color"], linewidth=2)
+
+
+# --- FORMATTING THE GRAPH ---
+
+# Add Safety Threshold Lines
 plt.axhline(y=1.0, color='red', linestyle='--', linewidth=2, label='Failure Threshold (RF=1)')
-plt.axhline(y=1.5, color='green', linestyle=':', label='Safety Target (RF=1.5)')
+plt.axhline(y=1.5, color='black', linestyle=':', label='Safety Target (RF=1.5)')
 
-# Formatting
-plt.title(f'Skin Buckling Safety Margin along Span\n(Config: Root={n_s_root3}, Tip={n_s_tip3} stringers)', fontsize=14)
+plt.title('Skin Buckling Safety Margin Comparison', fontsize=14)
 plt.xlabel('Spanwise Position z [m]', fontsize=12)
 plt.ylabel('Reserve Factor (Strength / Load)', fontsize=12)
 plt.grid(True, which='both', linestyle='--')
 plt.legend()
 
-# Limit y-axis to make the plot readable (e.g., if root margin is huge, tip detail is lost)
-# You might want to adjust this based on your results, or let it auto-scale
-plt.ylim(0, max(5, np.nanmax(margin_of_safety[cutoff_idx:]))) 
+# Limit y-axis to focus on the critical area (near 1.0)
+# Adjust the top limit (e.g., 5 or 10) depending on how high your margins go
+plt.ylim(0, 10) 
 
 plt.tight_layout()
 plt.show()
