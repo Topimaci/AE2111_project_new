@@ -36,10 +36,10 @@ t_skin_D3 = 0.003 # Thickness of the skin in m
 # --- Design 4 ---
 # Number of stringers per section (0-3m, 3-4.87m, 4.87-7m, 5-9.8m)
 # on the top of the wingbox
-Stringers_S1_D4 = 8.0
-Stringers_S2_D4 = 7.0
-Stringers_S3_D4 = 5.0
-Stringers_S4_D4 = 4.0
+Stringers_S1_D4 = 8.0  #5
+Stringers_S2_D4 = 7.0  #5
+Stringers_S3_D4 = 5.0  #4
+Stringers_S4_D4 = 4.0  #4
 
 A_D4 = 0.0004 # Area stringer (crossection) in m^2
 
@@ -48,10 +48,10 @@ t_skin_D4 = 0.005 # Thickness of the skin in m
 # --- Design 5 ---
 # Number of stringers per section (0-3m, 3-4.87m, 4.87-7m, 5-9.8m)
 # on the top of the wingbox
-Stringers_S1_D5 = 9.0
-Stringers_S2_D5 = 8.0
-Stringers_S3_D5 = 6.0
-Stringers_S4_D5 = 4.0
+Stringers_S1_D5 = 9.0 #7
+Stringers_S2_D5 = 8.0 #7
+Stringers_S3_D5 = 6.0 #4
+Stringers_S4_D5 = 4.0 #4
 
 A_D5 = 0.0003 # Area stringer (crossection) in m^2
 
@@ -189,6 +189,24 @@ stress_D4_pos = np.load("D4_stressLC9.npy")
 stress_D5_pos = np.load("D5_stressLC9.npy")
 
 
+'''stress in neg load case               #for neg load case
+stress_D4_neg = np.load("D4_stressLC22.npy")
+stress_D5_neg = np.load("D5_stressLC22.npy")
+
+
+cutoff_value = 375
+range_value = 500 - cutoff_value
+
+cutoff_stress_D4_neg = stress_D4_neg[cutoff_value]
+for i in range(range_value):
+    stress_D4_neg[cutoff_value+i] = cutoff_stress_D4_neg
+
+cutoff_stress_D5_neg = stress_D5_neg[cutoff_value]
+for i in range(range_value):
+    stress_D5_neg[cutoff_value+i] = cutoff_stress_D5_neg
+#'''
+
+
 #cut off value
 cutoff_value = 408
 range_value = 500 - cutoff_value
@@ -218,8 +236,8 @@ for i in range(range_value):
 margin_of_safety_D1 = sigma_crit_column_full_D1/stress_D1_pos
 margin_of_safety_D2 = sigma_crit_column_full_D2/stress_D2_pos
 margin_of_safety_D3 = sigma_crit_column_full_D3/stress_D3_pos
-margin_of_safety_D4 = sigma_crit_column_full_D4/stress_D4_pos
-margin_of_safety_D5 = sigma_crit_column_full_D5/stress_D5_pos
+margin_of_safety_D4 = sigma_crit_column_full_D4/stress_D4_pos      #chang to neg if you take neg load case
+margin_of_safety_D5 = sigma_crit_column_full_D5/stress_D5_pos      #chang to neg if you take neg load case
 
 
 x_grid = np.load("X_grid.npy")
@@ -234,9 +252,9 @@ plt.plot(x_grid, margin_of_safety_D3, label='Margin of safety: Design 3', color=
 # horizontal dotted line at y = 1
 plt.axhline(y=1.25, color='red', linestyle='--', label='Safety threshold')
 
-plt.xlabel('Spanwise Location y [m]')
+plt.xlabel('Spanwise Location [m]')
 plt.ylabel('Margin of safety')
-plt.title('Margin of safety')
+plt.title('Margin of safety: Column Buckling LC9')
 plt.grid(True)
 plt.legend()
 
@@ -257,7 +275,7 @@ plt.axhline(y=1.25, color='red', linestyle='--', label='Safety threshold')
 
 plt.xlabel('Spanwise Location [m]')
 plt.ylabel('Margin of safety')
-plt.title('Margin of safety: Column Buckling')
+plt.title('Margin of safety: Column Buckling LC9')
 plt.grid(True)
 plt.legend()
 
