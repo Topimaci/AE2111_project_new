@@ -16,7 +16,7 @@ print("rear spar", h_rs[0])
 
 #for POSITIVE LOAD CASES
 #distance from the neutral axis to the lower left point of cross section
-y_norm_stress_front = h_fs - x_c
+y_norm_stress_front = x_c
 
 stress = M_vals*y_norm_stress_front/I_xx
 
@@ -42,7 +42,7 @@ print(y_norm_stress_front[0])
 print(M_vals[0])
 print(I_xx[0])
 
-cutoff_value = 400
+cutoff_value = 350
 cutoff_stress = stress[cutoff_value]
 range_value = 500 - cutoff_value
 for i in range(range_value):
@@ -51,7 +51,6 @@ for i in range(range_value):
 
 
 margin_of_safety = stress_critical_array/stress
-
 
 
 plt.figure(figsize=(8,5))
@@ -70,7 +69,6 @@ plt.legend()
 plt.ylim(bottom=0)  
 
 plt.show()
-
 
 
 
