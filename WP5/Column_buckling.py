@@ -35,6 +35,7 @@ t_skin_D3 = 0.003 # Thickness of the skin in m
 
 # --- Design 4 ---
 # Number of stringers per section (0-3m, 3-4.87m, 4.87-7m, 5-9.8m)
+# on the top of the wingbox
 Stringers_S1_D4 = 8.0
 Stringers_S2_D4 = 7.0
 Stringers_S3_D4 = 5.0
@@ -46,12 +47,13 @@ t_skin_D4 = 0.005 # Thickness of the skin in m
 
 # --- Design 5 ---
 # Number of stringers per section (0-3m, 3-4.87m, 4.87-7m, 5-9.8m)
+# on the top of the wingbox
 Stringers_S1_D5 = 9.0
 Stringers_S2_D5 = 8.0
 Stringers_S3_D5 = 6.0
 Stringers_S4_D5 = 4.0
 
-A_D5 = 0.00035 # Area stringer (crossection) in m^2
+A_D5 = 0.0003 # Area stringer (crossection) in m^2
 
 t_skin_D5 = 0.004 # Thickness of the skin in m
 
@@ -187,6 +189,30 @@ stress_D4_pos = np.load("D4_stressLC9.npy")
 stress_D5_pos = np.load("D5_stressLC9.npy")
 
 
+#cut off value
+cutoff_value = 408
+range_value = 500 - cutoff_value
+
+cutoff_stress_D1_pos = stress_D1_pos[cutoff_value]
+for i in range(range_value):
+    stress_D1_pos[cutoff_value+i] = cutoff_stress_D1_pos
+
+cutoff_stress_D2_pos = stress_D2_pos[cutoff_value]
+for i in range(range_value):
+    stress_D2_pos[cutoff_value+i] = cutoff_stress_D2_pos
+
+cutoff_stress_D3_pos = stress_D3_pos[cutoff_value]
+for i in range(range_value):
+    stress_D3_pos[cutoff_value+i] = cutoff_stress_D3_pos
+
+cutoff_stress_D4_pos = stress_D4_pos[cutoff_value]
+for i in range(range_value):
+    stress_D4_pos[cutoff_value+i] = cutoff_stress_D4_pos
+
+cutoff_stress_D5_pos = stress_D5_pos[cutoff_value]
+for i in range(range_value):
+    stress_D5_pos[cutoff_value+i] = cutoff_stress_D5_pos
+
 
 #Margin of safty arrays/lines
 margin_of_safety_D1 = sigma_crit_column_full_D1/stress_D1_pos
@@ -229,9 +255,9 @@ plt.plot(x_grid, margin_of_safety_D5, label='Margin of safety: Design 5', color=
 # horizontal dotted line at y = 1
 plt.axhline(y=1.25, color='red', linestyle='--', label='Safety threshold')
 
-plt.xlabel('Spanwise Location y [m]')
+plt.xlabel('Spanwise Location [m]')
 plt.ylabel('Margin of safety')
-plt.title('Margin of safety')
+plt.title('Margin of safety: Column Buckling')
 plt.grid(True)
 plt.legend()
 
