@@ -20,8 +20,6 @@ x_c = (h_rs ** 2 + h_fs ** 2 + h_fs * h_rs) / (3 * (h_rs + h_fs))
 y_norm_stress_front = h_fs - x_c
 
 # 3. Calculate Applied Stress: sigma = M * y / I
-# We use abs() because buckling cares about the magnitude of compression
-# NOTE: In reality, changing designs changes I_xx, but we use the loaded file as the baseline load.
 stress_applied = np.abs(M_vals * y_norm_stress_front / I_xx)
 
 # 4. Apply Cutoff (Fixing the tip singularity)
@@ -70,22 +68,22 @@ designs = [
         "n_tip": 5, 
         "color": "green"
     },
-    # DESIGN 4 (Complex Breaks - Spar/Skin Heavy)
+    # DESIGN 4 (Updated: Spar/Skin Heavy)
     {
-        "label": "Design 4",
+        "label": "Design 4 (Thick Skin)",
         "type": "complex",
         "t": 0.005,
         "y_breaks": np.array([0, 3, 4.89, 7]),
-        "n_top": np.array([7, 7, 4, 4]),
+        "n_top": np.array([8, 7, 5, 4]), # Updated counts
         "color": "red"
     },
-    # DESIGN 5 (Complex Breaks - Stringer Heavy)
+    # DESIGN 5 (Updated: Stringer Heavy)
     {
-        "label": "Design 5",
+        "label": "Design 5 (Many Stringers)",
         "type": "complex",
-        "t": 0.003,
+        "t": 0.004,
         "y_breaks": np.array([0, 3, 4.89, 7]),
-        "n_top": np.array([8, 8, 5, 5]),
+        "n_top": np.array([9, 8, 6, 4]), # Updated counts
         "color": "purple"
     }
 ]
@@ -117,40 +115,38 @@ for d in designs:
         breaks = d["y_breaks"]
         counts = d["n_top"]
         
-        # We use searchsorted to find which interval each z value falls into
-        # 'side="right"' ensures that z=0 falls into index 0
+        # Find which interval each z value falls into
         indices = np.searchsorted(breaks, z, side='right') - 1
         
-        # Handle cases where z might be smaller than the first break (index -1)
+        # Handle boundaries
         indices[indices < 0] = 0
-        # Handle cases where z is larger than last break (use last count)
         indices[indices >= len(counts)] = len(counts) - 1
         
-        # Create an array of stringer counts for every point z
+        # Get count for every point z
         current_n_counts = counts[indices]
         
         # Calculate b
         b = w_wingbox / (current_n_counts + 1)
 
-    # --- CALCULATE STRESS ---
+    # --- CALCULATE MARGIN ---
     k_c = 4.0  # Assume simply supported
 
-    # Calculate Critical Buckling Stress
+    # Critical Buckling Stress
     Sigma_cr_skin = (k_c * (np.pi ** 2) * E) / (12 * (1 - v ** 2)) * (t_current / b) ** 2
 
-    # Calculate Reserve Factor (Margin of Safety)
+    # Reserve Factor
     with np.errstate(divide='ignore', invalid='ignore'):
         margin_of_safety = Sigma_cr_skin / stress_applied
 
-    # Plot this design's curve
+    # Plot
     plt.plot(z, margin_of_safety, label=f'{d["label"]} (t={t_current*1000}mm)', color=d["color"], linewidth=2)
 
 
 # --- FORMATTING THE GRAPH ---
 
-# Add Safety Threshold Lines
+# Safety Thresholds
 plt.axhline(y=1.0, color='red', linestyle='--', linewidth=3, label='Failure Threshold (RF=1)')
-plt.axhline(y=1.5, color='black', linestyle=':', linewidth=2, label='Safety Target (RF=1.5)')
+plt.axhline(y=1.25, color='black', linestyle=':', linewidth=2, label='Safety Target (RF=1.25)')
 
 plt.title('Skin Buckling Safety Margin Comparison (All 5 Designs)', fontsize=14)
 plt.xlabel('Spanwise Position z [m]', fontsize=12)
@@ -158,7 +154,7 @@ plt.ylabel('Reserve Factor (Strength / Load)', fontsize=12)
 plt.grid(True, which='both', linestyle='--', alpha=0.7)
 plt.legend(loc='upper right')
 
-# Limit y-axis to focus on the critical area
+# Axis limits
 plt.ylim(0, 8) 
 
 plt.tight_layout()
