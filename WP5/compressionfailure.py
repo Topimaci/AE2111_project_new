@@ -25,9 +25,6 @@ def compute_mos(I_file, h_fs_file, h_rs_file, save_prefix):
     # Bending stress
     stress = M_vals * (- x_c + h_fs) / I_xx
 
-    # Save raw stress array before applying cutoff
-    np.save(f"{save_prefix}_stressLC22.npy", stress)
-
     # Apply cutoff
     max_index = min(cutoff_value + range_value, len(stress))
     stress[cutoff_value:max_index] = stress[cutoff_value]
