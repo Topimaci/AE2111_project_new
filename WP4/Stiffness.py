@@ -181,7 +181,7 @@ A_string = 0.0002
 
 #DESIGN 4
 #PHilosophy, more contribution from spars and skins than stringers
-"""
+
 y_breaks = np.array([0, 3, 4.89, 7]) #list of y-positions where the number of stringers decreases, stringer breaks as np.array([...])
 stringer_top_num = np.array([8, 7, 5, 4]) #nummber of stringer at the top per interval (that's why it's a list) in np.array([...])
 stringer_bottom_num = np.array([5, 5, 4, 4])  #nummber of stringer at the bottom per interval (that's why it's a list
@@ -199,7 +199,7 @@ t_skin = 0.004
 t_spar = 0.008
 A_string = 0.0003
 
-
+"""
 
 
 
