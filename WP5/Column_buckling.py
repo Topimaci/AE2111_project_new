@@ -179,40 +179,21 @@ sigma_crit_column_S12_D5 = np.append(sigma_crit_column_S1_D5,sigma_crit_column_S
 sigma_crit_column_S34_D5 = np.append(sigma_crit_column_S3_D5,sigma_crit_column_S4_D5)
 sigma_crit_column_full_D5 = np.append(sigma_crit_column_S12_D5,sigma_crit_column_S34_D5)
 
+#stress in pos load case
+stress_D1_pos = np.load("D1_stressLC9.npy")
+stress_D2_pos = np.load("D2_stressLC9.npy")
+stress_D3_pos = np.load("D3_stressLC9.npy")
+stress_D4_pos = np.load("D4_stressLC9.npy")
+stress_D5_pos = np.load("D5_stressLC9.npy")
 
-'''
-print(sigma_crit_column_full_D1)
-print(sigma_crit_column_full_D2)
-print(sigma_crit_column_full_D3)
-#'''
 
-'''
-x = np.linspace(0, 10, 500)
-plt.plot(x, sigma_crit_column_full_D1)
-plt.title("D1")
-plt.xlabel("x axis")
-plt.ylabel("crit sigma")
-plt.show()
-
-plt.plot(x, sigma_crit_column_full_D2)
-plt.title("D2")
-plt.xlabel("x axis")
-plt.ylabel("crit sigma")
-plt.show()
-
-plt.plot(x, sigma_crit_column_full_D3)
-plt.title("D3")
-plt.xlabel("x axis")
-plt.ylabel("crit sigma")
-plt.show()
-#'''
 
 #Margin of safty arrays/lines
-margin_of_safety_D1 = sigma_crit_column_full_D1/stress
-margin_of_safety_D2 = sigma_crit_column_full_D2/stress
-margin_of_safety_D3 = sigma_crit_column_full_D3/stress
-margin_of_safety_D4 = sigma_crit_column_full_D4/stress
-margin_of_safety_D5 = sigma_crit_column_full_D5/stress
+margin_of_safety_D1 = sigma_crit_column_full_D1/stress_D1_pos
+margin_of_safety_D2 = sigma_crit_column_full_D2/stress_D2_pos
+margin_of_safety_D3 = sigma_crit_column_full_D3/stress_D3_pos
+margin_of_safety_D4 = sigma_crit_column_full_D4/stress_D4_pos
+margin_of_safety_D5 = sigma_crit_column_full_D5/stress_D5_pos
 
 
 x_grid = np.load("X_grid.npy")
