@@ -20,6 +20,7 @@ for p in [WP4_DIR, PROJECT_ROOT]:
 # 2. IMPORTS
 # ==========================================
 from WP4.Integration import x_grid
+from WP4.Stiffness import t_spar
 
 # ==========================================
 # 3. LOADING DATA
@@ -39,7 +40,7 @@ data = np.loadtxt(csv_path, delimiter=",")
 # ==========================================
 Pois = 0.33
 E = 72.4e9          # Pa
-t = 0.008           # m  ADJUST THE THICKNESS HERE!!!!!
+t = t_spar           # m 
 k_v = 1.3           # shear correction
 SF = 1.0            # safety factor
 
