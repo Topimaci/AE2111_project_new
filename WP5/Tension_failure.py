@@ -39,26 +39,50 @@ plt.legend()
 plt.show()
 
 print(y_norm_stress_front[0])
-print(M_vals[0])
-print(I_xx[0])
+print("Root moment", M_vals[0])
+print("Root inertia",I_xx[0])
 
-cutoff_value = 400
+cutoff_value = 350
 cutoff_stress = stress[cutoff_value]
 range_value = 500 - cutoff_value
 for i in range(range_value):
     stress[cutoff_value+i] = cutoff_stress
 
-
+ 
 
 margin_of_safety = stress_critical_array/stress
 
+#np.save("Design1_Tension_MoS", margin_of_safety)
+#np.save("Design2_Tension_MoS", margin_of_safety)
+#np.save("Design3_Tension_MoS", margin_of_safety)
+#np.save("Design4_Tension_MoS", margin_of_safety)
+#np.save("Design5_Tension_MoS", margin_of_safety)
+
+#MoS_1 = np.load("Design1_Tension_MoS.npy")
+#MoS_2 = np.load("Design2_Tension_MoS.npy")
+#MoS_3 = np.load("Design3_Tension_MoS.npy")
+#MoS_4 = np.load("Design4_Tension_MoS.npy")
+#MoS_5 = np.load("Design5_Tension_MoS.npy")
 
 
+print("Margin of safety root", margin_of_safety[0])
+print("Margin of safety at cutoff value", margin_of_safety[400])
+print("distance at which MoS is getting cut off", x_grid[400])
 plt.figure(figsize=(8,5))
-plt.plot(x_grid, margin_of_safety, label='Margin of safety', color='blue')
+
+
+#plt.plot(x_grid, MoS_1, label='MoS Design 1', color='red')
+#plt.plot(x_grid, MoS_2, label='MoS Design 2', color='green')
+plt.plot(x_grid, margin_of_safety, label='MoS Design 3', color='blue')
+#plt.plot(x_grid, MoS_3, label='Margin of safety', color='blue')
+#plt.plot(x_grid, MoS_4, label='Margin of safety', color='blue')
+#plt.plot(x_grid, MoS_5, label='Margin of safety', color='blue')
+
+
+
 
 # horizontal dotted line at y = 1
-plt.axhline(y=1, color='red', linestyle='--', label='Safety threshold')
+plt.axhline(y=1.25, color='red', linestyle='--', label='Safety threshold')
 
 plt.xlabel('Spanwise Location y [m]')
 plt.ylabel('Margin of safety')
@@ -70,7 +94,5 @@ plt.legend()
 plt.ylim(bottom=0)  
 
 plt.show()
-
-
 
 
