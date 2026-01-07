@@ -72,7 +72,7 @@ ax2.plot(x_grid, th_neg_22_D4, color=COLOR1, linestyle=DN_STYLE, label='LC 22 Ne
 ax2.plot(x_grid, th_neg_22_D5, color=COLOR2, linestyle=DN_STYLE, label='LC 22 Neg (Design 5)')
 
 ax2.set_xlabel('Spanwise Location $y$ [m]')
-ax2.set_ylabel('Twist $\\theta$ [deg]')
+ax2.set_ylabel('Twist $\\theta$ [°]')
 ax2.grid(True, linestyle=':', alpha=0.6)
 ax2.axhline(0, color='black', linewidth=1)
 
