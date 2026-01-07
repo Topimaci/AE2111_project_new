@@ -88,7 +88,7 @@ designs = [
     {
         "label": "Design 5 (Many Stringers)", "type": "complex", "color": "purple",
         "t": 0.004, 
-        "t_spar": 0.008, "A_str": 0.00035,
+        "t_spar": 0.008, "A_str": 0.0003,
         "y_breaks": np.array([0, 3, 4.89, 7]),
         "n_top": np.array([9, 8, 6, 4]), 
         "n_bot": np.array([7, 7, 4, 3]) 
