@@ -2,6 +2,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
+from compressionfailure import stress
 
 #---Constants---------------------------------------------------------------
 
@@ -52,7 +53,7 @@ def Stringer_Geometry(Area_stringer, t_skin): # area in m^2, t in m
 w_stinger_D1, h_stringer_D1 = Stringer_Geometry(A_D1, t_skin_D1)
 w_stinger_D2, h_stringer_D2 = Stringer_Geometry(A_D2, t_skin_D2)
 w_stinger_D3, h_stringer_D3 = Stringer_Geometry(A_D3, t_skin_D3)
-print(w_stinger_D1, h_stringer_D1)
+#print(w_stinger_D1, h_stringer_D1)
 
 # --- Moment of Inertia of stringer ----------------------------
 #Assumptions: thinwalled approx 
@@ -91,7 +92,7 @@ sigma_crit_per_stringer_S1_D3 = column_critical_stress(k_S123, E, I_stringer_D3,
 sigma_crit_per_stringer_S2_D3 = column_critical_stress(k_S123, E, I_stringer_D3, L, A_D3)
 sigma_crit_per_stringer_S3_D3 = column_critical_stress(k_S123, E, I_stringer_D3, L, A_D3)
 sigma_crit_per_stringer_S4_D3 = column_critical_stress(k_S4, E, I_stringer_D3, L, A_D3)
-#print(sigma_crit_per_stringer_S12)
+#print(sigma_crit_per_stringer_S1_D1)
 #print(sigma_crit_per_stringer_S34)
 
 
@@ -122,13 +123,13 @@ sigma_crit_column_S34_D3 = np.append(sigma_crit_column_S3_D3,sigma_crit_column_S
 sigma_crit_column_full_D3 = np.append(sigma_crit_column_S12_D3,sigma_crit_column_S34_D3)
 
 
-#'''
+'''
 print(sigma_crit_column_full_D1)
 print(sigma_crit_column_full_D2)
 print(sigma_crit_column_full_D3)
 #'''
 
-#'''
+'''
 x = np.linspace(0, 10, 500)
 plt.plot(x, sigma_crit_column_full_D1)
 plt.title("D1")
@@ -148,3 +149,31 @@ plt.xlabel("x axis")
 plt.ylabel("crit sigma")
 plt.show()
 #'''
+
+
+margin_of_safety_D1 = sigma_crit_column_full_D1/stress
+margin_of_safety_D2 = sigma_crit_column_full_D2/stress
+margin_of_safety_D3 = sigma_crit_column_full_D3/stress
+
+
+x_grid = np.load("X_grid.npy")
+
+plt.figure(figsize=(8,5))
+plt.plot(x_grid, margin_of_safety_D1, label='Margin of safety: Design 1', color='blue')
+plt.plot(x_grid, margin_of_safety_D2, label='Margin of safety: Design 2', color='orange')
+plt.plot(x_grid, margin_of_safety_D3, label='Margin of safety: Design 3', color='green')
+
+
+# horizontal dotted line at y = 1
+plt.axhline(y=1, color='red', linestyle='--', label='Safety threshold')
+
+plt.xlabel('Spanwise Location y [m]')
+plt.ylabel('Margin of safety')
+plt.title('Margin of safety')
+plt.grid(True)
+plt.legend()
+
+#starts the graph from, (0,0) otherwise made graph look weird
+plt.ylim(bottom=0)  
+
+plt.show()
