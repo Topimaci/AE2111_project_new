@@ -65,9 +65,9 @@ class weight_calculation:
         length = self.span/(2 * 4)
         weights = np.array([])
         if which == "top":
-            weights = self.n_stringers_up * length * self.stringer_area * self.density
+            weights = np.append(weights, self.n_stringers_up * length * self.stringer_area * self.density)
         elif which == "bottom":
-            weights = self.n_stringers_down * length * self.stringer_area * self.density
+            weights = np.append(weights, self.n_stringers_down * length * self.stringer_area * self.density)
         return np.sum(weights)
 
     def airfoil_area_unit_size(self):
@@ -109,21 +109,35 @@ class weight_calculation:
         self.read_coordinate_file()
         self.box_fractional_lengths()
         weight += self.spar_weight("front")
+        #print(weight)
         weight += self.spar_weight("rear")
+        #print(weight)
         weight += self.stringers_weight("top")
+        #print(weight)
         weight += self.stringers_weight("bottom")
+        #print(weight)
         ribs = [0, 0.65, 1.7, 2.444, 3.666, 4.888, 5.7, 6.517, 7.332, 8, 8.592, 9.184, 9.776]
         for rib in ribs:
             weight += self.rib_weight(rib)
+            #print(weight)
         weight += self.skin_weight()
         return weight
 
 
 
-design_1 = weight_calculation(np.array([4, 4, 2, 2]),
-                              np.array([4, 4, 2, 2]),
-                              0.0001,
-                              0.002,
-                              0.005)
+design_4 = weight_calculation(np.array([8, 7, 5, 4]),
+                              np.array([5, 5, 4, 4]),
+                              0.0004,
+                              0.005,
+                              0.01)
 
-print(design_1.wing_weight())
+print("design 4:", design_4.wing_weight())
+
+
+design_5 = weight_calculation(np.array([9, 8, 6, 4]),
+                              np.array([7, 7, 4, 3]),
+                              0.0003,
+                              0.004,
+                              0.008)
+
+print("Design 5:", design_5.wing_weight())
